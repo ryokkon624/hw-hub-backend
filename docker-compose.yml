@@ -1,0 +1,14 @@
+services:
+  localstack:
+    image: localstack/localstack:latest
+    container_name: hwhub-localstack
+    ports:
+      - "4566:4566"      # メインエンドポイント
+    environment:
+      - SERVICES=s3
+      - DEBUG=1
+      - AWS_DEFAULT_REGION=ap-northeast-1
+      - LOCALSTACK_HOST=localstack
+    volumes:
+      - "./localstack/data:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"

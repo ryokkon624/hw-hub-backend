@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hwhub.backend.infrastructure.mybatis.custom.mapper.HouseworkTaskCustomMapper">
+
+    <resultMap id="HouseworkTaskAssignModelMap"
+               type="com.hwhub.backend.domain.model.HouseworkTask4AssignModel">
+        <constructor>
+            <idArg column="housework_task_id" javaType="java.lang.Long"/>
+            <arg column="household_id" javaType="java.lang.Long"/>
+            <arg column="housework_id" javaType="java.lang.Long"/>
+            <arg column="housework_name" javaType="java.lang.String"/>
+            <arg column="description" javaType="java.lang.String"/>
+            <arg column="category" javaType="java.lang.String"/>
+            <arg column="target_date" javaType="java.time.LocalDate"/>
+            <arg column="assignee_user_id" javaType="java.lang.Long"/>
+            <arg column="status" javaType="java.lang.String"/>
+            <arg column="assign_reason_type" javaType="java.lang.String"/>
+            <arg column="done_at" javaType="java.time.LocalDate"/>
+            <arg column="skipped_reason" javaType="java.lang.String"/>
+
+            <arg column="assignee_nickname" javaType="java.lang.String"/>
+        </constructor>
+    </resultMap>
+
+    <select id="selectTasksForAssign"
+            parameterType="map"
+            resultMap="HouseworkTaskAssignModelMap">
+        SELECT
+            t.housework_task_id
+             , t.household_id
+             , t.housework_id
+             , t.name AS housework_name
+             , t.description
+             , t.category
+             , t.target_date
+             , t.assignee_user_id
+             , hm.nickname AS assignee_nickname
+             , t.status
+             , t.assign_reason_type
+             , t.done_at
+             , t.skipped_reason
+        FROM
+            t_housework_task t
+                LEFT JOIN m_household_member hm
+                          ON hm.household_id = t.household_id
+                              AND hm.user_id = t.assignee_user_id
+        WHERE
+            t.household_id = #{householdId}
+          AND t.status = #{status}
+        ORDER BY
+            t.target_date ASC,
+            t.housework_task_id ASC
+    </select>
+
+    <update id="updateByTaskId4Online">
+        UPDATE t_housework_task
+        SET
+            assignee_user_id = #{item.assigneeUserId}
+          , status = #{item.status}
+          , assign_reason_type = #{item.assignReasonType}
+          , done_at = #{item.doneAt}
+          , skipped_reason = #{item.skippedReason}
+          , update_user_id = #{updateUserId}
+          , update_program = #{updateProgram}
+        WHERE
+            housework_task_id = #{item.houseworkTaskId}
+    </update>
+
+    <update id="clearAssignee">
+        UPDATE t_housework_task
+        SET
+            assignee_user_id = NULL
+          , assign_reason_type = '9'
+          , update_user_id = #{loginUserId}
+          , update_program = #{program}
+        WHERE
+            household_id = #{householdId}
+          AND status = '0'
+          AND assignee_user_id = #{assigneeUserId}
+    </update>
+</mapper>

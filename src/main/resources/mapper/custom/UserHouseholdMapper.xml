@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hwhub.backend.infrastructure.mybatis.custom.mapper.UserHouseholdCustomMapper">
+
+    <resultMap id="HouseholdModel"
+               type="com.hwhub.backend.domain.model.HouseholdModel">
+        <constructor>
+            <idArg column="householdId" javaType="java.lang.Long"/>
+            <arg column="name" javaType="java.lang.String"/>
+            <arg column="ownerUserId" javaType="java.lang.Long"/>
+        </constructor>
+    </resultMap>
+
+    <select id="selectHouseholdsByUserId"
+            parameterType="long"
+            resultMap="HouseholdModel">
+
+        SELECT
+            h.household_id AS householdId
+             , h.name AS name
+             , h.owner_user_id AS ownerUserId
+        FROM
+            m_household_member hm
+                JOIN m_household h
+                     ON h.household_id = hm.household_id
+        WHERE
+            hm.user_id = #{userId}
+          AND hm.status IN ('1','0')
+        ORDER BY
+            h.name ASC
+    </select>
+
+</mapper>

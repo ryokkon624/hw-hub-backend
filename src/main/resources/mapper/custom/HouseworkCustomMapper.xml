@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hwhub.backend.infrastructure.mybatis.custom.mapper.HouseworkCustomMapper">
+    <update id="clearDefaultAssignee">
+        UPDATE m_housework
+        SET
+            default_assignee_user_id = NULL
+          , update_user_id = #{loginUserId}
+          , update_program = #{program}
+        WHERE
+            household_id = #{householdId}
+          AND default_assignee_user_id = #{userId}
+    </update>
+
+    <update id="update">
+        UPDATE m_housework
+        SET
+            name = #{item.name}
+          , description = #{item.description}
+          , category = #{item.category}
+          , recurrence_type = #{item.recurrenceType}
+          , weekly_days = #{item.weeklyDays}
+          , day_of_month = #{item.dayOfMonth}
+          , nth_week = #{item.nthWeek}
+          , weekday = #{item.weekday}
+          , start_date = #{item.startDate}
+          , end_date = #{item.endDate}
+          , default_assignee_user_id = #{item.defaultAssigneeUserId}
+          , update_user_id = #{userId}
+          , update_program = #{program}
+        WHERE
+            housework_id = #{item.houseworkId};
+    </update>
+</mapper>

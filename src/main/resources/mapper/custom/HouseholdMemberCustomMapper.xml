@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hwhub.backend.infrastructure.mybatis.custom.mapper.HouseholdMemberCustomMapper">
+
+    <resultMap id="HouseholdMemberModel"
+               type="com.hwhub.backend.domain.model.HouseholdMemberModel">
+        <id     property="householdId"   column="household_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="displayName" column="display_name"/>
+        <result property="profileImageKey" column="profile_image_key"/>
+        <result property="iconUrl" column="icon_url"/>
+        <result property="nickname" column="nickname"/>
+        <result property="status" column="status"/>
+        <result property="role" column="role"/>
+    </resultMap>
+
+    <select id="findActiveByHouseholdId"
+            parameterType="long"
+            resultMap="HouseholdMemberModel">
+        SELECT
+            hm.household_id AS household_id
+             , hm.user_id AS user_id
+             , u.display_name AS display_name
+             , u.profile_image_key AS profile_image_key
+             , null AS icon_url
+             , hm.nickname AS nickname
+             , hm.status AS status
+             , CASE
+                   WHEN h.owner_user_id = u.user_id
+                       THEN 'OWNER'
+                   ELSE
+                       'MEMBER'
+            END as 'role'
+        FROM
+            m_household_member hm
+                INNER JOIN m_user u
+                           ON hm.user_id = u.user_id
+                INNER JOIN m_household h
+                           ON hm.household_id = h.household_id
+        WHERE
+            hm.household_id = #{householdId}
+            AND hm.status = '1'
+        ORDER BY
+            hm.created_at;
+    </select>
+
+    <select id="countActiveByHouseholdIdAndUserId" resultType="int">
+        SELECT
+            count(*)
+        FROM
+            m_household_member
+        WHERE
+            household_id = #{householdId}
+          AND user_id = #{userId}
+          AND status = '1'
+    </select>
+</mapper>

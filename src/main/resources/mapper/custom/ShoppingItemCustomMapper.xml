@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hwhub.backend.infrastructure.mybatis.custom.mapper.ShoppingItemCustomMapper">
+
+    <resultMap id="ShoppingItemWithImageResultMap"
+               type="com.hwhub.backend.infrastructure.mybatis.custom.entity.ShoppingItemWithImageEntity">
+
+        <id     column="shopping_item_id" property="shoppingItemId" />
+        <result column="household_id"     property="householdId" />
+        <result column="name"             property="name" />
+        <result column="memo"             property="memo" />
+        <result column="store_type"       property="storeType" />
+        <result column="status"           property="status" />
+        <result column="favorite"         property="favorite" />
+        <result column="purchased_at"         property="purchasedAt" />
+        <result column="created_at"         property="createdAt" />
+        <result column="has_image"        property="hasImage" />
+    </resultMap>
+
+    <!-- 世帯内の買い物アイテム一覧取得（添付有無フラグ付き） -->
+    <select id="selectByHouseholdId"
+            parameterType="long"
+            resultMap="ShoppingItemWithImageResultMap">
+        SELECT
+            si.shopping_item_id
+             , si.household_id
+             , si.name
+             , si.memo
+             , si.store_type
+             , si.status
+             , si.favorite
+             , si.purchased_at
+             , si.created_at
+             , CASE
+                   WHEN att.shopping_item_id IS NOT NULL
+                       THEN TRUE
+                   ELSE FALSE
+            END AS has_image
+        FROM
+            t_shopping_item si
+                LEFT JOIN (
+                SELECT
+                    shopping_item_id
+                FROM
+                    t_shopping_item_attachment
+                GROUP BY
+                    shopping_item_id
+            ) att
+                          ON si.shopping_item_id = att.shopping_item_id
+        WHERE
+            si.household_id = #{householdId}
+          AND (
+            si.status IN ('0', '1')
+                OR (
+                si.status = '9'
+                    AND si.purchased_at >= date_add(now(), INTERVAL - 5 DAY)
+                )
+            )
+        ORDER BY
+            si.shopping_item_id DESC;
+    </select>
+
+    <update id="update">
+        UPDATE t_shopping_item
+        SET
+            name = #{item.name}
+          , memo = #{item.memo}
+          , store_type = #{item.storeType}
+          , status = #{item.status}
+          , favorite = #{item.favorite}
+          , purchased_at = #{item.purchasedAt}
+          , update_user_id = #{userId}
+          , update_program = #{program}
+        WHERE
+            shopping_item_id = #{item.shoppingItemId}
+    </update>
+
+</mapper>

@@ -1,0 +1,138 @@
+plugins {
+    id 'java'
+    id 'groovy'
+    id 'org.springframework.boot' version '3.5.7'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id 'jacoco'
+    id 'com.diffplug.spotless' version '6.25.0'
+}
+
+group = 'com.hwhub'
+version = '0.0.1-SNAPSHOT'
+description = 'hw-hub-backend'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+
+    mybatisGenerator
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // MyBatis
+    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.5'
+
+    // Spring Security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    // JWT (jjwt)
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+    // OpenAPI / Swagger UI
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // DevTools
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+    // MySQL Driver
+    runtimeOnly 'com.mysql:mysql-connector-j:9.5.0'
+
+    mybatisGenerator 'com.mysql:mysql-connector-j:9.5.0'
+    mybatisGenerator 'org.mybatis.generator:mybatis-generator-core:1.4.2'
+
+    // AWS SDK v2 BOM（バージョンは一つにまとめる）
+    implementation platform("software.amazon.awssdk:bom:2.39.0")
+
+    // S3 クライアント
+    implementation platform("software.amazon.awssdk:bom:2.26.0")
+    implementation "software.amazon.awssdk:s3"
+    implementation "software.amazon.awssdk:sts"
+    
+    // テスト系
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.5'
+
+    // Spock（Groovy 4 用）
+    testImplementation platform('org.spockframework:spock-bom:2.3-groovy-4.0')
+    testImplementation 'org.spockframework:spock-core'
+    testImplementation 'org.spockframework:spock-spring'
+
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}
+
+tasks.register('mybatisGenerator', JavaExec) {
+    group = 'mybatis'
+    description = 'Run MyBatis Generator'
+
+    classpath = configurations.mybatisGenerator
+    mainClass = 'org.mybatis.generator.api.ShellRunner'
+
+    args = [
+            '-configfile', 'src/main/resources/generator/generatorConfig.xml',
+            '-overwrite'
+    ]
+}
+
+jacoco {
+    toolVersion = "0.8.12"
+}
+
+jacocoTestReport {
+    dependsOn test
+
+    afterEvaluate {
+        classDirectories.setFrom(
+                files(classDirectories.files.collect { dir ->
+                    fileTree(dir: dir, exclude: [
+                            'com/hwhub/backend/infrastructure/mybatis/generated/entity/**',
+                            'com/hwhub/backend/infrastructure/mybatis/repository/**',
+                            'com/hwhub/backend/tool/**',
+                            'com/hwhub/backend/presentation/rest/**/dto/**',
+                    ])
+                })
+        )
+    }
+}
+
+tasks.register('generateEnums', JavaExec) {
+    group = 'codegen'
+    description = 'Generate enum classes from m_code'
+
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.hwhub.backend.tool.EnumGenerator'
+}
+
+spotless {
+    java {
+        // 例: Google Java Format を使用
+        googleJavaFormat('1.32.0')
+        // IDEの保存時のフォーマットが競合しないように、不要な設定は避ける
+        // trimTrailingWhitespace()
+        // endWithNewline()
+    }
+    // 他の言語（Kotlin, Groovy, XML, YAMLなど）もここで設定可能
+}

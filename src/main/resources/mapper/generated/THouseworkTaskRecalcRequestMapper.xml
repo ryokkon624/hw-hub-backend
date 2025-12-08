@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hwhub.backend.infrastructure.mybatis.generated.mapper.THouseworkTaskRecalcRequestMapper">
+  <resultMap id="BaseResultMap" type="com.hwhub.backend.infrastructure.mybatis.generated.entity.THouseworkTaskRecalcRequest">
+    <id column="request_id" jdbcType="BIGINT" property="requestId" />
+    <result column="housework_id" jdbcType="BIGINT" property="houseworkId" />
+    <result column="recalc_request_status" jdbcType="VARCHAR" property="recalcRequestStatus" />
+    <result column="retry_count" jdbcType="INTEGER" property="retryCount" />
+    <result column="last_error_message" jdbcType="VARCHAR" property="lastErrorMessage" />
+    <result column="create_user_id" jdbcType="BIGINT" property="createUserId" />
+    <result column="create_program" jdbcType="VARCHAR" property="createProgram" />
+    <result column="created_at" jdbcType="TIMESTAMP" property="createdAt" />
+    <result column="update_user_id" jdbcType="BIGINT" property="updateUserId" />
+    <result column="update_program" jdbcType="VARCHAR" property="updateProgram" />
+    <result column="updated_at" jdbcType="TIMESTAMP" property="updatedAt" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    request_id, housework_id, recalc_request_status, retry_count, last_error_message, 
+    create_user_id, create_program, created_at, update_user_id, update_program, updated_at
+  </sql>
+  <select id="selectByExample" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.THouseworkTaskRecalcRequestExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    'false' as QUERYID,
+    <include refid="Base_Column_List" />
+    from t_housework_task_recalc_request
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_housework_task_recalc_request
+    where request_id = #{requestId,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from t_housework_task_recalc_request
+    where request_id = #{requestId,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" keyColumn="request_id" keyProperty="requestId" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.THouseworkTaskRecalcRequest" useGeneratedKeys="true">
+    insert into t_housework_task_recalc_request (housework_id, recalc_request_status, 
+      retry_count, last_error_message, create_user_id, 
+      create_program, created_at, update_user_id, 
+      update_program, updated_at)
+    values (#{houseworkId,jdbcType=BIGINT}, #{recalcRequestStatus,jdbcType=VARCHAR}, 
+      #{retryCount,jdbcType=INTEGER}, #{lastErrorMessage,jdbcType=VARCHAR}, #{createUserId,jdbcType=BIGINT}, 
+      #{createProgram,jdbcType=VARCHAR}, #{createdAt,jdbcType=TIMESTAMP}, #{updateUserId,jdbcType=BIGINT}, 
+      #{updateProgram,jdbcType=VARCHAR}, #{updatedAt,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" keyColumn="request_id" keyProperty="requestId" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.THouseworkTaskRecalcRequest" useGeneratedKeys="true">
+    insert into t_housework_task_recalc_request
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="houseworkId != null">
+        housework_id,
+      </if>
+      <if test="recalcRequestStatus != null">
+        recalc_request_status,
+      </if>
+      <if test="retryCount != null">
+        retry_count,
+      </if>
+      <if test="lastErrorMessage != null">
+        last_error_message,
+      </if>
+      <if test="createUserId != null">
+        create_user_id,
+      </if>
+      <if test="createProgram != null">
+        create_program,
+      </if>
+      <if test="createdAt != null">
+        created_at,
+      </if>
+      <if test="updateUserId != null">
+        update_user_id,
+      </if>
+      <if test="updateProgram != null">
+        update_program,
+      </if>
+      <if test="updatedAt != null">
+        updated_at,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="houseworkId != null">
+        #{houseworkId,jdbcType=BIGINT},
+      </if>
+      <if test="recalcRequestStatus != null">
+        #{recalcRequestStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="retryCount != null">
+        #{retryCount,jdbcType=INTEGER},
+      </if>
+      <if test="lastErrorMessage != null">
+        #{lastErrorMessage,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserId != null">
+        #{createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="createProgram != null">
+        #{createProgram,jdbcType=VARCHAR},
+      </if>
+      <if test="createdAt != null">
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUserId != null">
+        #{updateUserId,jdbcType=BIGINT},
+      </if>
+      <if test="updateProgram != null">
+        #{updateProgram,jdbcType=VARCHAR},
+      </if>
+      <if test="updatedAt != null">
+        #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.THouseworkTaskRecalcRequest">
+    update t_housework_task_recalc_request
+    <set>
+      <if test="houseworkId != null">
+        housework_id = #{houseworkId,jdbcType=BIGINT},
+      </if>
+      <if test="recalcRequestStatus != null">
+        recalc_request_status = #{recalcRequestStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="retryCount != null">
+        retry_count = #{retryCount,jdbcType=INTEGER},
+      </if>
+      <if test="lastErrorMessage != null">
+        last_error_message = #{lastErrorMessage,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserId != null">
+        create_user_id = #{createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="createProgram != null">
+        create_program = #{createProgram,jdbcType=VARCHAR},
+      </if>
+      <if test="createdAt != null">
+        created_at = #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUserId != null">
+        update_user_id = #{updateUserId,jdbcType=BIGINT},
+      </if>
+      <if test="updateProgram != null">
+        update_program = #{updateProgram,jdbcType=VARCHAR},
+      </if>
+      <if test="updatedAt != null">
+        updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where request_id = #{requestId,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.THouseworkTaskRecalcRequest">
+    update t_housework_task_recalc_request
+    set housework_id = #{houseworkId,jdbcType=BIGINT},
+      recalc_request_status = #{recalcRequestStatus,jdbcType=VARCHAR},
+      retry_count = #{retryCount,jdbcType=INTEGER},
+      last_error_message = #{lastErrorMessage,jdbcType=VARCHAR},
+      create_user_id = #{createUserId,jdbcType=BIGINT},
+      create_program = #{createProgram,jdbcType=VARCHAR},
+      created_at = #{createdAt,jdbcType=TIMESTAMP},
+      update_user_id = #{updateUserId,jdbcType=BIGINT},
+      update_program = #{updateProgram,jdbcType=VARCHAR},
+      updated_at = #{updatedAt,jdbcType=TIMESTAMP}
+    where request_id = #{requestId,jdbcType=BIGINT}
+  </update>
+</mapper>

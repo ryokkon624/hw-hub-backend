@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hwhub.backend.infrastructure.mybatis.custom.mapper.ShoppingItemHistoryCustomMapper">
+
+    <resultMap id="HistorySuggestionMap"
+               type="com.hwhub.backend.domain.model.ShoppingItemHistorySuggestionModel">
+        <constructor>
+            <idArg column="source_shopping_item_id" javaType="java.lang.Long"/>
+            <arg column="name" javaType="java.lang.String" />
+            <arg column="memo" javaType="java.lang.String" />
+            <arg column="store_type" javaType="java.lang.String" />
+            <arg column="last_purchased_date" javaType="java.time.LocalDate" />
+            <arg column="purchase_count" javaType="java.lang.Long" />
+            <arg column="favorite" javaType="java.lang.String" />
+        </constructor>
+    </resultMap>
+
+    <select id="selectHistorySuggestions"
+            resultMap="HistorySuggestionMap">
+        SELECT
+        name
+        , memo
+        , store_type
+        , purchased_at AS last_purchased_date
+        , purchase_count
+        , shopping_item_id AS source_shopping_item_id
+        , favorite
+        FROM
+            (
+                SELECT
+                t.*
+                , count(*) OVER (PARTITION BY t.name, t.store_type) AS purchase_count
+                , row_number() OVER (
+                PARTITION BY
+                t.name
+                , t.store_type
+                ORDER BY
+                t.purchased_at DESC
+                , t.shopping_item_id DESC
+                ) AS rn
+                FROM
+                t_shopping_item t
+                WHERE
+                t.household_id = #{householdId}
+                AND t.status = '9'
+                AND t.purchased_at IS NOT NULL
+                <if test="keyword != null and keyword != ''" >
+                    AND t.name LIKE concat('%', #{keyword}, '%')
+                </if>
+                <if test="storeType != null and storeType != ''">
+                  AND t.store_type = #{storeType}
+                </if>
+            ) x
+        WHERE
+            x.rn = 1
+        ORDER BY
+            x.purchased_at, x.shopping_item_id DESC
+        LIMIT
+            #{limit}
+    </select>
+
+</mapper>

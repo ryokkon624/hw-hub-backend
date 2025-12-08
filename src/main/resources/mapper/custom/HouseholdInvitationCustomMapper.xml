@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hwhub.backend.infrastructure.mybatis.custom.mapper.HouseholdInvitationCustomMapper">
+
+    <resultMap id="HouseholdInvitationModelMap"
+               type="com.hwhub.backend.domain.model.HouseholdInvitationModel">
+        <constructor>
+            <idArg column="invitation_token" javaType="java.lang.String"/>
+            <arg column="household_id" javaType="java.lang.Long"/>
+            <arg column="household_name" javaType="java.lang.String"/>
+            <arg column="inviter_user_id" javaType="java.lang.Long"/>
+            <arg column="inviter_name" javaType="java.lang.String"/>
+            <arg column="invited_email" javaType="java.lang.String"/>
+            <arg column="status" javaType="java.lang.String"/>
+            <arg column="expires_at" javaType="java.time.LocalDateTime"/>
+            <arg column="accepted_user_id" javaType="java.lang.Long"/>
+            <arg column="accepted_user_name" javaType="java.lang.String"/>
+            <arg column="created_at" javaType="java.time.LocalDateTime"/>
+        </constructor>
+    </resultMap>
+
+    <select id="selectByToken"
+            parameterType="map"
+            resultMap="HouseholdInvitationModelMap">
+        SELECT
+            i.invitation_token
+             , i.household_id
+             , h.name AS household_name
+             , i.inviter_user_id
+             , u.display_name AS inviter_name
+             , i.invited_email
+             , i.status
+             , i.expires_at
+             , i.accepted_user_id
+             , ua.display_name AS accepted_user_name
+             , i.created_at
+        FROM
+            t_household_invitation i
+                INNER JOIN m_household h
+                           ON i.household_id = h.household_id
+                INNER JOIN m_user u
+                           ON i.inviter_user_id = u.user_id
+                LEFT OUTER JOIN m_user ua
+                                ON i.accepted_user_id = ua.user_id
+        WHERE
+            i.invitation_token = #{token}
+    </select>
+
+    <select id="selectByHouseholdId"
+            resultMap="HouseholdInvitationModelMap">
+        SELECT
+            i.invitation_token
+             , i.household_id
+             , h.name AS household_name
+             , i.inviter_user_id
+             , u.display_name AS inviter_name
+             , i.invited_email
+             , i.status
+             , i.expires_at
+             , i.accepted_user_id
+             , ua.display_name AS accepted_user_name
+             , i.created_at
+        FROM
+            t_household_invitation i
+                INNER JOIN m_household h
+                           ON i.household_id = h.household_id
+                INNER JOIN m_user u
+                           ON i.inviter_user_id = u.user_id
+                LEFT OUTER JOIN m_user ua
+                                ON i.accepted_user_id = ua.user_id
+        WHERE
+            i.household_id = #{householdId}
+        ORDER BY
+            i.created_at DESC
+    </select>
+</mapper>
