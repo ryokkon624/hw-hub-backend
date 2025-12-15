@@ -11,4 +11,5 @@ services:
       - LOCALSTACK_HOST=localstack
     volumes:
       - "./localstack/data:/var/lib/localstack"
+      - "./localstack/init:/etc/localstack/init/ready.d"
       - "/var/run/docker.sock:/var/run/docker.sock"
