@@ -11,7 +11,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
-/** 家事に関するユースケース実行クラス。 Controller から呼ばれるアプリケーションサービス。 */
+/**
+ * 家事に関するユースケース実行クラス。 Controller から呼ばれるアプリケーションサービス。
+ */
 @Service
 @RequiredArgsConstructor
 public class HouseworkService {
@@ -20,17 +22,23 @@ public class HouseworkService {
   private final HouseholdAuthorizationService householdAuthorizationService;
   private final HouseworkTaskRecalcRequestRepository taskRecalcRepository;
 
-  /** 家事マスタ一覧取得 */
+  /**
+   * 家事マスタ一覧取得
+   */
   public List<HouseworkModel> listByHousehold(Long householdId) {
     return houseworkRepository.findByHouseholdId(householdId);
   }
 
-  /** 家事マスタ単一取得 */
+  /**
+   * 家事マスタ単一取得
+   */
   public HouseworkModel findById(Long houseworkId) {
     return houseworkRepository.findByHouseworkId(houseworkId);
   }
 
-  /** 家事マスタ登録 */
+  /**
+   * 家事マスタ登録
+   */
   public HouseworkModel createHousework(HouseworkModel model, Long userId) {
 
     Long householdId = model.getHouseholdId();
@@ -44,11 +52,13 @@ public class HouseworkService {
       }
     }
 
-    houseworkRepository.insert(model, userId, ProgramType.ONL_HWR.getCode());
-    return model;
+    return houseworkRepository.insert(model, userId,
+        ProgramType.ONL_HWR.getCode());
   }
 
-  /** 家事マスタ更新 */
+  /**
+   * 家事マスタ更新
+   */
   public HouseworkModel updateHousework(Long houseworkId, HouseworkModel input, Long userId) {
 
     Long householdId = input.getHouseholdId();
@@ -74,15 +84,16 @@ public class HouseworkService {
     model.setEffectivePriod(input.getStartDate(), input.getEndDate());
     model.setDefaultAssigneeUserId(defaultAssigneeUserId);
 
-    houseworkRepository.update(model, userId, ProgramType.ONL_HWR.getCode());
+    HouseworkModel updated = houseworkRepository.update(model, userId,
+        ProgramType.ONL_HWR.getCode());
 
     // 家事タスクの反映リクエスト
     taskRecalcRepository.enqueue(
-        HouseworkTaskRecalcRequestModel.create(model.getHouseworkId()),
+        HouseworkTaskRecalcRequestModel.create(updated.getHouseworkId()),
         userId,
         ProgramType.ONL_HWR.getCode());
 
-    return model;
+    return updated;
   }
 
   public void deleteHousework(Long id) {
