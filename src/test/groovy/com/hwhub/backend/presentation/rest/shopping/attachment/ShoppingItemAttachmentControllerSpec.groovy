@@ -2,11 +2,7 @@ package com.hwhub.backend.presentation.rest.shopping.attachment
 
 import com.hwhub.backend.application.service.ShoppingItemAttachmentService
 import com.hwhub.backend.domain.model.ShoppingItemAttachment
-import com.hwhub.backend.presentation.rest.shopping.attachment.dto.CreateAttachmentRequest
-import com.hwhub.backend.presentation.rest.shopping.attachment.dto.CreateAttachmentResponse
-import com.hwhub.backend.presentation.rest.shopping.attachment.dto.CreateUploadUrlRequest
-import com.hwhub.backend.presentation.rest.shopping.attachment.dto.CreateUploadUrlResponse
-import com.hwhub.backend.presentation.rest.shopping.attachment.dto.ShoppingItemAttachmentResponse
+import com.hwhub.backend.presentation.rest.shopping.attachment.dto.*
 import org.springframework.security.core.Authentication
 import spock.lang.Specification
 
@@ -117,13 +113,13 @@ class ShoppingItemAttachmentControllerSpec extends Specification {
         responses.size() == 2
 
         with(responses[0]) {
-            id() == itemId
+            id() == 1L
             fileName() == "file1.png"
             imageUrl() == "https://example.com/img1"
             sortOrder() == 1
         }
         with(responses[1]) {
-            id() == itemId
+            id() == 2L
             fileName() == "file2.png"
             imageUrl() == "https://example.com/img2"
             sortOrder() == 2
