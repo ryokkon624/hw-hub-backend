@@ -6,12 +6,7 @@ import com.hwhub.backend.application.service.HouseholdMemberService
 import com.hwhub.backend.application.service.HouseholdService
 import com.hwhub.backend.domain.model.HouseholdInvitationModel
 import com.hwhub.backend.domain.model.HouseholdMemberModel
-import com.hwhub.backend.presentation.rest.household.dto.CreateInvitationRequest
-import com.hwhub.backend.presentation.rest.household.dto.HouseholdInvitationDto
-import com.hwhub.backend.presentation.rest.household.dto.HouseholdMemberDto
-import com.hwhub.backend.presentation.rest.household.dto.HouseholdMembersDto
-import com.hwhub.backend.presentation.rest.household.dto.UpdateHouseholdRequest
-import com.hwhub.backend.presentation.rest.household.dto.UpdateMyNicknameRequest
+import com.hwhub.backend.presentation.rest.household.dto.*
 import org.springframework.security.core.Authentication
 import spock.lang.Specification
 
@@ -39,7 +34,7 @@ class HouseholdMemberControllerSpec extends Specification {
         def member = HouseholdMemberModel.create(householdId, 10L, "Taro")
 
         when:
-        HouseholdMembersDto result = controller.getMembers(householdId, auth)
+        List<HouseholdMemberDto> result = controller.getMembers(householdId, auth)
 
         then:
         1 * authService.assertUserBelongsToHousehold(householdId, 10L)
@@ -47,8 +42,7 @@ class HouseholdMemberControllerSpec extends Specification {
 
         and:
         result != null
-        result.members != null
-        result.members.size() == 1
+        result.size() == 1
     }
 
     // -------------------------------------------------

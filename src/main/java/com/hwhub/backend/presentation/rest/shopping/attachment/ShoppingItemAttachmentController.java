@@ -1,12 +1,22 @@
 package com.hwhub.backend.presentation.rest.shopping.attachment;
 
 import com.hwhub.backend.application.service.ShoppingItemAttachmentService;
-import com.hwhub.backend.presentation.rest.shopping.attachment.dto.*;
+import com.hwhub.backend.presentation.rest.shopping.attachment.dto.CreateAttachmentRequest;
+import com.hwhub.backend.presentation.rest.shopping.attachment.dto.CreateAttachmentResponse;
+import com.hwhub.backend.presentation.rest.shopping.attachment.dto.CreateUploadUrlRequest;
+import com.hwhub.backend.presentation.rest.shopping.attachment.dto.CreateUploadUrlResponse;
+import com.hwhub.backend.presentation.rest.shopping.attachment.dto.ShoppingItemAttachmentResponse;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
@@ -55,7 +65,7 @@ public class ShoppingItemAttachmentController {
         .map(
             a ->
                 new ShoppingItemAttachmentResponse(
-                    a.getShoppingItemId(), a.getFileName(), a.getImageUrl(), a.getSortOrder()))
+                    a.getId(), a.getFileName(), a.getImageUrl(), a.getSortOrder()))
         .toList();
   }
 

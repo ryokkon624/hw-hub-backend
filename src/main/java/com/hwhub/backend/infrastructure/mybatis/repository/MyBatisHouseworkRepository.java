@@ -33,21 +33,25 @@ public class MyBatisHouseworkRepository implements HouseworkRepository {
   }
 
   @Override
-  public void insert(HouseworkModel model, Long userId, String program) {
+  public HouseworkModel insert(HouseworkModel model, Long userId, String program) {
     MHousework entity = HouseworkConverter.toEntity(model);
     entity.setCreateUserId(userId);
     entity.setCreateProgram(program);
     entity.setUpdateUserId(userId);
     entity.setUpdateProgram(program);
     mapper.insertSelective(entity);
+
+    return HouseworkConverter.toModel(entity);
   }
 
   @Override
-  public void update(HouseworkModel model, Long userId, String program) {
+  public HouseworkModel update(HouseworkModel model, Long userId, String program) {
     MHousework entity = HouseworkConverter.toEntity(model);
     entity.setUpdateUserId(userId);
     entity.setUpdateProgram(program);
     customMapper.update(model, userId, program);
+
+    return HouseworkConverter.toModel(entity);
   }
 
   @Override

@@ -11,7 +11,7 @@ import spock.lang.Specification
 
 import java.time.LocalDate
 
-class HouseworkServiceSpec extends Specification{
+class HouseworkServiceSpec extends Specification {
 
     HouseworkRepository houseworkRepository = Mock()
     HouseholdAuthorizationService householdAuthorizationService = Mock()
@@ -62,7 +62,23 @@ class HouseworkServiceSpec extends Specification{
         Long userId = 99L
         Long householdId = 1L
 
-        def model = HouseworkModel.create(
+        def input = HouseworkModel.create(
+                householdId,
+                "家事名",
+                "説明",
+                "CAT",
+                RecurrenceType.WEEKLY.code,
+                21,
+                null,
+                null,
+                null,
+                LocalDate.now(),
+                LocalDate.now().plusDays(7),
+                null // defaultAssigneeUserId
+        )
+
+        def inserted = HouseworkModel.reconstruct(
+                10L,
                 householdId,
                 "家事名",
                 "説明",
@@ -78,12 +94,12 @@ class HouseworkServiceSpec extends Specification{
         )
 
         when:
-        def result = service.createHousework(model, userId)
+        def result = service.createHousework(input, userId)
 
         then:
         0 * householdAuthorizationService.canAccessHousehold(_, _)
-        1 * houseworkRepository.insert(model, userId, ProgramType.ONL_HWR.code)
-        result.is(model)
+        1 * houseworkRepository.insert(input, userId, ProgramType.ONL_HWR.code) >> inserted
+        result.is(inserted)
     }
 
     def "createHouseworkはdefaultAssigneeUserIdが世帯メンバーでない場合AccessDeniedException"() {
@@ -122,7 +138,23 @@ class HouseworkServiceSpec extends Specification{
         Long householdId = 1L
         Long defaultAssignee = 10L
 
-        def model = HouseworkModel.create(
+        def input = HouseworkModel.create(
+                householdId,
+                "家事名",
+                "説明",
+                "CAT",
+                RecurrenceType.WEEKLY.code,
+                21,
+                null,
+                null,
+                null,
+                LocalDate.now(),
+                LocalDate.now().plusDays(7),
+                defaultAssignee
+        )
+
+        def inserted = HouseworkModel.reconstruct(
+                11L,
                 householdId,
                 "家事名",
                 "説明",
@@ -138,12 +170,12 @@ class HouseworkServiceSpec extends Specification{
         )
 
         when:
-        def result = service.createHousework(model, userId)
+        def result = service.createHousework(input, userId)
 
         then:
         1 * householdAuthorizationService.canAccessHousehold(householdId, defaultAssignee) >> true
-        1 * houseworkRepository.insert(model, userId, ProgramType.ONL_HWR.code)
-        result.is(model)
+        1 * houseworkRepository.insert(input, userId, ProgramType.ONL_HWR.code) >> inserted
+        result.is(inserted)
     }
 
     // ==================================
@@ -192,6 +224,22 @@ class HouseworkServiceSpec extends Specification{
             getEndDate() >> end
         }
 
+        def updated = HouseworkModel.reconstruct(
+                houseworkId,
+                householdId,
+                "家事名",
+                "説明",
+                "CAT",
+                RecurrenceType.WEEKLY.code,
+                weeklyDays,
+                null,
+                null,
+                null,
+                start,
+                end,
+                null
+        )
+
         def existing = Mock(HouseworkModel) {
             getHouseworkId() >> houseworkId
         }
@@ -209,14 +257,14 @@ class HouseworkServiceSpec extends Specification{
         1 * existing.setEffectivePriod(start, end)
         1 * existing.setDefaultAssigneeUserId(null)
 
-        1 * houseworkRepository.update(existing, userId, ProgramType.ONL_HWR.code)
+        1 * houseworkRepository.update(existing, userId, ProgramType.ONL_HWR.code) >> updated
 
         1 * taskRecalcRepository.enqueue(_, userId, ProgramType.ONL_HWR.code) >> { args ->
             HouseworkTaskRecalcRequestModel req = args[0] as HouseworkTaskRecalcRequestModel
             assert req.houseworkId == houseworkId
         }
 
-        result.is(existing)
+        result.is(updated)
     }
 
     def "updateHouseworkはMONTHLYのときsetRecurrenceMonthlyを呼び出す"() {
@@ -240,12 +288,28 @@ class HouseworkServiceSpec extends Specification{
             getEndDate() >> end
         }
 
+        def updated = HouseworkModel.reconstruct(
+                houseworkId,
+                householdId,
+                "月次家事",
+                "説明",
+                "CAT",
+                RecurrenceType.MONTHLY.code,
+                null,
+                dayOfMonth,
+                null,
+                null,
+                start,
+                end,
+                null
+        )
+
         def existing = Mock(HouseworkModel) {
             getHouseworkId() >> houseworkId
         }
 
         when:
-        service.updateHousework(houseworkId, input, userId)
+        def result = service.updateHousework(houseworkId, input, userId)
 
         then:
         1 * houseworkRepository.findByHouseworkId(houseworkId) >> existing
@@ -253,8 +317,10 @@ class HouseworkServiceSpec extends Specification{
         1 * existing.setRecurrenceMonthly(dayOfMonth)
         1 * existing.setEffectivePriod(start, end)
         1 * existing.setDefaultAssigneeUserId(null)
-        1 * houseworkRepository.update(existing, userId, ProgramType.ONL_HWR.code)
+        1 * houseworkRepository.update(existing, userId, ProgramType.ONL_HWR.code) >> updated
         1 * taskRecalcRepository.enqueue(_, userId, ProgramType.ONL_HWR.code)
+
+        result.is(updated)
     }
 
     def "updateHouseworkはNTH_WEEKDAYのときsetRecurrenceNthweekdayを呼び出す"() {
@@ -280,12 +346,28 @@ class HouseworkServiceSpec extends Specification{
             getEndDate() >> end
         }
 
+        def updated = HouseworkModel.reconstruct(
+                houseworkId,
+                householdId,
+                "第n曜家事",
+                "説明",
+                "CAT",
+                RecurrenceType.NTH_WEEKDAY.code,
+                null,
+                null,
+                nthWeek,
+                weekday,
+                start,
+                end,
+                null
+        )
+
         def existing = Mock(HouseworkModel) {
             getHouseworkId() >> houseworkId
         }
 
         when:
-        service.updateHousework(houseworkId, input, userId)
+        def result = service.updateHousework(houseworkId, input, userId)
 
         then:
         1 * houseworkRepository.findByHouseworkId(houseworkId) >> existing
@@ -293,8 +375,10 @@ class HouseworkServiceSpec extends Specification{
         1 * existing.setRecurrenceNthweekday(nthWeek, weekday)
         1 * existing.setEffectivePriod(start, end)
         1 * existing.setDefaultAssigneeUserId(null)
-        1 * houseworkRepository.update(existing, userId, ProgramType.ONL_HWR.code)
+        1 * houseworkRepository.update(existing, userId, ProgramType.ONL_HWR.code) >> updated
         1 * taskRecalcRepository.enqueue(_, userId, ProgramType.ONL_HWR.code)
+
+        result.is(updated)
     }
 
     def "updateHouseworkはdefaultAssigneeUserIdが世帯メンバーのとき認可チェックを通過して更新される"() {
@@ -319,6 +403,22 @@ class HouseworkServiceSpec extends Specification{
             getEndDate() >> end
         }
 
+        def updated = HouseworkModel.reconstruct(
+                houseworkId,
+                householdId,
+                "家事名",
+                "説明",
+                "CAT",
+                RecurrenceType.WEEKLY.code,
+                weeklyDays,
+                null,
+                null,
+                null,
+                start,
+                end,
+                null
+        )
+
         def existing = Mock(HouseworkModel) {
             getHouseworkId() >> houseworkId
         }
@@ -335,10 +435,10 @@ class HouseworkServiceSpec extends Specification{
         1 * existing.setEffectivePriod(start, end)
         1 * existing.setDefaultAssigneeUserId(defaultAssignee)
 
-        1 * houseworkRepository.update(existing, userId, ProgramType.ONL_HWR.code)
+        1 * houseworkRepository.update(existing, userId, ProgramType.ONL_HWR.code) >> updated
         1 * taskRecalcRepository.enqueue(_, userId, ProgramType.ONL_HWR.code)
 
-        result.is(existing)
+        result.is(updated)
     }
 
     // ==================================
