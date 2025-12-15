@@ -1,15 +1,29 @@
 package com.hwhub.backend.presentation.rest.household;
 
-import com.hwhub.backend.application.service.*;
+import com.hwhub.backend.application.service.HouseholdAuthorizationService;
+import com.hwhub.backend.application.service.HouseholdInvitationService;
+import com.hwhub.backend.application.service.HouseholdMemberService;
+import com.hwhub.backend.application.service.HouseholdService;
 import com.hwhub.backend.domain.model.HouseholdInvitationModel;
 import com.hwhub.backend.domain.model.HouseholdMemberModel;
-import com.hwhub.backend.presentation.rest.household.dto.*;
+import com.hwhub.backend.presentation.rest.household.dto.CreateInvitationRequest;
+import com.hwhub.backend.presentation.rest.household.dto.HouseholdInvitationDto;
+import com.hwhub.backend.presentation.rest.household.dto.HouseholdMemberDto;
+import com.hwhub.backend.presentation.rest.household.dto.UpdateHouseholdRequest;
+import com.hwhub.backend.presentation.rest.household.dto.UpdateMyNicknameRequest;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/households")
@@ -22,7 +36,7 @@ public class HouseholdMemberController {
   private final HouseholdInvitationService invService;
 
   @GetMapping("/{householdId}/members")
-  public HouseholdMembersDto getMembers(
+  public List<HouseholdMemberDto> getMembers(
       @PathVariable Long householdId, Authentication authentication) {
     Long loginUserId = Long.valueOf(authentication.getName());
 
@@ -30,12 +44,8 @@ public class HouseholdMemberController {
     authService.assertUserBelongsToHousehold(householdId, loginUserId);
 
     List<HouseholdMemberModel> members = memberService.getMembers(householdId);
-    List<HouseholdMemberDto> dtos = members.stream().map(HouseholdMemberDto::fromModel).toList();
 
-    HouseholdMembersDto dto = new HouseholdMembersDto();
-    dto.setMembers(dtos);
-
-    return dto;
+    return members.stream().map(HouseholdMemberDto::fromModel).toList();
   }
 
   @PutMapping("/{householdId}/members/me/nickname")
