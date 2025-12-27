@@ -31,6 +31,7 @@ repositories {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
     // MyBatis
     implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.5'
@@ -63,10 +64,9 @@ dependencies {
     implementation platform("software.amazon.awssdk:bom:2.39.0")
 
     // S3 クライアント
-    implementation platform("software.amazon.awssdk:bom:2.26.0")
     implementation "software.amazon.awssdk:s3"
     implementation "software.amazon.awssdk:sts"
-    
+
     // テスト系
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.5'
