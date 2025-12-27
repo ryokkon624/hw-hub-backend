@@ -32,7 +32,9 @@ public class SecurityConfig {
         .authorizeHttpRequests(
             auth ->
                 auth
-                    // 認証なしで叩けるAPI
+                    // actuator
+                    .requestMatchers("/actuator/health", "/actuator/info").permitAll()
+                    // 認証なしで叩けるAPI: swagger, auth
                     .requestMatchers(
                         "/api/auth/login", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**")
                     .permitAll()
@@ -40,8 +42,9 @@ public class SecurityConfig {
                     .permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/household-invitations/**")
                     .permitAll()
-                    .requestMatchers("/api/**")
-                    .authenticated()
+                    // protected
+                    .requestMatchers("/api/**").authenticated()
+                    // others
                     .anyRequest()
                     .permitAll());
 

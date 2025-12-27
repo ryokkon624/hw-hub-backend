@@ -1,10 +1,21 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/hwhub_db?useSSL=false&characterEncoding=utf8&serverTimezone=Asia/Tokyo
+    username: hwhub
+    password: hwhub
+
+logging:
+  level:
+    com.hwhub.backend: DEBUG
+    org.mybatis: DEBUG
+    org.springframework.security: DEBUG
+
 hwhub:
+  jwt:
+    secret: "change-this-to-long-random-secret"
+
   object-storage:
     bucket: hwhub-dev-file
-    base-path:
-      shopping-item: shopping-item
-      user-icon: user-icon
-    url-ttl-seconds: 600
 
   aws:
     s3:
@@ -13,3 +24,7 @@ hwhub:
       access-key: dummy
       secret-key: dummy
       path-style-access-enabled: true
+
+  cors:
+    allowed-origins:
+      - "http://localhost:5173"
