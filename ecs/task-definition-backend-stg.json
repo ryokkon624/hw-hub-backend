@@ -1,0 +1,37 @@
+{
+  "family": "hwhub-backend-stg",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "cpu": "512",
+  "memory": "1024",
+  "executionRoleArn": "arn:aws:iam::564323392873:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::564323392873:role/hwhub-backend-task-role",
+  "containerDefinitions": [
+    {
+      "name": "hwhub-backend",
+      "image": "REPLACED_BY_GITHUB_ACTIONS",
+      "portMappings": [
+        {
+          "containerPort": 8080
+        }
+      ],
+      "essential": true,
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/hwhub-backend-stg",
+          "awslogs-region": "ap-northeast-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
+      "environment": [
+        {
+          "name": "SPRING_PROFILES_ACTIVE",
+          "value": "stg"
+        }
+      ]
+    }
+  ]
+}

@@ -55,3 +55,19 @@ jobs:
         run: |
           echo "Pushed: $IMAGE_URI"
           echo "Pushed: $IMAGE_URI_LATEST"
+
+      - name: Render ECS task definition
+        id: render-task
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ecs/task-definition-backend-stg.json
+          container-name: hwhub-backend
+          image: ${{ env.IMAGE_URI }}
+
+      - name: Deploy ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.render-task.outputs.task-definition }}
+          service: hwhub-backend-stg
+          cluster: hwhub-stg
+          wait-for-service-stability: true
