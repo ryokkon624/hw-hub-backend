@@ -2,12 +2,17 @@ name: deploy-backend-stg
 
 on:
   push:
-    branches:
-      - main
+    branches: [ "main" ]
+  workflow_dispatch:
 
 permissions:
   id-token: write
   contents: read
+
+env:
+  AWS_REGION: ap-northeast-1
+  AWS_ACCOUNT_ID: "564323392873"
+  ECR_REPOSITORY: "hwhub-backend"
 
 jobs:
   deploy:
@@ -17,11 +22,36 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Configure AWS credentials
+      - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::564323392873:role/gh-actions-hwhub-backend-stg
-          aws-region: ap-northeast-1
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Verify AWS access
         run: aws sts get-caller-identity
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build & Push Docker image to ECR
+        env:
+          ECR_REGISTRY: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
+          IMAGE_TAG: stg-${{ github.sha }}
+        run: |
+          IMAGE_URI=${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}
+          IMAGE_URI_LATEST=${ECR_REGISTRY}/${ECR_REPOSITORY}:stg-latest
+
+          echo "IMAGE_URI=${IMAGE_URI}" >> $GITHUB_ENV
+          echo "IMAGE_URI_LATEST=${IMAGE_URI_LATEST}" >> $GITHUB_ENV
+
+          docker build -t "${IMAGE_URI}" .
+          docker tag "${IMAGE_URI}" "${IMAGE_URI_LATEST}"
+
+          docker push "${IMAGE_URI}"
+          docker push "${IMAGE_URI_LATEST}"
+
+      - name: Output image uri
+        run: |
+          echo "Pushed: $IMAGE_URI"
+          echo "Pushed: $IMAGE_URI_LATEST"
