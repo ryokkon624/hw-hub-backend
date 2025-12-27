@@ -7,6 +7,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -29,15 +30,8 @@ public class ObjectStorageConfig {
 
   @Bean
   public S3Client s3Client() {
-    // null のときでも落ちないようにデフォルトを当てる
     String region =
         awsS3Properties.getRegion() != null ? awsS3Properties.getRegion() : "ap-northeast-1";
-    String accessKey =
-        awsS3Properties.getAccessKey() != null ? awsS3Properties.getAccessKey() : "dummy";
-    String secretKey =
-        awsS3Properties.getSecretKey() != null ? awsS3Properties.getSecretKey() : "dummy";
-
-    AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
 
     S3Configuration serviceConfig =
         S3Configuration.builder()
@@ -47,12 +41,21 @@ public class ObjectStorageConfig {
     S3ClientBuilder builder =
         S3Client.builder()
             .region(Region.of(region))
-            .credentialsProvider(StaticCredentialsProvider.create(credentials))
             .serviceConfiguration(serviceConfig);
 
     String endpoint = awsS3Properties.getEndpoint();
     if (endpoint != null && !endpoint.isBlank()) {
-      builder = builder.endpointOverride(URI.create(endpoint));
+      // localstack
+      String accessKey = awsS3Properties.getAccessKey();
+      String secretKey = awsS3Properties.getSecretKey();
+      AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
+
+      builder = builder
+          .endpointOverride(URI.create(endpoint))
+          .credentialsProvider(StaticCredentialsProvider.create(credentials));
+    } else {
+      // ECS/本番想定：Task Role などのデフォルトチェーン
+      builder = builder.credentialsProvider(DefaultCredentialsProvider.builder().build());
     }
 
     return builder.build();
@@ -62,12 +65,6 @@ public class ObjectStorageConfig {
   public S3Presigner s3Presigner() {
     String region =
         awsS3Properties.getRegion() != null ? awsS3Properties.getRegion() : "ap-northeast-1";
-    String accessKey =
-        awsS3Properties.getAccessKey() != null ? awsS3Properties.getAccessKey() : "dummy";
-    String secretKey =
-        awsS3Properties.getSecretKey() != null ? awsS3Properties.getSecretKey() : "dummy";
-
-    AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
 
     S3Configuration serviceConfig =
         S3Configuration.builder()
@@ -77,12 +74,19 @@ public class ObjectStorageConfig {
     S3Presigner.Builder builder =
         S3Presigner.builder()
             .region(Region.of(region))
-            .credentialsProvider(StaticCredentialsProvider.create(credentials))
             .serviceConfiguration(serviceConfig);
 
     String endpoint = awsS3Properties.getEndpoint();
     if (endpoint != null && !endpoint.isBlank()) {
-      builder = builder.endpointOverride(URI.create(endpoint));
+      String accessKey = awsS3Properties.getAccessKey();
+      String secretKey = awsS3Properties.getSecretKey();
+      AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
+
+      builder = builder
+          .endpointOverride(URI.create(endpoint))
+          .credentialsProvider(StaticCredentialsProvider.create(credentials));
+    } else {
+      builder = builder.credentialsProvider(DefaultCredentialsProvider.builder().build());
     }
 
     return builder.build();
@@ -103,7 +107,9 @@ public class ObjectStorageConfig {
   }
 
   public record ShoppingItemStorageSettings(
-      String bucket, String shoppingItemBasePath, Duration urlTtl) {}
+      String bucket, String shoppingItemBasePath, Duration urlTtl) {
+
+  }
 
   @Bean
   public UserIconStorageSettings userIconStorageSettings() {
@@ -113,5 +119,7 @@ public class ObjectStorageConfig {
         Duration.ofSeconds(objectStorageProperties.getUrlTtlSeconds()));
   }
 
-  public record UserIconStorageSettings(String bucket, String userIconBasePath, Duration urlTtl) {}
+  public record UserIconStorageSettings(String bucket, String userIconBasePath, Duration urlTtl) {
+
+  }
 }

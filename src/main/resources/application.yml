@@ -1,11 +1,7 @@
 spring:
   profiles:
-    active: dev
-
+    default: dev
   datasource:
-    url: jdbc:mysql://localhost:3306/hwhub_db?useSSL=false&characterEncoding=utf8&serverTimezone=Asia/Tokyo
-    username: hwhub
-    password: hwhub
     driver-class-name: com.mysql.cj.jdbc.Driver
 
 mybatis:
@@ -14,13 +10,21 @@ mybatis:
   configuration:
     map-underscore-to-camel-case: true
 
-logging:
-  level:
-    com.hwhub.backend: DEBUG
-    org.mybatis: DEBUG
-    org.springframework.security: DEBUG
-
 hwhub:
   jwt:
-    secret: "change-this-to-long-random-secret"  # 本番環境では環境変数から読むのが理想
-    expiry-millis: 14400000  # 4時間 = 4 * 60 * 60 * 1000
+    expiry-millis: 14400000
+
+  object-storage:
+    base-path:
+      shopping-item: shopping-item
+      user-icon: user-icon
+    url-ttl-seconds: 600
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
