@@ -1,0 +1,28 @@
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+
+logging:
+  level:
+    com.hwhub.backend: INFO
+    org.mybatis: WARN
+    org.springframework.security: INFO
+
+hwhub:
+  jwt:
+    secret: ${HWHUB_JWT_SECRET}
+
+  object-storage:
+    bucket: ${HWHUB_OBJECT_STORAGE_BUCKET}
+
+  aws:
+    s3:
+      region: ap-northeast-1
+      # endpoint は指定しない（AWS S3を使う）
+      path-style-access-enabled: false
+
+  cors:
+    allowed-origins:
+      - "https://stg.familyapp-hwhub.com"
