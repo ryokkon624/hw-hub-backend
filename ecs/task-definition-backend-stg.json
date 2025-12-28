@@ -1,5 +1,5 @@
 {
-  "family": "hwhub-backend-stg",
+  "family": "hwhub-backend",
   "networkMode": "awsvpc",
   "requiresCompatibilities": [
     "FARGATE"
