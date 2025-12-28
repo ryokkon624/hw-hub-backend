@@ -83,6 +83,14 @@ jobs:
 
           echo "Sanitized task definition generated: taskdef_base.json"
 
+      - name: Override SPRING_PROFILES_ACTIVE=stg
+        run: |
+          jq '(.containerDefinitions[] | select(.name=="${{ env.CONTAINER_NAME }}") | .environment)
+              |= (map(select(.name!="SPRING_PROFILES_ACTIVE"))
+                  + [{"name":"SPRING_PROFILES_ACTIVE","value":"stg"}])' \
+              taskdef_base.json > taskdef_base_tmp.json
+          mv taskdef_base_tmp.json taskdef_base.json
+
       - name: Render new task definition (replace image)
         id: render
         uses: aws-actions/amazon-ecs-render-task-definition@v1
