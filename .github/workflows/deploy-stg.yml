@@ -11,8 +11,13 @@ permissions:
 
 env:
   AWS_REGION: ap-northeast-1
+  ECS_CLUSTER: hwhub-stg
+  ECS_SERVICE: hwhub-backend-stg
+  TASK_FAMILY: hwhub-backend
+  BASE_REVISION: "10"
+  CONTAINER_NAME: hwhub-backend
+  ECR_REPOSITORY: hwhub-backend
   AWS_ACCOUNT_ID: "564323392873"
-  ECR_REPOSITORY: "hwhub-backend"
 
 jobs:
   deploy:
@@ -28,46 +33,68 @@ jobs:
           role-to-assume: arn:aws:iam::564323392873:role/gh-actions-hwhub-backend-stg
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Verify AWS access
-        run: aws sts get-caller-identity
-
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build & Push Docker image to ECR
-        env:
-          ECR_REGISTRY: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
-          IMAGE_TAG: stg-${{ github.sha }}
+      - name: Build & Push image
+        id: build
         run: |
-          IMAGE_URI=${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}
-          IMAGE_URI_LATEST=${ECR_REGISTRY}/${ECR_REPOSITORY}:stg-latest
+          IMAGE_URI="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:stg-${GITHUB_SHA}"
+          IMAGE_URI_LATEST="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:stg-latest"
 
-          echo "IMAGE_URI=${IMAGE_URI}" >> $GITHUB_ENV
-          echo "IMAGE_URI_LATEST=${IMAGE_URI_LATEST}" >> $GITHUB_ENV
+          docker build -t "$IMAGE_URI" -t "$IMAGE_URI_LATEST" .
+          docker push "$IMAGE_URI"
+          docker push "$IMAGE_URI_LATEST"
 
-          docker build -t "${IMAGE_URI}" .
-          docker tag "${IMAGE_URI}" "${IMAGE_URI_LATEST}"
+          echo "image_uri=$IMAGE_URI" >> "$GITHUB_OUTPUT"
+          echo "image_uri_latest=$IMAGE_URI_LATEST" >> "$GITHUB_OUTPUT"
 
-          docker push "${IMAGE_URI}"
-          docker push "${IMAGE_URI_LATEST}"
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
 
-      - name: Output image uri
+      # rev10のtaskdefを取得して「register可能な形」に整形する
+      - name: Fetch base task definition (rev10) and sanitize
         run: |
-          echo "Pushed: $IMAGE_URI"
-          echo "Pushed: $IMAGE_URI_LATEST"
+          aws ecs describe-task-definition \
+            --task-definition "${TASK_FAMILY}:${BASE_REVISION}" \
+            --query taskDefinition \
+            > taskdef_raw.json
 
-      - name: Render ECS task definition
-        id: render-task
+          # register-task-definition が受け付ける形にサニタイズ
+          jq '{
+            family: .family,
+            taskRoleArn: .taskRoleArn,
+            executionRoleArn: .executionRoleArn,
+            networkMode: .networkMode,
+            containerDefinitions: .containerDefinitions,
+            volumes: (.volumes // []),
+            placementConstraints: (.placementConstraints // []),
+            requiresCompatibilities: .requiresCompatibilities,
+            cpu: .cpu,
+            memory: .memory,
+            runtimePlatform: (.runtimePlatform // null),
+            ephemeralStorage: (.ephemeralStorage // null),
+            proxyConfiguration: (.proxyConfiguration // null),
+            inferenceAccelerators: (.inferenceAccelerators // null),
+            pidMode: (.pidMode // null),
+            ipcMode: (.ipcMode // null)
+          }
+          | with_entries(select(.value != null))' taskdef_raw.json > taskdef_base.json
+
+          echo "Sanitized task definition generated: taskdef_base.json"
+
+      - name: Render new task definition (replace image)
+        id: render
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: ecs/task-definition-backend-stg.json
-          container-name: hwhub-backend
-          image: ${{ env.IMAGE_URI }}
+          task-definition: taskdef_base.json
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: ${{ steps.build.outputs.image_uri }}
 
-      - name: Deploy ECS task definition
+      - name: Deploy task definition to ECS service
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
         with:
-          task-definition: ${{ steps.render-task.outputs.task-definition }}
-          service: hwhub-backend-stg
-          cluster: hwhub-stg
+          task-definition: ${{ steps.render.outputs.task-definition }}
+          service: ${{ env.ECS_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
           wait-for-service-stability: true
