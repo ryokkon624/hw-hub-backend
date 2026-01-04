@@ -41,19 +41,26 @@ jobs:
         run: |
           ./gradlew test jacocoTestReport -x spotlessCheck
 
-      # ここがレポートの実体（JaCoCo HTML）
       - name: Verify report exists
         run: |
           ls -la build/reports/jacoco/test/html
           test -f build/reports/jacoco/test/html/index.html
 
-      # Pages は「アーティファクト」をデプロイする方式（推奨）
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Upload test report (always)
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
+          name: backend-test-report
+          path: build/reports/tests/test
+
+      - name: Upload jacoco report (always)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-jacoco-report
           path: build/reports/jacoco/test/html
 
   deploy:
