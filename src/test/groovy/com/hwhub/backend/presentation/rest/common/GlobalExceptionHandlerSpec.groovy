@@ -1,17 +1,16 @@
 // src/test/groovy/com/hwhub/backend/presentation/rest/common/GlobalExceptionHandlerSpec.groovy
 package com.hwhub.backend.presentation.rest.common
 
+import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.ConstraintViolation
 import jakarta.validation.ConstraintViolationException
 import jakarta.validation.Path
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.validation.BeanPropertyBindingResult
-import org.springframework.validation.BindingResult
 import org.springframework.validation.FieldError
 import org.springframework.web.bind.MethodArgumentNotValidException
 import spock.lang.Specification
-
 
 class GlobalExceptionHandlerSpec extends Specification {
 
@@ -146,9 +145,13 @@ class GlobalExceptionHandlerSpec extends Specification {
     def "handleException は 500 と INTERNAL_SERVER_ERROR を返す"() {
         given:
         def ex = new RuntimeException("something bad")
+        def req = Mock(HttpServletRequest) {
+            getMethod() >> "POST"
+            getRequestURI() >> "/api/auth/login"
+        }
 
         when:
-        def response = handler.handleException(ex)
+        def response = handler.handleException(ex, req)
 
         then:
         response.statusCode == HttpStatus.INTERNAL_SERVER_ERROR
