@@ -1,0 +1,220 @@
+# Housework Hub（HwHub）Backend
+
+> ここは **バックエンド（hw-hub-backend）リポジトリ** の README です。  
+> **README 冒頭（次のセクション）には “全体像” を置き、下部に backend 特化の手順** をまとめます。
+
+---
+
+## 1. Backend の役割
+
+- 認証（JWT）/ ユーザー・世帯・招待・家事・買い物などの API を提供
+- MySQL を永続化層として利用し、MyBatis でアクセス
+- S3（STG/本番は AWS S3）にファイルを保存（例：添付・画像等）
+- OpenAPI/Swagger で API を可視化
+
+---
+
+## 2. 技術スタック
+
+- Java 21（Amazon Corretto / Temurin など）
+- Spring Boot 3.5.x
+- MyBatis + MyBatis Generator（MBG）
+- Flyway（DB マイグレーション）
+- MySQL 8
+- Test: Spock + JUnit Platform / JaCoCo
+
+---
+
+## 3. ディレクトリ構成（最新）
+
+`src/main/java/com/hwhub/backend`
+
+```
+application/
+  service/
+config/
+domain/
+  enums/
+  model/
+  repository/
+  storage/
+infrastructure/
+  mybatis/
+    converter/
+    custom/
+      entity/
+      mapper/
+    generated/
+      entity/
+      mapper/
+    repository/
+  s3/
+presentation/
+  rest/
+    auth/dto/
+    code/dto/
+    common/
+    household/dto/
+    housework/dto/
+    invitation/dto/
+    shopping/
+      attachment/dto/
+      dto/
+      history/dto/
+    user/dto/
+security/
+tool/
+validation/
+  annotation/
+```
+
+- `domain/*`：ビジネスドメイン（Model / Repository IF / Enum など）
+- `infrastructure/mybatis/generated/*`：MBG 自動生成（編集禁止）
+- `infrastructure/mybatis/custom/*`：JOIN 等で必要な **手書き Entity/Mapper**
+- `presentation/rest/*`：Controller + DTO
+- `tool/*`：コード生成など開発支援（EnumGenerator 等）
+
+---
+
+## 4. ローカル開発
+
+### 4.1 前提
+
+- JDK 21
+- Docker / Docker Compose
+- MySQL（基本は docker compose で起動）
+- LocalStack（S3をローカルで擬似利用する場合に使用）
+
+### 4.2 起動（例）
+
+```bash
+# DB 起動（hw-hub-databaseリポジトリ側で実行してください）
+docker compose up -d
+
+# LocalStack 起動（当リポジトリ側で実行してください）
+docker compose up -d
+
+# アプリ起動（IDE からでも OK）
+./gradlew bootRun
+```
+
+---
+
+## 5. 開発コマンド
+
+### 5.1 ビルド
+
+```bash
+./gradlew clean build
+```
+
+### 5.2 テスト
+
+```bash
+./gradlew test
+```
+
+### 5.3 フォーマット/静的チェック（プロジェクト設定に合わせて）
+
+```bash
+./gradlew spotlessCheck
+# あるいは
+./gradlew spotlessApply
+```
+
+---
+
+## 6. カバレッジ（JaCoCo）と成果物
+
+### 6.1 レポート生成
+
+```bash
+./gradlew test jacocoTestReport
+```
+
+### 6.2 出力先
+
+- JaCoCo HTML: `build/reports/jacoco/test/html/index.html`
+- テストレポート: `build/reports/tests/test/index.html`
+
+### 6.3 GitHub Pages（CI）
+
+- main へ push / 手動実行で Pages に公開（workflow: `coverage-backend`）
+
+---
+
+## 7. Swagger / OpenAPI
+
+- 起動後、Swagger UI にアクセス
+    - `http://localhost:8080/swagger-ui/index.html`
+
+---
+
+## 8. DB マイグレーション（Flyway）
+
+hw-hub-databaseリポジトリ側で実施してください。
+
+- マイグレーション配置: `src/main/resources/db/migration`
+- 命名規約例: `V00_000_001__create_xxx.sql`
+
+```bash
+# アプリ起動時に自動適用される想定（設定による）
+./gradlew bootRun
+```
+
+---
+
+## 9. コード生成の運用（重要）
+
+### 9.1 コードマスタ（m_code）→ Enum 自動生成
+
+**DB のコードマスタ `m_code` を追加/更新したら、Enum を再生成します。**  
+Gradle タスク `generateEnums` を実行すると、`com.hwhub.backend.domain.enums` 配下が更新されます。
+
+```bash
+./gradlew generateEnums
+```
+
+- 変更が入った `domain/enums` をコミットして反映します。
+- **m_code の変更は “アプリの定数（Enum）” に直結する**ため、DB 側の変更後に必ず実行してください。
+
+### 9.2 DB 定義変更 → MyBatis Generator（MBG）再実行
+
+**テーブル定義やカラムを変更した場合は MBG の再実行が必要です。**  
+生成物は `infrastructure/mybatis/generated/*` に出力されます。
+
+実行コマンドはプロジェクトの Gradle タスク名に依存するため、まずタスク名を確認します：
+
+```bash
+# タスク一覧から mybatis / mbg を探す（Windows の例）
+./gradlew tasks | findstr /i mybatis
+./gradlew tasks | findstr /i mbg
+```
+
+```bash
+./gradlew mybatisGenerator
+```
+
+- `generated/*` は **手動で編集しない**（再生成で上書きされます）
+- JOIN などで生成物だけでは足りない場合は `custom/*` に追加します
+
+---
+
+## 10. よくあるトラブルシュート
+
+- 403 / CORS / JWT 周り：`security/`, `config/` を確認
+- DB 接続：`SPRING_DATASOURCE_*` の環境変数/Secrets を確認
+- ECS/ALB ヘルスチェック：`/actuator/health`（設定に依存）
+
+---
+
+## 付録：環境変数（例）
+
+実際の値は STG/本番では Secrets Manager 等から供給します。
+
+- `SPRING_PROFILES_ACTIVE`（例：`stg` / `prod`）
+- `SPRING_DATASOURCE_URL`
+- `SPRING_DATASOURCE_USERNAME`
+- `SPRING_DATASOURCE_PASSWORD`（Secret）
+- `HWHUB_JWT_SECRET`（Secret）
+- `HWHUB_OBJECT_STORAGE_BUCKET`
