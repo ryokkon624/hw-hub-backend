@@ -24,16 +24,46 @@ Hub（HwHub）は、家庭内の家事・買い物・メンバー管理を協調
 - フロントエンドは S3 + CloudFront によりホスティング
 - バッチは EventBridge Scheduler により起動
 
+### High-level Flow
+
+Online(frontend + backend)
+
+```mermaid
+flowchart LR
+    Browser["Browser"]
+    CloudFront["CloudFront"]
+    S3["S3 (Frontend SPA)"]
+    ALB["ALB"]
+    ECS["ECS (Backend API)"]
+    RDS["RDS (MySQL)"]
+    Browser --> CloudFront
+    CloudFront --> S3
+    S3 --> ALB
+    ALB --> ECS
+    ECS --> RDS
+```
+
+Batch Processing
+
+```mermaid
+flowchart LR
+    Scheduler["EventBridge Scheduler"]
+    ECSBatch["ECS (Batch Task)"]
+    RDS["RDS (MySQL)"]
+    Scheduler --> ECSBatch
+    ECSBatch --> RDS
+```
+
 ---
 
 ## リポジトリ一覧と役割
 
-| リポジトリ           | 役割                          | URL                                           |
-|-----------------|-----------------------------|-----------------------------------------------|
-| hw-hub-backend  | REST API / 認証 / 業務ロジック      | https://github.com/ryokkon624/hw-hub-backend  |
-| hw-hub-batch    | 定期実行ジョブ（タスク生成、再計算、期限切れ処理など） | https://github.com/ryokkon624/hw-hub-batch    |
-| hw-hub-frontend | Web UI                      | https://github.com/ryokkon624/hw-hub-frontend |
-| hw-hub-database | Flyway によるスキーマ管理            | https://github.com/ryokkon624/hw-hub-database |
+| リポジトリ                                                            | 役割                          |
+|------------------------------------------------------------------|-----------------------------|
+| [hw-hub-backend](https://github.com/ryokkon624/hw-hub-backend)   | REST API / 認証 / 業務ロジック      |
+| [hw-hub-batch](https://github.com/ryokkon624/hw-hub-batch)       | 定期実行ジョブ（タスク生成、再計算、期限切れ処理など） |
+| [hw-hub-frontend](https://github.com/ryokkon624/hw-hub-frontend) | Web UI                      |
+| [hw-hub-database](https://github.com/ryokkon624/hw-hub-database) | Flyway によるスキーマ管理            |
 
 ---
 
@@ -86,7 +116,7 @@ Hub（HwHub）は、家庭内の家事・買い物・メンバー管理を協調
 ## ドキュメント構成
 
 - 本 README: プロジェクト全体概要
-- 各リポジトリ配下の README:
+- 各リポジトリ配下の README: xxxx_README.md
     - セットアップ方法
     - 開発手順
     - テスト実行方法
@@ -97,10 +127,10 @@ Hub（HwHub）は、家庭内の家事・買い物・メンバー管理を協調
 
 ## 次に読むべきドキュメント
 
-- hw-hub-backend/README.md
-- hw-hub-batch/README.md
-- hw-hub-frontend/README.md
-- Runbook（障害対応手順書）
+- [backend_README.md](https://github.com/ryokkon624/hw-hub-backend/blob/main/backend_README.md)
+- [batch_README.md](https://github.com/ryokkon624/hw-hub-batch/blob/main/batch_README.md)
+- [frontend_README.md](https://github.com/ryokkon624/hw-hub-frontend/blob/main/frontend_README.md)
+- [database_README.md](https://github.com/ryokkon624/hw-hub-database/blob/main/database_README.md)
 
 ---
 
