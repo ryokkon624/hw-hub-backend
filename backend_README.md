@@ -25,54 +25,35 @@
 
 ---
 
-## 3. ディレクトリ構成（最新）
-
-`src/main/java/com/hwhub/backend`
+## 3. ディレクトリ構成
 
 ```
-application/
-  service/
-config/
-domain/
-  enums/
-  model/
-  repository/
-  storage/
-infrastructure/
-  mybatis/
-    converter/
-    custom/
-      entity/
-      mapper/
-    generated/
-      entity/
-      mapper/
-    repository/
-  s3/
-presentation/
-  rest/
-    auth/dto/
-    code/dto/
-    common/
-    household/dto/
-    housework/dto/
-    invitation/dto/
-    shopping/
-      attachment/dto/
-      dto/
-      history/dto/
-    user/dto/
-security/
-tool/
-validation/
-  annotation/
+src/main/java/com/hwhub/backend
+├── application/
+│   └── service/           # サービス層（ビジネスロジックの実行）
+├── config/                # 各種設定クラス
+├── domain/                # ビジネスルール
+│   ├── enums/             # コードマスタ由来の Enum（※編集禁止）
+│   ├── model/             # ドメインモデル
+│   ├── repository/        # リポジトリIF
+│   └── storage/           # ストレージ操作IF
+├── infrastructure/        # 外部接続実装（DB, S3等）
+│   ├── mybatis/
+│   │   ├── converter/     # Entity ⇔ Domain Modelの変換
+│   │   ├── generated/     # MBG自動生成（※編集禁止）
+│   │   │   ├── entity/    
+│   │   │   └── mapper/    
+│   │   ├── custom/        # 手書きEntity/Mapper（JOIN用など）
+│   │   │   ├── entity/    
+│   │   │   └── mapper/    
+│   │   └── repository/    # リポジトリ実装
+│   └── s3/                # AWS S3操作実装
+├── presentation/          # 外部接点（API）
+│   └── rest/              # Controller + DTO
+├── security/              # 認証・認可関連
+├── tool/                  # 開発支援（EnumGenerator等）
+└── validation/            # 独自バリデーション
 ```
-
-- `domain/*`：ビジネスドメイン（Model / Repository IF / Enum など）
-- `infrastructure/mybatis/generated/*`：MBG 自動生成（編集禁止）
-- `infrastructure/mybatis/custom/*`：JOIN 等で必要な **手書き Entity/Mapper**
-- `presentation/rest/*`：Controller + DTO
-- `tool/*`：コード生成など開発支援（EnumGenerator 等）
 
 ---
 
@@ -85,13 +66,13 @@ validation/
 - MySQL（基本は docker compose で起動）
 - LocalStack（S3をローカルで擬似利用する場合に使用）
 
-### 4.2 起動（例）
+### 4.2 起動
 
 ```bash
 # DB 起動（hw-hub-databaseリポジトリ側で実行してください）
 docker compose up -d
 
-# LocalStack 起動（当リポジトリ側で実行してください）
+# LocalStack 起動（当リポジトリで実行してください）
 docker compose up -d
 
 # アプリ起動（IDE からでも OK）
@@ -208,7 +189,7 @@ Gradle タスク `generateEnums` を実行すると、`com.hwhub.backend.domain.
 
 ---
 
-## 付録：環境変数（例）
+## 環境変数
 
 実際の値は STG/本番では Secrets Manager 等から供給します。
 
@@ -218,3 +199,4 @@ Gradle タスク `generateEnums` を実行すると、`com.hwhub.backend.domain.
 - `SPRING_DATASOURCE_PASSWORD`（Secret）
 - `HWHUB_JWT_SECRET`（Secret）
 - `HWHUB_OBJECT_STORAGE_BUCKET`
+
