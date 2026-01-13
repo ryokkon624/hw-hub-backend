@@ -52,4 +52,8 @@ public class HouseholdModel {
   public void changeName(String name) {
     this.name = name;
   }
+
+  public void changeOwner(Long newOwnerUserId) {
+    this.ownerUserId = newOwnerUserId;
+  }
 }

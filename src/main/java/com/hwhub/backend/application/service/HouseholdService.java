@@ -78,4 +78,30 @@ public class HouseholdService {
     // バッチ削除対象タイマーとして updated_at を更新
     householdRepository.update(household, userId, ProgramType.ONL_HLD.getCode());
   }
+
+  @Transactional
+  public void transferOwnership(Long householdId, Long currentUserId, Long newOwnerUserId) {
+    HouseholdModel household = householdRepository.findById(householdId);
+    if (household == null) {
+      throw new ResourceNotFoundException("Household not found: " + householdId);
+    }
+
+    if (!household.isOwner(currentUserId)) {
+      throw new AccessDeniedException("Only the owner can transfer ownership.");
+    }
+
+    // 新しいオーナーが世帯に参加しているかチェック
+    List<HouseholdMemberModel> activeMembers =
+        householdMemberRepository.findActiveByHouseholdId(householdId);
+    boolean isNewOwnerMember =
+        activeMembers.stream().anyMatch(m -> m.getUserId().equals(newOwnerUserId));
+
+    if (!isNewOwnerMember) {
+      throw new IllegalArgumentException(
+          "The new owner must be an active member of the household.");
+    }
+
+    household.changeOwner(newOwnerUserId);
+    householdRepository.update(household, currentUserId, ProgramType.ONL_HLD.getCode());
+  }
 }

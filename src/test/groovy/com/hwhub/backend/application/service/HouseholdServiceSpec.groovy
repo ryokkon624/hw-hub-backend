@@ -162,4 +162,78 @@ class HouseholdServiceSpec extends Specification {
         thrown(IllegalArgumentException)
         0 * householdMemberRepository.deleteByHouseholdId(_)
     }
+
+    // -------------------------------------------------
+    // transferOwnership
+    // -------------------------------------------------
+    def "transferOwnership: 正常系 - オーナー権限を他のメンバーに譲渡できる"() {
+        given:
+        Long householdId = 1L
+        Long currentOwnerId = 100L
+        Long newOwnerId = 200L
+        def householdModel = HouseholdModel.reconstruct(householdId, "Test Home", currentOwnerId)
+
+        // アクティブメンバー (自分 + 新しいオーナー)
+        def me = Mock(HouseholdMemberModel) { getUserId() >> currentOwnerId }
+        def nextOwner = Mock(HouseholdMemberModel) { getUserId() >> newOwnerId }
+        def members = [me, nextOwner]
+
+        when:
+        householdService.transferOwnership(householdId, currentOwnerId, newOwnerId)
+
+        then:
+        1 * householdRepository.findById(householdId) >> householdModel
+        1 * householdMemberRepository.findActiveByHouseholdId(householdId) >> members
+        1 * householdRepository.update(householdModel, currentOwnerId, ProgramType.ONL_HLD.code)
+
+        and:
+        householdModel.ownerUserId == newOwnerId
+    }
+
+    def "transferOwnership: 異常系 - 世帯が存在しない場合 ResourceNotFoundException"() {
+        given:
+        Long householdId = 1L
+        Long userId = 100L
+
+        when:
+        householdService.transferOwnership(householdId, userId, 200L)
+
+        then:
+        1 * householdRepository.findById(householdId) >> null
+        thrown(ResourceNotFoundException)
+    }
+
+    def "transferOwnership: 異常系 - 依頼者がオーナーでない場合 AccessDeniedException"() {
+        given:
+        Long householdId = 1L
+        Long userId = 999L // Not owner
+        def householdModel = HouseholdModel.reconstruct(householdId, "Test Home", 100L)
+
+        when:
+        householdService.transferOwnership(householdId, userId, 200L)
+
+        then:
+        1 * householdRepository.findById(householdId) >> householdModel
+        thrown(AccessDeniedException)
+    }
+
+    def "transferOwnership: 異常系 - 新オーナーが世帯に参加していない場合 IllegalArgumentException"() {
+        given:
+        Long householdId = 1L
+        Long currentOwnerId = 100L
+        Long nonMemberId = 999L
+        def householdModel = HouseholdModel.reconstruct(householdId, "Test Home", currentOwnerId)
+
+        // アクティブメンバー (自分のみ。譲渡先がいない)
+        def me = Mock(HouseholdMemberModel) { getUserId() >> currentOwnerId }
+        def members = [me]
+
+        when:
+        householdService.transferOwnership(householdId, currentOwnerId, nonMemberId)
+
+        then:
+        1 * householdRepository.findById(householdId) >> householdModel
+        1 * householdMemberRepository.findActiveByHouseholdId(householdId) >> members
+        thrown(IllegalArgumentException)
+    }
 }
