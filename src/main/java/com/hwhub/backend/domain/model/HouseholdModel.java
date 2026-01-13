@@ -34,13 +34,13 @@ public class HouseholdModel {
     return new HouseholdModel(householdId, name, ownerUserId);
   }
 
-    /**
-     * 新規追加時のファクトリメソッド。
-     *
-     * @param name 世帯名
-     * @param ownerUserId 世帯所有者
-     * @return インスタンスを返す。
-     */
+  /**
+   * 新規追加時のファクトリメソッド。
+   *
+   * @param name 世帯名
+   * @param ownerUserId 世帯所有者
+   * @return インスタンスを返す。
+   */
   public static HouseholdModel create(String name, Long ownerUserId) {
     return new HouseholdModel(null, name, ownerUserId);
   }

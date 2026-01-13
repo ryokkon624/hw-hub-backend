@@ -13,7 +13,8 @@ public class HouseholdAuthorizationService {
 
   /** 指定した userId が householdId に属していなければ例外を投げる. */
   public void assertUserBelongsToHousehold(Long householdId, Long userId) {
-    boolean isMember = householdMemberRepository.existsActiveByHouseholdIdAndUserId(householdId, userId);
+    boolean isMember =
+        householdMemberRepository.existsActiveByHouseholdIdAndUserId(householdId, userId);
     if (!isMember) {
       throw new AccessDeniedException(
           "User does not belong to household: userId=" + userId + ", householdId=" + householdId);

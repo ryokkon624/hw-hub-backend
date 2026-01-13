@@ -54,4 +54,9 @@ public class MyBatisHouseholdMemberRepository implements HouseholdMemberReposito
     // null更新はあり得ない
     mapper.updateByPrimaryKeySelective(entity);
   }
+
+  @Override
+  public void deleteByHouseholdId(Long householdId) {
+    customMapper.deleteByHouseholdId(householdId);
+  }
 }

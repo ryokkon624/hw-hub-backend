@@ -18,9 +18,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-  /**
-   * DTO(@RequestBody) の Bean Validation エラー 例: @Valid HouseworkRequest
-   */
+  /** DTO(@RequestBody) の Bean Validation エラー 例: @Valid HouseworkRequest */
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<ErrorResponse> handleMethodArgumentNotValid(
       MethodArgumentNotValidException ex) {
@@ -78,9 +76,7 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
   }
 
-  /**
-   * 認可エラー (Spring Security または自前で AccessDeniedException を投げた場合)
-   */
+  /** 認可エラー (Spring Security または自前で AccessDeniedException を投げた場合) */
   @ExceptionHandler(AccessDeniedException.class)
   public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException ex) {
 
@@ -90,9 +86,7 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
   }
 
-  /**
-   * リソースが見つからない場合（Optional.empty で orElseThrow したときなど） 好みで独自 NotFoundException を作ってもOK
-   */
+  /** リソースが見つからない場合（Optional.empty で orElseThrow したときなど） 好みで独自 NotFoundException を作ってもOK */
   @ExceptionHandler(ResourceNotFoundException.class)
   public ResponseEntity<ErrorResponse> handleResourceNotFound(ResourceNotFoundException ex) {
 
@@ -103,9 +97,7 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
   }
 
-  /**
-   * 既に使われているemailアドレスで登録しようとした場合
-   */
+  /** 既に使われているemailアドレスで登録しようとした場合 */
   @ExceptionHandler(EmailAlreadyUsedException.class)
   public ResponseEntity<ErrorResponse> handleEmailAlreadyUsed(EmailAlreadyUsedException ex) {
 
@@ -114,17 +106,11 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.CONFLICT).body(body); // 409
   }
 
-  /**
-   * 最後の砦：想定していない例外
-   */
+  /** 最後の砦：想定していない例外 */
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ErrorResponse> handleException(Exception ex, HttpServletRequest req) {
-    log.error(
-        "Unhandled exception: method={}, path={}",
-        req.getMethod(),
-        req.getRequestURI(),
-        ex);
-    
+    log.error("Unhandled exception: method={}, path={}", req.getMethod(), req.getRequestURI(), ex);
+
     ErrorResponse body = ErrorResponse.of("INTERNAL_SERVER_ERROR", "Unexpected error occurred.");
 
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);

@@ -5,17 +5,17 @@ import com.hwhub.backend.infrastructure.mybatis.generated.entity.MHouseworkExamp
 import java.util.List;
 
 public interface MHouseworkMapper {
-    int deleteByPrimaryKey(Long houseworkId);
+  int deleteByPrimaryKey(Long houseworkId);
 
-    int insert(MHousework row);
+  int insert(MHousework row);
 
-    int insertSelective(MHousework row);
+  int insertSelective(MHousework row);
 
-    List<MHousework> selectByExample(MHouseworkExample example);
+  List<MHousework> selectByExample(MHouseworkExample example);
 
-    MHousework selectByPrimaryKey(Long houseworkId);
+  MHousework selectByPrimaryKey(Long houseworkId);
 
-    int updateByPrimaryKeySelective(MHousework row);
+  int updateByPrimaryKeySelective(MHousework row);
 
-    int updateByPrimaryKey(MHousework row);
+  int updateByPrimaryKey(MHousework row);
 }

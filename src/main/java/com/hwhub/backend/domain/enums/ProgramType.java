@@ -1,41 +1,41 @@
 package com.hwhub.backend.domain.enums;
 
 public enum ProgramType implements CodeEnum {
-    SYSTEM("SYSTEM"),
-    ADMIN("ADMIN"),
-    ONL_AUTH("OnlAuth"),
-    ONL_CODE("OnlCode"),
-    ONL_HLDAUTH("OnlHldAuth"),
-    ONL_HLDINVI("OnlHldInvi"),
-    ONL_HLDMEM("OnlHldMem"),
-    ONL_HLD("OnlHld"),
-    ONL_HWR("OnlHwr"),
-    ONL_HWRTSK("OnlHwrTsk"),
-    ONL_SHPATCH("OnlShpAtch"),
-    ONL_SHP("OnlShp"),
-    ONL_USRICON("OnlUsrIcon"),
-    BTC_INV_EXPR("BtcInvExpr"),
-    BTC_TSK_GEN("BtcTskGen"),
-    BTC_TSK_RECL("BtcTskRecl"),
-    ONL_USR("OnlUsr");
+  SYSTEM("SYSTEM"),
+  ADMIN("ADMIN"),
+  ONL_AUTH("OnlAuth"),
+  ONL_CODE("OnlCode"),
+  ONL_HLDAUTH("OnlHldAuth"),
+  ONL_HLDINVI("OnlHldInvi"),
+  ONL_HLDMEM("OnlHldMem"),
+  ONL_HLD("OnlHld"),
+  ONL_HWR("OnlHwr"),
+  ONL_HWRTSK("OnlHwrTsk"),
+  ONL_SHPATCH("OnlShpAtch"),
+  ONL_SHP("OnlShp"),
+  ONL_USRICON("OnlUsrIcon"),
+  BTC_INV_EXPR("BtcInvExpr"),
+  BTC_TSK_GEN("BtcTskGen"),
+  BTC_TSK_RECL("BtcTskRecl"),
+  ONL_USR("OnlUsr");
 
-    private final String code;
+  private final String code;
 
-    ProgramType(String code) {
-        this.code = code;
+  ProgramType(String code) {
+    this.code = code;
+  }
+
+  @Override
+  public String getCode() {
+    return code;
+  }
+
+  public static ProgramType fromCode(String code) {
+    for (ProgramType v : values()) {
+      if (v.code.equals(code)) {
+        return v;
+      }
     }
-
-    @Override
-    public String getCode() {
-        return code;
-    }
-
-    public static ProgramType fromCode(String code) {
-        for (ProgramType v : values()) {
-            if (v.code.equals(code)) {
-                return v;
-            }
-        }
-        throw new IllegalArgumentException("Invalid ProgramType code: " + code);
-    }
+    throw new IllegalArgumentException("Invalid ProgramType code: " + code);
+  }
 }

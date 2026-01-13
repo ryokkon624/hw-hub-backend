@@ -25,7 +25,6 @@ class HouseholdInvitationServiceSpec extends Specification {
     HouseholdAuthorizationService authorizationService = Mock()
 
     HouseholdInvitationService service = new HouseholdInvitationService(
-            householdMemberRepository,
             userRepository,
             invRepository,
             memberRepository,

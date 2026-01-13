@@ -39,9 +39,7 @@ public class ObjectStorageConfig {
             .build();
 
     S3ClientBuilder builder =
-        S3Client.builder()
-            .region(Region.of(region))
-            .serviceConfiguration(serviceConfig);
+        S3Client.builder().region(Region.of(region)).serviceConfiguration(serviceConfig);
 
     String endpoint = awsS3Properties.getEndpoint();
     if (endpoint != null && !endpoint.isBlank()) {
@@ -50,9 +48,10 @@ public class ObjectStorageConfig {
       String secretKey = awsS3Properties.getSecretKey();
       AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
 
-      builder = builder
-          .endpointOverride(URI.create(endpoint))
-          .credentialsProvider(StaticCredentialsProvider.create(credentials));
+      builder =
+          builder
+              .endpointOverride(URI.create(endpoint))
+              .credentialsProvider(StaticCredentialsProvider.create(credentials));
     } else {
       // ECS/本番想定：Task Role などのデフォルトチェーン
       builder = builder.credentialsProvider(DefaultCredentialsProvider.builder().build());
@@ -72,9 +71,7 @@ public class ObjectStorageConfig {
             .build();
 
     S3Presigner.Builder builder =
-        S3Presigner.builder()
-            .region(Region.of(region))
-            .serviceConfiguration(serviceConfig);
+        S3Presigner.builder().region(Region.of(region)).serviceConfiguration(serviceConfig);
 
     String endpoint = awsS3Properties.getEndpoint();
     if (endpoint != null && !endpoint.isBlank()) {
@@ -82,9 +79,10 @@ public class ObjectStorageConfig {
       String secretKey = awsS3Properties.getSecretKey();
       AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
 
-      builder = builder
-          .endpointOverride(URI.create(endpoint))
-          .credentialsProvider(StaticCredentialsProvider.create(credentials));
+      builder =
+          builder
+              .endpointOverride(URI.create(endpoint))
+              .credentialsProvider(StaticCredentialsProvider.create(credentials));
     } else {
       builder = builder.credentialsProvider(DefaultCredentialsProvider.builder().build());
     }
@@ -107,9 +105,7 @@ public class ObjectStorageConfig {
   }
 
   public record ShoppingItemStorageSettings(
-      String bucket, String shoppingItemBasePath, Duration urlTtl) {
-
-  }
+      String bucket, String shoppingItemBasePath, Duration urlTtl) {}
 
   @Bean
   public UserIconStorageSettings userIconStorageSettings() {
@@ -119,7 +115,5 @@ public class ObjectStorageConfig {
         Duration.ofSeconds(objectStorageProperties.getUrlTtlSeconds()));
   }
 
-  public record UserIconStorageSettings(String bucket, String userIconBasePath, Duration urlTtl) {
-
-  }
+  public record UserIconStorageSettings(String bucket, String userIconBasePath, Duration urlTtl) {}
 }

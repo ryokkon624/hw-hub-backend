@@ -3,7 +3,6 @@ package com.hwhub.backend.infrastructure.mybatis.repository;
 import com.hwhub.backend.domain.model.HouseholdModel;
 import com.hwhub.backend.domain.repository.HouseholdRepository;
 import com.hwhub.backend.infrastructure.mybatis.converter.HouseholdConverter;
-import com.hwhub.backend.infrastructure.mybatis.custom.mapper.HouseholdCustomMapper;
 import com.hwhub.backend.infrastructure.mybatis.generated.entity.MHousehold;
 import com.hwhub.backend.infrastructure.mybatis.generated.mapper.MHouseholdMapper;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Repository;
 public class MyBatisHouseholdRepository implements HouseholdRepository {
 
   private final MHouseholdMapper mapper;
-  private final HouseholdCustomMapper customMapper;
 
   @Override
   public HouseholdModel insert(HouseholdModel model, Long userId, String program) {
