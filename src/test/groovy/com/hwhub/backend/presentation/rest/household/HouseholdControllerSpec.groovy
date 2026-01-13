@@ -51,4 +51,18 @@ class HouseholdControllerSpec extends Specification {
         // ステータスコードの検証は MockMvc が望ましいが、他のテストに合わせる。
         response == null
     }
+
+    def "transferOwner はオーナー譲渡をサービスに依頼する"() {
+        given:
+        Long householdId = 1L
+        def request = new com.hwhub.backend.presentation.rest.household.dto.TransferOwnerRequest(newOwnerUserId: 200L)
+        Authentication auth = Mock()
+        auth.getName() >> "100"
+
+        when:
+        controller.transferOwner(householdId, request, auth)
+
+        then:
+        1 * householdService.transferOwnership(householdId, 100L, 200L)
+    }
 }

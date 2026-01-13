@@ -84,4 +84,19 @@ class HouseholdModelSpec extends Specification {
         then:
         model.name == "new-name"
     }
+
+    // =========================
+    // changeOwner
+    // =========================
+
+    def "changeOwnerはownerUserIdを上書きする"() {
+        given:
+        def model = HouseholdModel.reconstruct(1L, "house", 10L)
+
+        when:
+        model.changeOwner(20L)
+
+        then:
+        model.ownerUserId == 20L
+    }
 }
