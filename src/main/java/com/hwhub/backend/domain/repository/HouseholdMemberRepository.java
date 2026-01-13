@@ -13,4 +13,6 @@ public interface HouseholdMemberRepository {
   HouseholdMemberModel findById(Long householdId, Long userId);
 
   void update(HouseholdMemberModel model, Long userId, String program);
+
+  void deleteByHouseholdId(Long householdId);
 }

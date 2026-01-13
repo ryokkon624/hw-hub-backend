@@ -57,4 +57,9 @@
           AND user_id = #{userId}
           AND status = '1'
     </select>
+
+    <delete id="deleteByHouseholdId" parameterType="long">
+        DELETE FROM m_household_member
+        WHERE household_id = #{householdId}
+    </delete>
 </mapper>

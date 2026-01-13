@@ -1,109 +1,165 @@
 package com.hwhub.backend.application.service
 
 import com.hwhub.backend.domain.enums.ProgramType
+import com.hwhub.backend.domain.model.HouseholdMemberModel
 import com.hwhub.backend.domain.model.HouseholdModel
 import com.hwhub.backend.domain.model.UserModel
+import com.hwhub.backend.domain.repository.HouseholdMemberRepository
 import com.hwhub.backend.domain.repository.HouseholdRepository
 import com.hwhub.backend.presentation.rest.common.ResourceNotFoundException
 import org.springframework.security.access.AccessDeniedException
 import spock.lang.Specification
 
-class HouseholdServiceSpec extends Specification{
+class HouseholdServiceSpec extends Specification {
 
-    HouseholdRepository householdRepository = Mock()
-    HouseholdAuthorizationService householdAuthorizationService = Mock()
-    HouseholdMemberService householdMemberService = Mock()
-    UserService userService = Mock()
+    HouseholdService householdService
+    HouseholdRepository householdRepository = Mock(HouseholdRepository)
+    HouseholdAuthorizationService householdAuthorizationService = Mock(HouseholdAuthorizationService)
+    HouseholdMemberService householdMemberService = Mock(HouseholdMemberService)
+    UserService userService = Mock(UserService)
+    HouseholdMemberRepository householdMemberRepository = Mock(HouseholdMemberRepository)
 
-    HouseholdService service = new HouseholdService(
+    def setup() {
+        householdService = new HouseholdService(
             householdRepository,
             householdAuthorizationService,
             householdMemberService,
-            userService
-    )
+            userService,
+            householdMemberRepository
+        )
+    }
 
-    // ==================================
-    // updateHouseholdName
-    // ==================================
-
-    def "updateHouseholdNameは認可チェック後世帯名を変更し更新する"() {
+    // -------------------------------------------------
+    // createHousehold
+    // -------------------------------------------------
+    def "createHousehold は世帯を作成し、作成者をメンバーとして登録して返す"() {
         given:
-        Long householdId = 1L
-        Long userId = 10L
-        String newName = "新しい世帯名"
-
-        def household = Mock(HouseholdModel)
+        Long userId = 100L
+        String name = "My Home"
+        def userProfile = UserModel.reconstruct(userId, "user@example.com", "pass", "Taro", "ja", null, true)
+        def insertedHousehold = HouseholdModel.reconstruct(1L, name, userId)
 
         when:
-        service.updateHouseholdName(householdId, userId, newName)
+        def result = householdService.createHousehold(userId, name)
+
+        then:
+        1 * householdRepository.insert(_ as HouseholdModel, userId, ProgramType.ONL_HLD.code) >> insertedHousehold
+        1 * userService.getProfile(userId) >> userProfile
+        1 * householdMemberService.createMember(1L, userId, "Taro", userId)
+        
+        and:
+        result.householdId == 1L
+        result.name == name
+        result.ownerUserId == userId
+    }
+
+    // -------------------------------------------------
+    // updateHouseholdName
+    // -------------------------------------------------
+    def "updateHouseholdName は認可チェック後に世帯名を更新する"() {
+        given:
+        Long householdId = 1L
+        Long userId = 100L
+        String newName = "New Name"
+        def model = HouseholdModel.reconstruct(householdId, "Old Name", userId)
+
+        when:
+        householdService.updateHouseholdName(householdId, userId, newName)
 
         then:
         1 * householdAuthorizationService.assertUserBelongsToHousehold(householdId, userId)
-        1 * householdRepository.findById(householdId) >> household
-        1 * household.changeName(newName)
-        1 * householdRepository.update(household, userId, ProgramType.ONL_HLD.code)
+        1 * householdRepository.findById(householdId) >> model
+        1 * householdRepository.update(model, userId, ProgramType.ONL_HLD.code)
+        
+        and:
+        model.name == newName
     }
 
-    def "updateHouseholdNameは世帯が存在しない場合ResourceNotFoundExceptionを投げる"() {
+    def "updateHouseholdName: 世帯が見つからない場合は ResourceNotFoundException"() {
         given:
-        Long householdId = 99L
-        Long userId = 10L
+        Long householdId = 1L
+        Long userId = 100L
 
         when:
-        service.updateHouseholdName(householdId, userId, "name")
+        householdService.updateHouseholdName(householdId, userId, "New Name")
 
         then:
         1 * householdAuthorizationService.assertUserBelongsToHousehold(householdId, userId)
         1 * householdRepository.findById(householdId) >> null
-        0 * householdRepository.update(_, _, _)
         thrown(ResourceNotFoundException)
+        0 * householdRepository.update(_, _, _)
     }
 
-    // ==================================
-    // createHousehold
-    // ==================================
-
-    def "createHouseholdは世帯を作成し本人をメンバーとして登録してからinsert結果を返す"() {
+    // -------------------------------------------------
+    // deleteHousehold
+    // -------------------------------------------------
+    def "deleteHousehold: 正常系 - オーナーかつ自分以外のメンバーがいない場合削除成功"() {
         given:
-        Long userId = 10L
-        String name = "マイ世帯"
+        Long householdId = 1L
+        Long userId = 100L
+        def householdModel = HouseholdModel.reconstruct(1L, "Test Home", 100L)
 
-        // insert後の世帯（IDが振られている想定）
-        def inserted = Mock(HouseholdModel) {
-            getHouseholdId() >> 123L
-        }
-
-        // ユーザプロフィール
-        def userModel = UserModel.reconstruct(
-                userId,
-                "user@example.com",
-                "hashed",
-                "表示名太郎",
-                "ja",
-                null,
-                true
-        )
+        // mock member (自分)
+        def me = Mock(HouseholdMemberModel)
+        def members = [me]
 
         when:
-        def result = service.createHousehold(userId, name)
+        householdService.deleteHousehold(householdId, userId)
 
         then:
-        // HouseholdModel.create(...) で生成されたインスタンスが渡ってくるので
-        // insert 時点では houseId == null であることだけ軽く確認
-        1 * householdRepository.insert(_, userId, ProgramType.ONL_HLD.code) >> { args ->
-            def m = args[0] as HouseholdModel
-            assert m.householdId == null
-            assert m.isOwner(userId)   // create(name, userId) の仕様に依存（オーナー設定されている想定）
-            return inserted
-        }
+        1 * householdRepository.findById(householdId) >> householdModel
+        1 * householdMemberRepository.findActiveByHouseholdId(householdId) >> members
+        1 * householdMemberRepository.deleteByHouseholdId(householdId)
+        1 * householdRepository.update(householdModel, userId, ProgramType.ONL_HLD.code)
+    }
 
-        1 * userService.getProfile(userId) >> userModel
+    def "deleteHousehold: 異常系 - 世帯が存在しない場合 ResourceNotFoundException"() {
+        given:
+        Long householdId = 1L
+        Long userId = 100L
 
-        // ★ここがさっきの修正版の肝：
-        // inserted.getHouseholdId() が createMember に渡されていることを検証
-        1 * householdMemberService.createMember(123L, userId, "表示名太郎", userId)
+        when:
+        householdService.deleteHousehold(householdId, userId)
 
-        and:
-        result == inserted
+        then:
+        1 * householdRepository.findById(householdId) >> null
+        thrown(ResourceNotFoundException)
+        0 * householdMemberRepository.deleteByHouseholdId(_)
+    }
+
+    def "deleteHousehold: 異常系 - オーナーでない場合 AccessDeniedException"() {
+        given:
+        Long householdId = 1L
+        Long userId = 200L // Not owner
+        def householdModel = HouseholdModel.reconstruct(1L, "Test Home", 100L)
+
+        when:
+        householdService.deleteHousehold(householdId, userId)
+
+        then:
+        1 * householdRepository.findById(householdId) >> householdModel
+        thrown(AccessDeniedException)
+        0 * householdMemberRepository.deleteByHouseholdId(_)
+    }
+
+    def "deleteHousehold: 異常系 - 他のアクティブメンバーがいる場合 IllegalArgumentException"() {
+        given:
+        Long householdId = 1L
+        Long userId = 100L
+        def householdModel = HouseholdModel.reconstruct(1L, "Test Home", 100L)
+
+        // mock members (自分 + 他人)
+        def me = Mock(HouseholdMemberModel)
+        def other = Mock(HouseholdMemberModel)
+        def members = [me, other]
+
+        when:
+        householdService.deleteHousehold(householdId, userId)
+
+        then:
+        1 * householdRepository.findById(householdId) >> householdModel
+        1 * householdMemberRepository.findActiveByHouseholdId(householdId) >> members
+        thrown(IllegalArgumentException)
+        0 * householdMemberRepository.deleteByHouseholdId(_)
     }
 }

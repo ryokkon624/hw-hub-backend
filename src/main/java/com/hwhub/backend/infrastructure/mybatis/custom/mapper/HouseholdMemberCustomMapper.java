@@ -11,4 +11,6 @@ public interface HouseholdMemberCustomMapper {
 
   int countActiveByHouseholdIdAndUserId(
       @Param("householdId") Long householdId, @Param("userId") Long userId);
+
+  void deleteByHouseholdId(@Param("householdId") Long householdId);
 }

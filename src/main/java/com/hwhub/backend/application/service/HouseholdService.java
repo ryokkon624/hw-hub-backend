@@ -1,11 +1,15 @@
 package com.hwhub.backend.application.service;
 
 import com.hwhub.backend.domain.enums.ProgramType;
+import com.hwhub.backend.domain.model.HouseholdMemberModel;
 import com.hwhub.backend.domain.model.HouseholdModel;
 import com.hwhub.backend.domain.model.UserModel;
 import com.hwhub.backend.domain.repository.HouseholdRepository;
+import com.hwhub.backend.domain.repository.HouseholdMemberRepository;
 import com.hwhub.backend.presentation.rest.common.ResourceNotFoundException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +21,7 @@ public class HouseholdService {
   private final HouseholdAuthorizationService householdAuthorizationService;
   private final HouseholdMemberService householdMemberService;
   private final UserService userService;
+  private final HouseholdMemberRepository householdMemberRepository;
 
   @Transactional
   public void updateHouseholdName(Long householdId, Long userId, String name) {
@@ -37,8 +42,7 @@ public class HouseholdService {
 
     // 世帯登録
     HouseholdModel model = HouseholdModel.create(name, userId);
-    HouseholdModel inserted =
-        householdRepository.insert(model, userId, ProgramType.ONL_HLD.getCode());
+    HouseholdModel inserted = householdRepository.insert(model, userId, ProgramType.ONL_HLD.getCode());
 
     // 自身をメンバーとして登録。ニックネーム初期値はユーザの表示名。
     UserModel userModel = userService.getProfile(userId);
@@ -46,5 +50,30 @@ public class HouseholdService {
         inserted.getHouseholdId(), userId, userModel.getDisplayName(), userId);
 
     return inserted;
+  }
+
+  @Transactional
+  public void deleteHousehold(Long householdId, Long userId) {
+    HouseholdModel household = householdRepository.findById(householdId);
+    if (household == null) {
+      throw new ResourceNotFoundException("Household not found: " + householdId);
+    }
+
+    if (!household.isOwner(userId)) {
+      throw new AccessDeniedException("Only the owner can delete the household.");
+    }
+
+    // 他の有効なメンバーがいる場合は削除不可（安全策）
+    List<HouseholdMemberModel> activeMembers = householdMemberRepository.findActiveByHouseholdId(householdId);
+    if (activeMembers.size() > 1) {
+      throw new IllegalArgumentException(
+          "Cannot delete household with other active members. Please remove them first.");
+    }
+
+    // メンバーを物理削除（全員）
+    householdMemberRepository.deleteByHouseholdId(householdId);
+
+    // バッチ削除対象タイマーとして updated_at を更新
+    householdRepository.update(household, userId, ProgramType.ONL_HLD.getCode());
   }
 }

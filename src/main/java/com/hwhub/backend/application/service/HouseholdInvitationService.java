@@ -22,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class HouseholdInvitationService {
 
-  private final HouseholdMemberRepository householdMemberRepository;
   private final UserRepository userRepository;
   private final HouseholdInvitationRepository invRepository;
   private final HouseholdMemberRepository memberRepository;
