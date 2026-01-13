@@ -5,21 +5,21 @@ import com.hwhub.backend.infrastructure.mybatis.generated.entity.MAnnouncementEx
 import java.util.List;
 
 public interface MAnnouncementMapper {
-    int deleteByPrimaryKey(Long announcementId);
+  int deleteByPrimaryKey(Long announcementId);
 
-    int insert(MAnnouncement row);
+  int insert(MAnnouncement row);
 
-    int insertSelective(MAnnouncement row);
+  int insertSelective(MAnnouncement row);
 
-    List<MAnnouncement> selectByExampleWithBLOBs(MAnnouncementExample example);
+  List<MAnnouncement> selectByExampleWithBLOBs(MAnnouncementExample example);
 
-    List<MAnnouncement> selectByExample(MAnnouncementExample example);
+  List<MAnnouncement> selectByExample(MAnnouncementExample example);
 
-    MAnnouncement selectByPrimaryKey(Long announcementId);
+  MAnnouncement selectByPrimaryKey(Long announcementId);
 
-    int updateByPrimaryKeySelective(MAnnouncement row);
+  int updateByPrimaryKeySelective(MAnnouncement row);
 
-    int updateByPrimaryKeyWithBLOBs(MAnnouncement row);
+  int updateByPrimaryKeyWithBLOBs(MAnnouncement row);
 
-    int updateByPrimaryKey(MAnnouncement row);
+  int updateByPrimaryKey(MAnnouncement row);
 }

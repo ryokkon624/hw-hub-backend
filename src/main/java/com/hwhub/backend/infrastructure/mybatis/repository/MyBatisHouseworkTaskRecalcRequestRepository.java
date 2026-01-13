@@ -16,8 +16,7 @@ public class MyBatisHouseworkTaskRecalcRequestRepository
   private final THouseworkTaskRecalcRequestMapper mapper;
 
   @Override
-  public void enqueue(
-          HouseworkTaskRecalcRequestModel model, long userId, String program) {
+  public void enqueue(HouseworkTaskRecalcRequestModel model, long userId, String program) {
 
     THouseworkTaskRecalcRequest entity = HouseworkTaskRecalcRequestConverter.toEntity(model);
 

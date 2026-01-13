@@ -33,7 +33,8 @@ public class SecurityConfig {
             auth ->
                 auth
                     // actuator
-                    .requestMatchers("/actuator/health", "/actuator/info").permitAll()
+                    .requestMatchers("/actuator/health", "/actuator/info")
+                    .permitAll()
                     // 認証なしで叩けるAPI: swagger, auth
                     .requestMatchers(
                         "/api/auth/login", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**")
@@ -43,7 +44,8 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.GET, "/api/household-invitations/**")
                     .permitAll()
                     // protected
-                    .requestMatchers("/api/**").authenticated()
+                    .requestMatchers("/api/**")
+                    .authenticated()
                     // others
                     .anyRequest()
                     .permitAll());

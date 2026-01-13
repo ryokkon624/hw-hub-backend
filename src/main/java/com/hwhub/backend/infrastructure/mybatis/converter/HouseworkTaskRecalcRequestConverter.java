@@ -6,8 +6,7 @@ import com.hwhub.backend.infrastructure.mybatis.generated.entity.THouseworkTaskR
 public final class HouseworkTaskRecalcRequestConverter {
   private HouseworkTaskRecalcRequestConverter() {}
 
-  public static THouseworkTaskRecalcRequest toEntity(
-      HouseworkTaskRecalcRequestModel model) {
+  public static THouseworkTaskRecalcRequest toEntity(HouseworkTaskRecalcRequestModel model) {
     if (model == null) {
       return null;
     }
