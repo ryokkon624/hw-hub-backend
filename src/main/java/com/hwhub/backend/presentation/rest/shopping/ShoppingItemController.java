@@ -57,7 +57,7 @@ public class ShoppingItemController {
    */
   @PatchMapping("/shopping-items/{shoppingItemId}/favorite")
   public ResponseEntity<Void> updateFavorite(
-      @PathVariable Long shoppingItemId,
+      @PathVariable("shoppingItemId") Long shoppingItemId,
       @RequestBody @Valid UpdateFavoriteRequest request,
       Authentication authentication) {
     long userId = Long.parseLong(authentication.getName());
@@ -79,7 +79,7 @@ public class ShoppingItemController {
    */
   @PatchMapping("/shopping-items/{shoppingItemId}/status")
   public ResponseEntity<Void> updateStatus(
-      @PathVariable Long shoppingItemId,
+      @PathVariable("shoppingItemId") Long shoppingItemId,
       @RequestBody @Valid UpdateStatusRequest request,
       Authentication authentication) {
     long userId = Long.parseLong(authentication.getName());
@@ -100,7 +100,7 @@ public class ShoppingItemController {
    */
   @PostMapping("/households/{householdId}/shopping-items")
   public ResponseEntity<ShoppingItemDto> create(
-      @PathVariable Long householdId,
+      @PathVariable("householdId") Long householdId,
       @RequestBody @Valid CreateShoppingItemRequest request,
       Authentication authentication) {
 
@@ -129,8 +129,8 @@ public class ShoppingItemController {
    */
   @PutMapping("/households/{householdId}/shopping-items/{shoppingItemId}")
   public ResponseEntity<ShoppingItemDto> update(
-      @PathVariable Long householdId,
-      @PathVariable Long shoppingItemId,
+      @PathVariable("householdId") Long householdId,
+      @PathVariable("shoppingItemId") Long shoppingItemId,
       @Valid @RequestBody UpdateShoppingItemRequest request,
       Authentication authentication) {
 

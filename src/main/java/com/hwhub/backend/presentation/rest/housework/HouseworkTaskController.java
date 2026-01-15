@@ -32,7 +32,7 @@ public class HouseworkTaskController {
    */
   @GetMapping
   public List<HouseworkTaskResponse> getTasks(
-      @RequestParam Long householdId,
+      @RequestParam("householdId") Long householdId,
       @RequestParam(name = "status", defaultValue = "0") @EnumValue(enumClass = TaskStatus.class)
           String status,
       Authentication authentication) {
@@ -54,7 +54,7 @@ public class HouseworkTaskController {
   @PatchMapping("/{taskId}/assign")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void updateAssignee(
-      @PathVariable Long taskId,
+      @PathVariable("taskId") Long taskId,
       @Valid @RequestBody UpdateAssigneeRequest request,
       Authentication authentication) {
     Long loginUserId = Long.valueOf(authentication.getName());
@@ -72,7 +72,7 @@ public class HouseworkTaskController {
   @PatchMapping("/{taskId}/status")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void updateStatus(
-      @PathVariable Long taskId,
+      @PathVariable("taskId") Long taskId,
       @Valid @RequestBody UpdateStatusRequest request,
       Authentication authentication) {
     Long loginUserId = Long.valueOf(authentication.getName());

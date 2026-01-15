@@ -13,4 +13,6 @@ public interface HouseholdMemberCustomMapper {
       @Param("householdId") Long householdId, @Param("userId") Long userId);
 
   void deleteByHouseholdId(@Param("householdId") Long householdId);
+
+  void deleteByUserId(@Param("userId") Long userId);
 }

@@ -16,14 +16,14 @@ public class HouseholdInvitationController {
   private final HouseholdInvitationService service;
 
   @GetMapping("/{token}")
-  public InvitationResponce getInvitation(@PathVariable String token) {
+  public InvitationResponce getInvitation(@PathVariable("token") String token) {
     HouseholdInvitationModel model = service.getInvitation(token);
     return InvitationResponce.fromModel(model);
   }
 
   @PostMapping("/{token}/accept")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void accept(@PathVariable String token, Authentication authentication) {
+  public void accept(@PathVariable("token") String token, Authentication authentication) {
 
     Long loginUserId = Long.valueOf(authentication.getName());
     service.acceptInvitation(token, loginUserId);
@@ -31,14 +31,14 @@ public class HouseholdInvitationController {
 
   @PostMapping("/{token}/decline")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void decline(@PathVariable String token, Authentication authentication) {
+  public void decline(@PathVariable("token") String token, Authentication authentication) {
     Long loginUserId = Long.valueOf(authentication.getName());
     service.declineInvitation(token, loginUserId);
   }
 
   @PostMapping("/{token}/revoke")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void revoke(@PathVariable String token, Authentication authentication) {
+  public void revoke(@PathVariable("token") String token, Authentication authentication) {
     Long loginUserId = Long.valueOf(authentication.getName());
     service.revokeInvitation(token, loginUserId);
   }

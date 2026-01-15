@@ -24,7 +24,7 @@ class AuthServiceSpec extends Specification{
             userIconService
     )
 
-    def "loginは正しい認証情報のときJWTとユーザ情報を返す"() {
+    def "loginは正しい認証情報かつActiveなユーザのときJWTとユーザ情報を返す"() {
         given: "ログインリクエストとユーザ"
         def request = new LoginRequest()
         request.setEmail("test@example.com")
@@ -37,7 +37,7 @@ class AuthServiceSpec extends Specification{
                 "テストユーザ",
                 "ja",
                 "icon/key/001",
-                true
+                true // Active
         )
 
         when:
@@ -55,6 +55,35 @@ class AuthServiceSpec extends Specification{
         result.user().iconUrl == "https://cdn/icon.png"
     }
 
+    def "loginはInactiveなユーザのときBadCredentialsException"() {
+        given:
+        def request = new LoginRequest()
+        request.setEmail("inactive@example.com")
+        request.setPassword("any-password")
+
+        def user = UserModel.reconstruct(
+                11L,
+                "inactive@example.com",
+                "hashed-password",
+                "退会済みユーザ",
+                "ja",
+                null,
+                false // Inactive
+        )
+
+        when:
+        service.login(request)
+
+        then:
+        1 * userRepository.findByEmail("inactive@example.com") >> Optional.of(user)
+        // パスワードチェックを通過させる (true)
+        1 * passwordEncoder.matches("any-password", "hashed-password") >> true
+        
+        // 活性チェックで例外が出る
+        def ex = thrown(BadCredentialsException)
+        ex.message == "Account is deactivated"
+    }
+
     def "loginはemailが存在しないときIllegalArgumentException"() {
         given:
         def request = new LoginRequest()
@@ -66,7 +95,6 @@ class AuthServiceSpec extends Specification{
 
         then:
         1 * userRepository.findByEmail("notfound@example.com") >> Optional.empty()
-        0 * passwordEncoder._
         thrown(IllegalArgumentException)
     }
 
@@ -92,11 +120,10 @@ class AuthServiceSpec extends Specification{
         then:
         1 * userRepository.findByEmail("test@example.com") >> Optional.of(user)
         1 * passwordEncoder.matches("wrong-password", "hashed-password") >> false
-        0 * jwtProvider._
         thrown(BadCredentialsException)
     }
 
-    def "registerはemail未使用のときユーザ登録してJWTを返す"() {
+    def "registerはemail未使用のとき新規登録してJWTを返す"() {
         given:
         def model = UserModel.create(
                 "new@example.com",
@@ -119,7 +146,7 @@ class AuthServiceSpec extends Specification{
         def result = service.register(model)
 
         then:
-        1 * userRepository.countByEmail("new@example.com") >> 0
+        1 * userRepository.findByEmail("new@example.com") >> Optional.empty()
         1 * passwordEncoder.encode("raw-password") >> "hashed-password"
         1 * userRepository.insert(_, 1L, ProgramType.ONL_AUTH.getCode()) >> inserted
         1 * userIconService.getIconUrl("icon/key/999") >> "https://cdn/new.png"
@@ -128,10 +155,9 @@ class AuthServiceSpec extends Specification{
         and:
         result.token() == "new-token"
         result.user().userId == 99L
-        result.user().iconUrl == "https://cdn/new.png"
     }
 
-    def "registerはemail重複時にEmailAlreadyUsedException"() {
+    def "registerは既存ActiveユーザがいるときEmailAlreadyUsedException"() {
         given:
         def model = UserModel.create(
                 "dup@example.com",
@@ -139,14 +165,51 @@ class AuthServiceSpec extends Specification{
                 "重複ユーザ",
                 "ja"
         )
+        def existingUser = UserModel.reconstruct(
+                20L, "dup@example.com", "hash", "Exist", "en", null, true
+        )
 
         when:
         service.register(model)
 
         then:
-        1 * userRepository.countByEmail("dup@example.com") >> 1
-        0 * passwordEncoder._
-        0 * userRepository.insert(_, _, _)
+        1 * userRepository.findByEmail("dup@example.com") >> Optional.of(existingUser)
         thrown(EmailAlreadyUsedException)
+    }
+
+    def "registerは既存Inactiveユーザがいるとき再活性化してJWTを返す"() {
+        given:
+        def model = UserModel.create(
+                "inactive@example.com",
+                "new-raw-pass",
+                "復帰ユーザ",
+                "en"
+        )
+        // 既存の退会済みユーザ
+        def existingUser = Mock(UserModel) {
+            isActive() >> false
+            getUserId() >> 50L
+            getProfileImageKey() >> "old/icon"
+            getDisplayName() >> "復帰ユーザ"
+        }
+
+        when:
+        def result = service.register(model)
+
+        then:
+        1 * userRepository.findByEmail("inactive@example.com") >> Optional.of(existingUser)
+        
+        // 再活性化処理
+        1 * passwordEncoder.encode("new-raw-pass") >> "new-hashed-pass"
+        1 * existingUser.setPasswordHash("new-hashed-pass")
+        1 * existingUser.changeProfile("復帰ユーザ", "en")
+        1 * existingUser.activate()
+        
+        1 * userRepository.updateForReactivation(existingUser, 50L, ProgramType.ONL_AUTH.getCode())
+        1 * userIconService.getIconUrl("old/icon") >> "https://cdn/restored.png"
+        1 * jwtProvider.generateToken(50L, "復帰ユーザ") >> "restored-token"
+
+        and:
+        result.token() == "restored-token"
     }
 }

@@ -122,4 +122,9 @@ public class UserModel {
   public void changeProfileImageKey(String profileImageKey) {
     this.profileImageKey = profileImageKey;
   }
+
+  /** ユーザを活性化する。 */
+  public void activate() {
+    this.isActive = true;
+  }
 }

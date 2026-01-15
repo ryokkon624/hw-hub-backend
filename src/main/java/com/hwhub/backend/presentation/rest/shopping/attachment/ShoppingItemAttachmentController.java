@@ -27,7 +27,7 @@ public class ShoppingItemAttachmentController {
 
   @PostMapping("/upload-url")
   public CreateUploadUrlResponse createUploadUrl(
-      @PathVariable Long itemId,
+      @PathVariable("itemId") Long itemId,
       @Valid @RequestBody CreateUploadUrlRequest request,
       Authentication authentication) {
 
@@ -41,7 +41,7 @@ public class ShoppingItemAttachmentController {
 
   @PostMapping
   public CreateAttachmentResponse createAttachment(
-      @PathVariable Long itemId,
+      @PathVariable("itemId") Long itemId,
       @Valid @RequestBody CreateAttachmentRequest request,
       Authentication authentication) {
 
@@ -56,7 +56,7 @@ public class ShoppingItemAttachmentController {
 
   @GetMapping
   public List<ShoppingItemAttachmentResponse> listAttachments(
-      @PathVariable Long itemId, Authentication authentication) {
+      @PathVariable("itemId") Long itemId, Authentication authentication) {
 
     long userId = Long.parseLong(authentication.getName());
 
@@ -71,7 +71,9 @@ public class ShoppingItemAttachmentController {
 
   @DeleteMapping("/{attachmentId}")
   public void deleteAttachment(
-      @PathVariable Long itemId, @PathVariable Long attachmentId, Authentication authentication) {
+      @PathVariable("itemId") Long itemId,
+      @PathVariable("attachmentId") Long attachmentId,
+      Authentication authentication) {
 
     long userId = Long.parseLong(authentication.getName());
 

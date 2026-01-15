@@ -13,10 +13,12 @@ class UserServiceSpec extends Specification {
 
     UserRepository userRepository = Mock()
     UserIconService userIconService = Mock()
+    com.hwhub.backend.domain.repository.HouseholdMemberRepository householdMemberRepository = Mock()
 
     UserService service = new UserService(
             userRepository,
-            userIconService
+            userIconService,
+            householdMemberRepository
     )
 
     // ==================================
@@ -119,5 +121,92 @@ class UserServiceSpec extends Specification {
 
         and:
         result == user
+    }
+    // ==================================
+    // deleteAccount
+    // ==================================
+
+    def "deleteAccountは自分がOWNERで他にもメンバーがいる場合IllegalArgumentExceptionを投げる"() {
+        given:
+        Long userId = 40L
+        Long householdId = 100L
+
+        // 自分はOWNER
+        def household = Mock(HouseholdModel) {
+            getHouseholdId() >> householdId
+            isOwner(userId) >> true
+            getName() >> "My Home"
+        }
+
+        // メンバーは複数人いる
+        def members = [
+                Mock(com.hwhub.backend.domain.model.HouseholdMemberModel),
+                Mock(com.hwhub.backend.domain.model.HouseholdMemberModel)
+        ]
+
+        when:
+        service.deleteAccount(userId)
+
+        then:
+        1 * userRepository.findHouseholdsByUserId(userId) >> [household]
+        1 * householdMemberRepository.findActiveByHouseholdId(householdId) >> members
+        
+        0 * userRepository.deactivate(_, _)
+        0 * householdMemberRepository.deleteByUserId(_)
+        
+        thrown(IllegalArgumentException)
+    }
+
+    def "deleteAccountは自分がOWNERでもメンバーが自分だけなら退会可能"() {
+        given:
+        Long userId = 41L
+        Long householdId = 101L
+
+        // 自分はOWNER
+        def household = Mock(HouseholdModel) {
+            getHouseholdId() >> householdId
+            isOwner(userId) >> true
+        }
+
+        // メンバーは自分だけ
+        def members = [
+                Mock(com.hwhub.backend.domain.model.HouseholdMemberModel)
+        ]
+
+        when:
+        service.deleteAccount(userId)
+
+        then:
+        1 * userRepository.findHouseholdsByUserId(userId) >> [household]
+        1 * householdMemberRepository.findActiveByHouseholdId(householdId) >> members
+
+        // 退会処理が進む
+        1 * userRepository.deactivate(userId, ProgramType.ONL_USR.code)
+        1 * householdMemberRepository.deleteByUserId(userId)
+    }
+
+    def "deleteAccountは一般メンバーなら即退会可能"() {
+        given:
+        Long userId = 42L
+        Long householdId = 102L
+
+        // 自分はMEMBER (OWNERではない)
+        def household = Mock(HouseholdModel) {
+            getHouseholdId() >> householdId
+            isOwner(userId) >> false
+        }
+
+        when:
+        service.deleteAccount(userId)
+
+        then:
+        1 * userRepository.findHouseholdsByUserId(userId) >> [household]
+        
+        // メンバー数チェックはスキップされる
+        0 * householdMemberRepository.findActiveByHouseholdId(_)
+
+        // 退会処理が進む
+        1 * userRepository.deactivate(userId, ProgramType.ONL_USR.code)
+        1 * householdMemberRepository.deleteByUserId(userId)
     }
 }

@@ -166,4 +166,20 @@ class UserControllerSpec extends Specification {
         then:
         1 * userIconService.updateUserIcon(userId, "user-icon/50/icon.jpg")
     }
+    // ----------------------------------------------------
+    // deleteAccount
+    // ----------------------------------------------------
+
+    def "deleteAccount は認証ユーザIDで UserService.deleteAccount を呼ぶ"() {
+        given:
+        Long userId = 60L
+        Authentication auth = Mock()
+        auth.getName() >> String.valueOf(userId)
+
+        when:
+        controller.deleteAccount(auth)
+
+        then:
+        1 * userService.deleteAccount(userId)
+    }
 }
