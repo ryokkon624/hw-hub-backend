@@ -10,6 +10,7 @@
     <result column="display_name" jdbcType="VARCHAR" property="displayName" />
     <result column="profile_image_key" jdbcType="VARCHAR" property="profileImageKey" />
     <result column="locale" jdbcType="VARCHAR" property="locale" />
+    <result column="email_verified_at" jdbcType="TIMESTAMP" property="emailVerifiedAt" />
     <result column="is_active" jdbcType="BIT" property="isActive" />
     <result column="create_user_id" jdbcType="BIGINT" property="createUserId" />
     <result column="create_program" jdbcType="VARCHAR" property="createProgram" />
@@ -49,8 +50,8 @@
   </sql>
   <sql id="Base_Column_List">
     user_id, email, password_hash, auth_provider, auth_provider_id, display_name, profile_image_key, 
-    `locale`, is_active, create_user_id, create_program, created_at, update_user_id, 
-    update_program, updated_at
+    `locale`, email_verified_at, is_active, create_user_id, create_program, created_at, 
+    update_user_id, update_program, updated_at
   </sql>
   <select id="selectByExample" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.MUserExample" resultMap="BaseResultMap">
     select
@@ -80,14 +81,16 @@
   <insert id="insert" keyColumn="user_id" keyProperty="userId" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.MUser" useGeneratedKeys="true">
     insert into m_user (email, password_hash, auth_provider, 
       auth_provider_id, display_name, profile_image_key, 
-      `locale`, is_active, create_user_id, 
-      create_program, created_at, update_user_id, 
-      update_program, updated_at)
+      `locale`, email_verified_at, is_active, 
+      create_user_id, create_program, created_at, 
+      update_user_id, update_program, updated_at
+      )
     values (#{email,jdbcType=VARCHAR}, #{passwordHash,jdbcType=VARCHAR}, #{authProvider,jdbcType=VARCHAR}, 
       #{authProviderId,jdbcType=VARCHAR}, #{displayName,jdbcType=VARCHAR}, #{profileImageKey,jdbcType=VARCHAR}, 
-      #{locale,jdbcType=VARCHAR}, #{isActive,jdbcType=BIT}, #{createUserId,jdbcType=BIGINT}, 
-      #{createProgram,jdbcType=VARCHAR}, #{createdAt,jdbcType=TIMESTAMP}, #{updateUserId,jdbcType=BIGINT}, 
-      #{updateProgram,jdbcType=VARCHAR}, #{updatedAt,jdbcType=TIMESTAMP})
+      #{locale,jdbcType=VARCHAR}, #{emailVerifiedAt,jdbcType=TIMESTAMP}, #{isActive,jdbcType=BIT}, 
+      #{createUserId,jdbcType=BIGINT}, #{createProgram,jdbcType=VARCHAR}, #{createdAt,jdbcType=TIMESTAMP}, 
+      #{updateUserId,jdbcType=BIGINT}, #{updateProgram,jdbcType=VARCHAR}, #{updatedAt,jdbcType=TIMESTAMP}
+      )
   </insert>
   <insert id="insertSelective" keyColumn="user_id" keyProperty="userId" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.MUser" useGeneratedKeys="true">
     insert into m_user
@@ -112,6 +115,9 @@
       </if>
       <if test="locale != null">
         `locale`,
+      </if>
+      <if test="emailVerifiedAt != null">
+        email_verified_at,
       </if>
       <if test="isActive != null">
         is_active,
@@ -156,6 +162,9 @@
       </if>
       <if test="locale != null">
         #{locale,jdbcType=VARCHAR},
+      </if>
+      <if test="emailVerifiedAt != null">
+        #{emailVerifiedAt,jdbcType=TIMESTAMP},
       </if>
       <if test="isActive != null">
         #{isActive,jdbcType=BIT},
@@ -204,6 +213,9 @@
       <if test="locale != null">
         `locale` = #{locale,jdbcType=VARCHAR},
       </if>
+      <if test="emailVerifiedAt != null">
+        email_verified_at = #{emailVerifiedAt,jdbcType=TIMESTAMP},
+      </if>
       <if test="isActive != null">
         is_active = #{isActive,jdbcType=BIT},
       </if>
@@ -237,6 +249,7 @@
       display_name = #{displayName,jdbcType=VARCHAR},
       profile_image_key = #{profileImageKey,jdbcType=VARCHAR},
       `locale` = #{locale,jdbcType=VARCHAR},
+      email_verified_at = #{emailVerifiedAt,jdbcType=TIMESTAMP},
       is_active = #{isActive,jdbcType=BIT},
       create_user_id = #{createUserId,jdbcType=BIGINT},
       create_program = #{createProgram,jdbcType=VARCHAR},

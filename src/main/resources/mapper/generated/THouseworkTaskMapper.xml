@@ -12,7 +12,7 @@
     <result column="assignee_user_id" jdbcType="BIGINT" property="assigneeUserId" />
     <result column="status" jdbcType="VARCHAR" property="status" />
     <result column="assign_reason_type" jdbcType="VARCHAR" property="assignReasonType" />
-    <result column="done_at" jdbcType="TIMESTAMP" property="doneAt" />
+    <result column="done_at" jdbcType="DATE" property="doneAt" />
     <result column="skipped_reason" jdbcType="VARCHAR" property="skippedReason" />
     <result column="create_user_id" jdbcType="BIGINT" property="createUserId" />
     <result column="create_program" jdbcType="VARCHAR" property="createProgram" />
@@ -90,7 +90,7 @@
     values (#{householdId,jdbcType=BIGINT}, #{houseworkId,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, 
       #{description,jdbcType=VARCHAR}, #{category,jdbcType=VARCHAR}, #{targetDate,jdbcType=DATE}, 
       #{assigneeUserId,jdbcType=BIGINT}, #{status,jdbcType=VARCHAR}, #{assignReasonType,jdbcType=VARCHAR}, 
-      #{doneAt,jdbcType=TIMESTAMP}, #{skippedReason,jdbcType=VARCHAR}, #{createUserId,jdbcType=BIGINT}, 
+      #{doneAt,jdbcType=DATE}, #{skippedReason,jdbcType=VARCHAR}, #{createUserId,jdbcType=BIGINT}, 
       #{createProgram,jdbcType=VARCHAR}, #{createdAt,jdbcType=TIMESTAMP}, #{updateUserId,jdbcType=BIGINT}, 
       #{updateProgram,jdbcType=VARCHAR}, #{updatedAt,jdbcType=TIMESTAMP})
   </insert>
@@ -178,7 +178,7 @@
         #{assignReasonType,jdbcType=VARCHAR},
       </if>
       <if test="doneAt != null">
-        #{doneAt,jdbcType=TIMESTAMP},
+        #{doneAt,jdbcType=DATE},
       </if>
       <if test="skippedReason != null">
         #{skippedReason,jdbcType=VARCHAR},
@@ -234,7 +234,7 @@
         assign_reason_type = #{assignReasonType,jdbcType=VARCHAR},
       </if>
       <if test="doneAt != null">
-        done_at = #{doneAt,jdbcType=TIMESTAMP},
+        done_at = #{doneAt,jdbcType=DATE},
       </if>
       <if test="skippedReason != null">
         skipped_reason = #{skippedReason,jdbcType=VARCHAR},
@@ -271,7 +271,7 @@
       assignee_user_id = #{assigneeUserId,jdbcType=BIGINT},
       `status` = #{status,jdbcType=VARCHAR},
       assign_reason_type = #{assignReasonType,jdbcType=VARCHAR},
-      done_at = #{doneAt,jdbcType=TIMESTAMP},
+      done_at = #{doneAt,jdbcType=DATE},
       skipped_reason = #{skippedReason,jdbcType=VARCHAR},
       create_user_id = #{createUserId,jdbcType=BIGINT},
       create_program = #{createProgram,jdbcType=VARCHAR},

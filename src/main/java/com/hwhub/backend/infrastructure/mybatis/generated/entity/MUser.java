@@ -19,6 +19,8 @@ public class MUser {
 
   private String locale;
 
+  private Date emailVerifiedAt;
+
   private Boolean isActive;
 
   private Long createUserId;
@@ -95,6 +97,14 @@ public class MUser {
 
   public void setLocale(String locale) {
     this.locale = locale == null ? null : locale.trim();
+  }
+
+  public Date getEmailVerifiedAt() {
+    return emailVerifiedAt;
+  }
+
+  public void setEmailVerifiedAt(Date emailVerifiedAt) {
+    this.emailVerifiedAt = emailVerifiedAt;
   }
 
   public Boolean getIsActive() {
