@@ -59,4 +59,9 @@ public class MyBatisHouseholdMemberRepository implements HouseholdMemberReposito
   public void deleteByHouseholdId(Long householdId) {
     customMapper.deleteByHouseholdId(householdId);
   }
+
+  @Override
+  public void deleteByUserId(Long userId) {
+    customMapper.deleteByUserId(userId);
+  }
 }

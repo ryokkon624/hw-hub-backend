@@ -37,7 +37,7 @@ public class HouseholdMemberController {
 
   @GetMapping("/{householdId}/members")
   public List<HouseholdMemberDto> getMembers(
-      @PathVariable Long householdId, Authentication authentication) {
+      @PathVariable("householdId") Long householdId, Authentication authentication) {
     Long loginUserId = Long.valueOf(authentication.getName());
 
     // 認可チェック
@@ -125,7 +125,7 @@ public class HouseholdMemberController {
 
   @DeleteMapping("/{householdId}/members/me")
   public ResponseEntity<Void> deleteMyself(
-      @PathVariable Long householdId, Authentication authentication) {
+      @PathVariable("householdId") Long householdId, Authentication authentication) {
     Long userId = Long.valueOf(authentication.getName());
 
     memberService.deleteMyself(householdId, userId);
@@ -136,7 +136,9 @@ public class HouseholdMemberController {
 
   @DeleteMapping("/{householdId}/members/{userId}")
   public ResponseEntity<Void> deleteMember(
-      @PathVariable Long householdId, @PathVariable Long userId, Authentication authentication) {
+      @PathVariable("householdId") Long householdId,
+      @PathVariable("userId") Long userId,
+      Authentication authentication) {
     Long loginUserId = Long.valueOf(authentication.getName());
 
     memberService.deleteMember(householdId, userId, loginUserId);

@@ -41,7 +41,8 @@ public class HouseworkController {
   /** 家事マスタの単一取得。 GET /api/houseworks */
   // GET /api/houseworks/{houseworkId}
   @GetMapping("/{houseworkId}")
-  public HouseworkDto getOne(@PathVariable Long houseworkId, Authentication authentication) {
+  public HouseworkDto getOne(
+      @PathVariable("houseworkId") Long houseworkId, Authentication authentication) {
 
     Long loginUserId = Long.valueOf(authentication.getName());
 
@@ -66,7 +67,7 @@ public class HouseworkController {
   /** 家事マスタ更新 PUT /api/houseworks/{houseworkId} */
   @PutMapping("/{houseworkId}")
   public HouseworkDto updateHousework(
-      @PathVariable Long houseworkId,
+      @PathVariable("houseworkId") Long houseworkId,
       @Valid @RequestBody HouseworkSaveRequest request,
       Authentication authentication) {
 
@@ -83,7 +84,7 @@ public class HouseworkController {
   /** 家事マスタ削除 DELETE /api/houseworks/{id} */
   @DeleteMapping("/{houseworkId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void deleteHousework(@PathVariable Long houseworkId) {
+  public void deleteHousework(@PathVariable("houseworkId") Long houseworkId) {
     houseworkService.deleteHousework(houseworkId);
   }
 }

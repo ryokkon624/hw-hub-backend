@@ -17,7 +17,7 @@ public class ShoppingItemHistoryController {
 
   @GetMapping("/history-suggestions")
   public List<ShoppingItemHistorySuggestionResponse> listHistorySuggestions(
-      @PathVariable Long householdId,
+      @PathVariable("householdId") Long householdId,
       @RequestParam(value = "q", required = false) String keyword,
       @RequestParam(value = "storeType", required = false) String storeType,
       @RequestParam(value = "limit", required = false, defaultValue = "20") int limit,

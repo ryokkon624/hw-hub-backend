@@ -132,4 +132,23 @@ class UserModelSpec extends Specification {
         then:
         model.profileImageKey == "new/key.png"
     }
+
+    def "activateでisActiveがtrueになる"() {
+        given:
+        def model = UserModel.reconstruct(
+                1L,
+                "inactive@example.com",
+                "hashed",
+                "退会ユーザ",
+                "ja",
+                null,
+                false
+        )
+
+        when:
+        model.activate()
+
+        then:
+        model.isActive == true
+    }
 }

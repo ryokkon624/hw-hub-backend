@@ -6,6 +6,7 @@ import com.hwhub.backend.domain.repository.UserRepository;
 import com.hwhub.backend.presentation.rest.auth.dto.LoginRequest;
 import com.hwhub.backend.presentation.rest.common.EmailAlreadyUsedException;
 import com.hwhub.backend.security.JwtProvider;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,6 +33,10 @@ public class AuthService {
       throw new BadCredentialsException("Invalid password");
     }
 
+    if (!user.isActive()) {
+      throw new BadCredentialsException("Account is deactivated");
+    }
+
     // 画像表示用のURLを生成し設定
     user.setIconUrl(userIconService.getIconUrl(user.getProfileImageKey()));
 
@@ -42,23 +47,41 @@ public class AuthService {
   public LoginInfo register(UserModel model) {
 
     // emailの重複チェック
-    long exits = userRepository.countByEmail(model.getEmail());
-    if (exits > 0) {
-      throw new EmailAlreadyUsedException(model.getEmail());
+    // 既に存在しかつactiveな場合はエラー、非アクティブな場合は再有効化して更新
+    Optional<UserModel> existing = userRepository.findByEmail(model.getEmail());
+
+    UserModel targetUser;
+
+    if (existing.isPresent()) {
+      UserModel found = existing.get();
+      if (found.isActive()) {
+        throw new EmailAlreadyUsedException(model.getEmail());
+      }
+      // 再有効化
+      // パスワードをハッシュ化
+      String hash = passwordEncoder.encode(model.getPassword());
+      found.setPasswordHash(hash);
+      found.changeProfile(model.getDisplayName(), model.getLocale());
+      found.activate();
+
+      userRepository.updateForReactivation(
+          found, found.getUserId(), ProgramType.ONL_AUTH.getCode());
+      targetUser = found;
+
+    } else {
+      // 新規登録
+      // パスワードをハッシュ化
+      String hash = passwordEncoder.encode(model.getPassword());
+      model.setPasswordHash(hash);
+
+      targetUser = userRepository.insert(model, USER_ID_ADMIN, ProgramType.ONL_AUTH.getCode());
     }
 
-    // パスワードをハッシュ化
-    String hash = passwordEncoder.encode(model.getPassword());
-    model.setPasswordHash(hash);
-
-    UserModel inserted =
-        userRepository.insert(model, USER_ID_ADMIN, ProgramType.ONL_AUTH.getCode());
-
     // 画像表示用のURLを生成し設定
-    inserted.setIconUrl(userIconService.getIconUrl(inserted.getProfileImageKey()));
+    targetUser.setIconUrl(userIconService.getIconUrl(targetUser.getProfileImageKey()));
 
-    String token = jwtProvider.generateToken(inserted.getUserId(), inserted.getDisplayName());
-    return new LoginInfo(token, inserted);
+    String token = jwtProvider.generateToken(targetUser.getUserId(), targetUser.getDisplayName());
+    return new LoginInfo(token, targetUser);
   }
 
   public record LoginInfo(String token, UserModel user) {}

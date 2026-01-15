@@ -102,4 +102,30 @@ public class MyBatisUserRepository implements UserRepository {
 
     return mapper.selectByExample(example).size();
   }
+
+  @Override
+  public void deactivate(Long userId, String program) {
+    MUser update = new MUser();
+    update.setUserId(userId);
+    update.setIsActive(false);
+    update.setUpdateUserId(userId);
+    update.setUpdateProgram(program);
+
+    mapper.updateByPrimaryKeySelective(update);
+  }
+
+  @Override
+  public void updateForReactivation(UserModel user, Long userId, String program) {
+    MUser update = new MUser();
+    update.setUserId(user.getUserId());
+    update.setPasswordHash(user.getPasswordHash());
+    update.setDisplayName(user.getDisplayName());
+    update.setLocale(user.getLocale());
+    update.setProfileImageKey(user.getProfileImageKey());
+    update.setIsActive(true);
+    update.setUpdateUserId(userId);
+    update.setUpdateProgram(program);
+
+    mapper.updateByPrimaryKeySelective(update);
+  }
 }

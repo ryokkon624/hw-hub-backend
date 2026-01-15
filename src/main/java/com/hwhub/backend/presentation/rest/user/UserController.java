@@ -85,4 +85,11 @@ public class UserController {
     Long userId = Long.parseLong(authentication.getName());
     userIconService.updateUserIcon(userId, request.fileKey());
   }
+
+  @DeleteMapping("/me")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void deleteAccount(Authentication authentication) {
+    Long userId = Long.parseLong(authentication.getName());
+    userService.deleteAccount(userId);
+  }
 }

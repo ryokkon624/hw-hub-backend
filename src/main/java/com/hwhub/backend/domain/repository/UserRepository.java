@@ -20,4 +20,8 @@ public interface UserRepository {
   long countByEmail(String email);
 
   void updateProfileImgKey(UserModel model, String program);
+
+  void deactivate(Long userId, String program);
+
+  void updateForReactivation(UserModel user, Long userId, String program);
 }
