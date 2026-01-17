@@ -1,6 +1,6 @@
 package com.hwhub.backend.infrastructure.notification
 
-import org.springframework.mail.SimpleMailMessage
+import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.test.util.ReflectionTestUtils
 import spock.lang.Specification
@@ -15,23 +15,26 @@ class SmtpVerificationMailSenderSpec extends Specification {
         ReflectionTestUtils.setField(sender, "from", "noreply@hwhub.com")
     }
 
-    def "sendVerificationMail sends a SimpleMailMessage"() {
+    def "sendVerificationMail sends a MimeMessage"() {
         given:
         def toEmail = "user@example.com"
         def displayName = "Hanako"
         def verifyUrl = "http://localhost/verify?token=abc"
         def locale = "ja"
 
+        def mimeMessage = Mock(jakarta.mail.internet.MimeMessage)
+
         when:
         sender.sendVerificationMail(toEmail, displayName, verifyUrl, locale)
 
         then:
-        1 * javaMailSender.send(_ as SimpleMailMessage) >> { SimpleMailMessage msg ->
-            assert msg.from == "noreply@hwhub.com"
-            assert msg.to[0] == toEmail
-            assert msg.subject.contains("Please verify your email")
-            assert msg.text.contains("Hi Hanako")
-            assert msg.text.contains(verifyUrl)
-        }
+        1 * javaMailSender.createMimeMessage() >> mimeMessage
+        1 * javaMailSender.send(mimeMessage)
+        
+        1 * mimeMessage.setFrom(_ as jakarta.mail.internet.InternetAddress) 
+        1 * mimeMessage.setRecipient(jakarta.mail.Message.RecipientType.TO, _ as jakarta.mail.internet.InternetAddress)
+        1 * mimeMessage.setSubject("[Housework Hub] Please verify your email", "UTF-8")
+
+        1 * mimeMessage.setContent(_ as jakarta.mail.internet.MimeMultipart) // MimeMessageHelper(multipart=true) creates multipart
     }
 }

@@ -1,16 +1,18 @@
 package com.hwhub.backend.infrastructure.notification;
 
 import com.hwhub.backend.domain.notification.VerificationMailSender;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 
-@ConditionalOnProperty(
-    prefix = "hwhub.auth.email-verification",
-    name = "send-mail",
+@Slf4j
+@ConditionalOnProperty(prefix = "hwhub.auth.email-verification", name = "send-mail",
     havingValue = "true")
 @Component
 @RequiredArgsConstructor
@@ -22,26 +24,68 @@ public class SmtpVerificationMailSender implements VerificationMailSender {
   private String from;
 
   @Override
-  public void sendVerificationMail(
-      String toEmail, String displayName, String verifyUrl, String locale) {
+  public void sendVerificationMail(String toEmail, String displayName, String verifyUrl,
+      String locale) {
 
-    // TODO: 件名・本文はまずは最小（後でi18nテンプレにする。アカウント作成時にlocalを選択しているのでそれを使える）
-    String subject = "[HwHub] Please verify your email";
-    String body =
-        "Hi "
-            + (displayName == null ? "" : displayName)
-            + "\n\n"
-            + "Please verify your email by clicking the link below:\n"
-            + verifyUrl
-            + "\n\n"
-            + "If you did not request this, you can ignore this email.\n";
+    String subject = "[Housework Hub] Please verify your email";
+    String htmlContent = buildHtmlContent(displayName, verifyUrl);
 
-    SimpleMailMessage msg = new SimpleMailMessage();
-    msg.setFrom(from);
-    msg.setTo(toEmail);
-    msg.setSubject(subject);
-    msg.setText(body);
+    MimeMessage message = mailSender.createMimeMessage();
+    try {
+      MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+      helper.setFrom(from);
+      helper.setTo(toEmail);
+      helper.setSubject(subject);
+      helper.setText(htmlContent, true); // true = isHtml
 
-    mailSender.send(msg);
+      mailSender.send(message);
+    } catch (MessagingException e) {
+      log.error("Failed to send verification email to {}", toEmail, e);
+      throw new RuntimeException("Failed to send verification email", e);
+    }
+  }
+
+  private String buildHtmlContent(String displayName, String verifyUrl) {
+    String name = displayName == null || displayName.isEmpty() ? "User" : displayName;
+
+    return """
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <style>
+            body { font-family: sans-serif; background-color: #f8fafc; margin: 0; padding: 0; }
+            .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+            .header { background-color: #059669; padding: 20px; text-align: center; }
+            .header h1 { color: #ffffff; margin: 0; font-size: 24px; }
+            .content { padding: 32px; color: #1e293b; line-height: 1.6; }
+            .button-container { text-align: center; margin: 32px 0; }
+            .button { background-color: #059669; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; }
+            .footer { background-color: #f1f5f9; padding: 16px; text-align: center; color: #64748b; font-size: 12px; }
+          </style>
+        </head>
+        <body>
+          <div style="padding: 40px 0;">
+            <div class="container">
+              <div class="header">
+                <h1>Housework Hub</h1>
+              </div>
+              <div class="content">
+                <p>Hi %s,</p>
+                <p>Thank you for signing up for Housework Hub! To complete your registration, please verify your email address by clicking the button below.</p>
+                <div class="button-container">
+                  <a href="%s" class="button">Verify Email</a>
+                </div>
+                <p>If you did not create an account, no further action is required.</p>
+              </div>
+              <div class="footer">
+                &copy; Housework Hub
+              </div>
+            </div>
+          </div>
+        </body>
+        </html>
+        """
+        .formatted(name, verifyUrl);
   }
 }
