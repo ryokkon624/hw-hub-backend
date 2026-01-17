@@ -139,6 +139,91 @@ class GlobalExceptionHandlerSpec extends Specification {
     }
 
     // ============================================
+    // EmailVerificationTokenInvalidException
+    // ============================================
+
+    def "handleTokenInvalid は 400 と EMAIL_VERIFICATION_TOKEN_INVALID を返す"() {
+        given:
+        def ex = new EmailVerificationTokenInvalidException()
+
+        when:
+        def response = handler.handleTokenInvalid(ex)
+
+        then:
+        response.statusCode == HttpStatus.BAD_REQUEST
+        response.body != null
+        response.body.errorCode == "EMAIL_VERIFICATION_TOKEN_INVALID"
+    }
+
+    // ============================================
+    // EmailVerificationCooldownException
+    // ============================================
+
+    def "handleCooldown は 429 と EMAIL_VERIFICATION_COOLDOWN を返す"() {
+        given:
+        def ex = new EmailVerificationCooldownException()
+
+        when:
+        def response = handler.handleCooldown(ex)
+
+        then:
+        response.statusCode == HttpStatus.TOO_MANY_REQUESTS
+        response.body != null
+        response.body.errorCode == "EMAIL_VERIFICATION_COOLDOWN"
+    }
+
+    // ============================================
+    // EmailVerificationTooManyRequestsException
+    // ============================================
+
+    def "handleTooMany は 429 と EMAIL_VERIFICATION_TOO_MANY_REQUESTS を返す"() {
+        given:
+        def ex = new EmailVerificationTooManyRequestsException()
+
+        when:
+        def response = handler.handleTooMany(ex)
+
+        then:
+        response.statusCode == HttpStatus.TOO_MANY_REQUESTS
+        response.body != null
+        response.body.errorCode == "EMAIL_VERIFICATION_TOO_MANY_REQUESTS"
+    }
+
+    // ============================================
+    // EmailAlreadyVerifiedException
+    // ============================================
+
+    def "handleAlreadyVerified は 409 と EMAIL_ALREADY_VERIFIED を返す"() {
+        given:
+        def ex = new EmailAlreadyVerifiedException()
+
+        when:
+        def response = handler.handleAlreadyVerified(ex)
+
+        then:
+        response.statusCode == HttpStatus.CONFLICT
+        response.body != null
+        response.body.errorCode == "EMAIL_ALREADY_VERIFIED"
+    }
+
+    // ============================================
+    // EmailNotVerifiedException
+    // ============================================
+
+    def "hundleNotVerified は 403 と EMAIL_NOT_VERIFIED を返す"() {
+        given:
+        def ex = new EmailNotVerifiedException()
+
+        when:
+        def response = handler.hundleNotVerified(ex)
+
+        then:
+        response.statusCode == HttpStatus.FORBIDDEN
+        response.body != null
+        response.body.errorCode == "EMAIL_NOT_VERIFIED"
+    }
+
+    // ============================================
     // その他の想定外の Exception
     // ============================================
 

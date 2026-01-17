@@ -73,6 +73,7 @@ class UserControllerSpec extends Specification {
                 "Taro",
                 "ja",
                 "icon-key",
+                null,
                 true
         )
 
@@ -106,6 +107,7 @@ class UserControllerSpec extends Specification {
                 "Hanako",
                 "en",
                 "icon-key",
+                null,
                 true
         )
 

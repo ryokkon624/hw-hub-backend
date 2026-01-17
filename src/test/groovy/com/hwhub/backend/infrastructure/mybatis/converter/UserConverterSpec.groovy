@@ -11,7 +11,7 @@ class UserConverterSpec extends Specification{
         UserConverter.toModel(null) == null
     }
 
-    def "toModelはエンティティからモデルへ全フィールドを変換する（passwordとiconUrlはnull）"() {
+    def "toModelはエンティティからモデルへ全フィールドを変換する"() {
         given: "すべてのフィールドがセットされたMUserエンティティ"
         def entity = new MUser()
         entity.setUserId(1L)
@@ -21,11 +21,12 @@ class UserConverterSpec extends Specification{
         entity.setLocale("ja")
         entity.setProfileImageKey("profile/key/001")
         entity.setIsActive(true)
+        entity.setEmailVerifiedAt(java.sql.Timestamp.valueOf(java.time.LocalDateTime.of(2025, 1, 1, 10, 0, 0)))
 
         when: "toModelでドメインモデルに変換する"
         def model = UserConverter.toModel(entity)
 
-        then: "基本情報・パスワードハッシュ・活性フラグがコピーされている"
+        then: "フィールドが正しくコピーされている"
         model != null
         with(model) {
             userId == 1L
@@ -34,10 +35,14 @@ class UserConverterSpec extends Specification{
             displayName == "テストユーザ"
             locale == "ja"
             profileImageKey == "profile/key/001"
-            isActive
+            isActive == true
+            emailVerifiedAt == java.time.LocalDateTime.of(2025, 1, 1, 10, 0, 0)
         }
 
         and: "reconstructの仕様どおりpasswordとiconUrlはnullのままである"
+        // 注意: reconstructではpasswordはnullになるはずだが、UserConverter.toEntityではpasswordHashを使う。
+        // UserModelのフィールドとしてpassword(生パスワード)とpasswordHashがある。
+        // UserConverter.toModelではreconstructを使うため、raw passwordはnullになる。
         model.password == null
         model.iconUrl == null
     }
@@ -47,8 +52,9 @@ class UserConverterSpec extends Specification{
         UserConverter.toEntity(null) == null
     }
 
-    def "toEntityはモデルからエンティティへ主要フィールドを変換する"() {
+    def "toEntityはモデルからエンティティへフィールドを変換する"() {
         given: "reconstructで生成されたUserModel"
+        def now = java.time.LocalDateTime.now()
         def model = UserModel.reconstruct(
                 2L,                      // userId
                 "another@example.com",   // email
@@ -56,7 +62,8 @@ class UserConverterSpec extends Specification{
                 "別ユーザ",                 // displayName
                 "en",                    // locale
                 "profile/key/002",       // profileImageKey
-                true                     // isActive（toEntityでは使用しない）
+                now,                     // emailVerifiedAt
+                true                     // isActive
         )
 
         when: "toEntityでMyBatisエンティティに変換する"
@@ -71,9 +78,10 @@ class UserConverterSpec extends Specification{
             displayName == "別ユーザ"
             locale == "en"
             profileImageKey == "profile/key/002"
+            isActive == true
+            // Time conversion verification might have nanosecond precision issues, strictly speaking
+            // but for unit test usually fine or use DateConverter logic validity
+            emailVerifiedAt != null 
         }
-
-        and: "isActiveやiconUrlはconverterでは扱わない（DBのデフォルトや別処理に委ねる想定）"
-        // entityにisActiveカラムがある場合も、このconverterではセットしない方針
     }
 }

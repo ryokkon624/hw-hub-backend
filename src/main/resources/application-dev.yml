@@ -3,7 +3,16 @@ spring:
     url: jdbc:mysql://localhost:3306/hwhub_db?useSSL=false&characterEncoding=utf8&serverTimezone=Asia/Tokyo
     username: hwhub
     password: hwhub
-
+  mail:
+    host: localhost
+    port: 1025
+    protocol: smtp
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
 logging:
   level:
     com.hwhub.backend: DEBUG
@@ -28,3 +37,13 @@ hwhub:
   cors:
     allowed-origins:
       - "http://localhost:5173"
+
+  auth:
+    email-verification:
+      enabled: true
+      send-mail: true
+      token-ttl-minutes: 30
+      resend-cooldown-seconds: 60
+      max-requests-per-day: 5
+      front-base-url: http://localhost:5173
+      verify-path: /email-verify

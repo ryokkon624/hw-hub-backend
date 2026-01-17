@@ -106,6 +106,37 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.CONFLICT).body(body); // 409
   }
 
+  @ExceptionHandler(EmailVerificationTokenInvalidException.class)
+  public ResponseEntity<ErrorResponse> handleTokenInvalid(
+      EmailVerificationTokenInvalidException ex) {
+    ErrorResponse body = ErrorResponse.of("EMAIL_VERIFICATION_TOKEN_INVALID", ex.getMessage());
+    return ResponseEntity.badRequest().body(body);
+  }
+
+  @ExceptionHandler(EmailVerificationCooldownException.class)
+  public ResponseEntity<ErrorResponse> handleCooldown(EmailVerificationCooldownException ex) {
+    ErrorResponse body = ErrorResponse.of("EMAIL_VERIFICATION_COOLDOWN", ex.getMessage());
+    return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(body);
+  }
+
+  @ExceptionHandler(EmailVerificationTooManyRequestsException.class)
+  public ResponseEntity<ErrorResponse> handleTooMany(EmailVerificationTooManyRequestsException ex) {
+    ErrorResponse body = ErrorResponse.of("EMAIL_VERIFICATION_TOO_MANY_REQUESTS", ex.getMessage());
+    return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(body);
+  }
+
+  @ExceptionHandler(EmailAlreadyVerifiedException.class)
+  public ResponseEntity<ErrorResponse> handleAlreadyVerified(EmailAlreadyVerifiedException ex) {
+    ErrorResponse body = ErrorResponse.of("EMAIL_ALREADY_VERIFIED", ex.getMessage());
+    return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+  }
+
+  @ExceptionHandler(EmailNotVerifiedException.class)
+  public ResponseEntity<ErrorResponse> hundleNotVerified(EmailNotVerifiedException ex) {
+    ErrorResponse body = ErrorResponse.of("EMAIL_NOT_VERIFIED", ex.getMessage());
+    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
+  }
+
   /** 最後の砦：想定していない例外 */
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ErrorResponse> handleException(Exception ex, HttpServletRequest req) {

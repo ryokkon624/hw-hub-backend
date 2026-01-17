@@ -8,6 +8,9 @@ import com.hwhub.backend.presentation.rest.common.EmailAlreadyUsedException
 import com.hwhub.backend.security.JwtProvider
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.crypto.password.PasswordEncoder
+import com.hwhub.backend.config.EmailVerificationProperties
+import com.hwhub.backend.domain.notification.VerificationMailSender
+import com.hwhub.backend.domain.repository.UserEmailVerificationRepository
 import spock.lang.Specification
 
 class AuthServiceSpec extends Specification{
@@ -17,12 +20,24 @@ class AuthServiceSpec extends Specification{
     JwtProvider jwtProvider = Mock()
     UserIconService userIconService = Mock()
 
-    AuthService service = new AuthService(
-            userRepository,
-            passwordEncoder,
-            jwtProvider,
-            userIconService
-    )
+    EmailVerificationProperties emailVerificationProperties = new EmailVerificationProperties(false, false, 60, 60, 5, "http://localhost", "/verify")
+    
+    UserEmailVerificationRepository userEmailVerificationRepository = Mock()
+    VerificationMailSender verificationMailSender = Mock()
+
+    AuthService service
+
+    def setup() {
+        service = new AuthService(
+                userRepository,
+                passwordEncoder,
+                jwtProvider,
+                userIconService,
+                emailVerificationProperties,
+                userEmailVerificationRepository,
+                verificationMailSender
+        )
+    }
 
     def "loginは正しい認証情報かつActiveなユーザのときJWTとユーザ情報を返す"() {
         given: "ログインリクエストとユーザ"
@@ -37,8 +52,12 @@ class AuthServiceSpec extends Specification{
                 "テストユーザ",
                 "ja",
                 "icon/key/001",
+                null, 
                 true // Active
         )
+
+        // Default is enabled=false
+
 
         when:
         def result = service.login(request)
@@ -55,6 +74,33 @@ class AuthServiceSpec extends Specification{
         result.user().iconUrl == "https://cdn/icon.png"
     }
 
+
+
+    // Fix: Using correct exception class
+    def "login throws EmailNotVerifiedException when enabled and not verified"() {
+        given:
+        def request = new LoginRequest()
+        request.setEmail("unverified@example.com")
+        request.setPassword("password")
+
+        def user = Mock(UserModel)
+        user.getPasswordHash() >> "hash"
+        user.isActive() >> true
+        user.getEmailVerifiedAt() >> null // Not verified
+
+        // Re-init with enabled=true
+        def props = new EmailVerificationProperties(true, false, 60, 60, 5, "http://localhost", "/verify")
+        service = new AuthService(userRepository, passwordEncoder, jwtProvider, userIconService, props, userEmailVerificationRepository, verificationMailSender)
+
+        when:
+        service.login(request)
+
+        then:
+        1 * userRepository.findByEmail("unverified@example.com") >> Optional.of(user)
+        1 * passwordEncoder.matches("password", "hash") >> true
+        thrown(com.hwhub.backend.presentation.rest.common.EmailNotVerifiedException)
+    }
+
     def "loginはInactiveなユーザのときBadCredentialsException"() {
         given:
         def request = new LoginRequest()
@@ -67,6 +113,7 @@ class AuthServiceSpec extends Specification{
                 "hashed-password",
                 "退会済みユーザ",
                 "ja",
+                null,
                 null,
                 false // Inactive
         )
@@ -111,6 +158,7 @@ class AuthServiceSpec extends Specification{
                 "テストユーザ",
                 "ja",
                 null,
+                null,
                 true
         )
 
@@ -138,9 +186,12 @@ class AuthServiceSpec extends Specification{
                 "hashed-password",
                 "新規ユーザ",
                 "ja",
-                "icon/key/999",
-                true
-        )
+                 "icon/key/999",
+                 null,
+                 true
+         )
+        // Default is enabled=false
+
 
         when:
         def result = service.register(model)
@@ -166,7 +217,7 @@ class AuthServiceSpec extends Specification{
                 "ja"
         )
         def existingUser = UserModel.reconstruct(
-                20L, "dup@example.com", "hash", "Exist", "en", null, true
+                20L, "dup@example.com", "hash", "Exist", "en", null, null, true
         )
 
         when:
@@ -174,7 +225,37 @@ class AuthServiceSpec extends Specification{
 
         then:
         1 * userRepository.findByEmail("dup@example.com") >> Optional.of(existingUser)
+        // Default is enabled=false
         thrown(EmailAlreadyUsedException)
+    }
+
+    def "registerはメール認証有効時にVerificationRequiredを返す"() {
+        given:
+        def model = UserModel.create("verify@example.com", "pw", "VerifyMe", "ja")
+        def inserted = UserModel.reconstruct(100L, "verify@example.com", "hash", "VerifyMe", "ja", null, null, true)
+
+        // Re-init with enabled=true, sendMail=true
+        def props = new EmailVerificationProperties(true, true, 30, 60, 5, "http://front", "/verify")
+        service = new AuthService(userRepository, passwordEncoder, jwtProvider, userIconService, props, userEmailVerificationRepository, verificationMailSender)
+
+        when:
+        def result = service.register(model)
+
+        then:
+        1 * userRepository.findByEmail("verify@example.com") >> Optional.empty()
+        1 * userRepository.insert(_, _, _) >> inserted
+        
+        // Mock resend policy checks
+        1 * userEmailVerificationRepository.findLatestRequestedAt(_) >> Optional.empty()
+        1 * userEmailVerificationRepository.countRequestedSince(_, _) >> 0
+        
+        1 * userEmailVerificationRepository.insert(_, _, _)
+        1 * verificationMailSender.sendVerificationMail("verify@example.com", "VerifyMe", { it.contains("token=") }, "ja")
+
+        and:
+        result.emailVerificationRequired()
+        result.token() == null
+        result.verificationExpiresAt() != null
     }
 
     def "registerは既存Inactiveユーザがいるとき再活性化してJWTを返す"() {
@@ -211,5 +292,85 @@ class AuthServiceSpec extends Specification{
 
         and:
         result.token() == "restored-token"
+        
+        // This test case assumes enabled=false implicitly
+
+
+        and:
+        result.token() == "restored-token"
+    }
+
+    // --- New Verification Tests ---
+
+    def "verifyEmail verifies user when token is valid"() {
+        given:
+        def token = "valid-token"
+        // Mock a user verification model found in DB
+        def uvModel = Mock(com.hwhub.backend.domain.model.UserEmailVerificationModel)
+        uvModel.getUserEmailVerificationId() >> 123L
+        uvModel.getUserId() >> 10L
+
+        when:
+        service.verifyEmail(token)
+
+        then:
+        1 * userEmailVerificationRepository.findUsableByTokenHash(_, _) >> Optional.of(uvModel)
+        1 * userEmailVerificationRepository.markUsed(123L, _, _, _)
+        1 * userRepository.markEmailVerified(10L, _, _, _)
+    }
+
+    def "verifyEmail throws exception when token is invalid"() {
+        when:
+        service.verifyEmail("invalid")
+
+        then:
+        1 * userEmailVerificationRepository.findUsableByTokenHash(_, _) >> Optional.empty()
+        thrown(com.hwhub.backend.presentation.rest.common.EmailVerificationTokenInvalidException)
+    }
+
+    def "resendVerification sends mail if user exists and not verified"() {
+        given:
+        def email = "resend@example.com"
+        def user = Mock(UserModel)
+        user.getEmailVerifiedAt() >> null // Not verified
+        user.getUserId() >> 5L
+        user.getEmail() >> email
+        user.getDisplayName() >> "Resender"
+        user.getLocale() >> "ja"
+
+        // Re-init with custom props
+        def props = new EmailVerificationProperties(true, true, 30, 60, 5, "http://front", "/verify")
+        service = new AuthService(userRepository, passwordEncoder, jwtProvider, userIconService, props, userEmailVerificationRepository, verificationMailSender)
+
+        when:
+        service.resendVerification(email)
+
+        then:
+        1 * userRepository.findByEmail(email) >> Optional.of(user)
+        1 * userEmailVerificationRepository.findLatestRequestedAt(5L) >> Optional.empty()
+        1 * userEmailVerificationRepository.countRequestedSince(5L, _) >> 0
+
+        1 * userEmailVerificationRepository.insert(_, _, _)
+        1 * verificationMailSender.sendVerificationMail(email, "Resender", _, "ja")
+    }
+
+    def "resendVerification throws cooldown exception if too fast"() {
+        given:
+        def email = "fast@example.com"
+        def user = Mock(UserModel)
+        user.getEmailVerifiedAt() >> null
+        user.getUserId() >> 6L
+
+        def props = new EmailVerificationProperties(true, true, 30, 60, 5, "http://front", "/verify")
+        service = new AuthService(userRepository, passwordEncoder, jwtProvider, userIconService, props, userEmailVerificationRepository, verificationMailSender)
+
+        when:
+        service.resendVerification(email)
+
+        then:
+        1 * userRepository.findByEmail(email) >> Optional.of(user)
+        1 * userEmailVerificationRepository.findLatestRequestedAt(6L) >> Optional.of(java.time.LocalDateTime.now()) // Just now
+        
+        thrown(com.hwhub.backend.presentation.rest.common.EmailVerificationCooldownException)
     }
 }

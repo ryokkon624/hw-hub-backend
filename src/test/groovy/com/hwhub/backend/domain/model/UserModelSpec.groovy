@@ -22,6 +22,7 @@ class UserModelSpec extends Specification {
                 displayName,
                 locale,
                 profileImageKey,
+                null,
                 isActive
         )
 
@@ -34,6 +35,7 @@ class UserModelSpec extends Specification {
         model.locale == locale
         model.profileImageKey == profileImageKey
         model.iconUrl == null
+        model.emailVerifiedAt == null // added
         model.isActive == true
     }
 
@@ -84,6 +86,7 @@ class UserModelSpec extends Specification {
                 "テストユーザ",
                 "ja",
                 "icon/key.png",
+                null, 
                 true
         )
 
@@ -103,6 +106,7 @@ class UserModelSpec extends Specification {
                 "旧表示名",
                 "ja",
                 null,
+                null, 
                 true
         )
 
@@ -123,6 +127,7 @@ class UserModelSpec extends Specification {
                 "テストユーザ",
                 "ja",
                 "old/key.png",
+                null, 
                 true
         )
 
@@ -142,6 +147,7 @@ class UserModelSpec extends Specification {
                 "退会ユーザ",
                 "ja",
                 null,
+                null, 
                 false
         )
 

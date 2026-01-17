@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper
+    namespace="com.hwhub.backend.infrastructure.mybatis.custom.mapper.UserEmailVerificationCustomMapper">
+
+    <resultMap id="UserEmailVerificationModelMap"
+        type="com.hwhub.backend.domain.model.UserEmailVerificationModel">
+        <id property="userEmailVerificationId" column="user_email_verification_id" />
+        <result property="userId" column="user_id" />
+        <result property="tokenHash" column="token_hash" />
+        <result property="expiresAt" column="expires_at" />
+        <result property="usedAt" column="used_at" />
+        <result property="requestedAt" column="requested_at" />
+        <result property="requestCount" column="request_count" />
+    </resultMap>
+
+    <select id="findUsableByTokenHash" resultMap="UserEmailVerificationModelMap">
+        SELECT
+            user_email_verification_id,
+            user_id,
+            token_hash,
+            expires_at,
+            used_at,
+            requested_at,
+            request_count
+        FROM t_user_email_verification
+        WHERE token_hash = #{tokenHash,jdbcType=BINARY}
+          AND used_at IS NULL
+          AND expires_at > #{now}
+        ORDER BY user_email_verification_id DESC
+        LIMIT 1
+    </select>
+
+    <update id="markUsed">
+        UPDATE t_user_email_verification 
+        SET
+            used_at = #{usedAt}
+            , update_user_id = #{updateUserId}
+            , update_program = #{updateProgram}
+            , updated_at = now(6) 
+        WHERE
+            user_email_verification_id = #{id} 
+            AND used_at IS NULL
+    </update>
+
+    <select id="findLatestRequestedAt" resultType="java.time.LocalDateTime">
+        SELECT
+            max(requested_at) 
+        FROM
+            t_user_email_verification 
+        WHERE
+            user_id = #{userId}
+    </select>
+
+    <select id="countRequestedSince" resultType="int">
+        SELECT
+            count(*) 
+        FROM
+            t_user_email_verification 
+        WHERE
+            user_id = #{userId} 
+            AND requested_at >= #{since}
+    </select>
+
+</mapper>

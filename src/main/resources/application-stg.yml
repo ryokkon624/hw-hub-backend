@@ -3,7 +3,17 @@ spring:
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
-
+  mail:
+    host: ${SES_SMTP_HOST}  # 例: email-smtp.ap-northeast-1.amazonaws.com
+    port: 587
+    username: ${SES_SMTP_USER}
+    password: ${SES_SMTP_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 logging:
   level:
     com.hwhub.backend: INFO
@@ -26,3 +36,13 @@ hwhub:
   cors:
     allowed-origins:
       - "https://stg.familyapp-hwhub.com"
+
+  auth:
+    email-verification:
+      enabled: true
+      send-mail: true
+      token-ttl-minutes: 30
+      resend-cooldown-seconds: 60
+      max-requests-per-day: 5
+      front-base-url: https://stg.familyapp-hwhub.com
+      verify-path: /email-verify

@@ -6,6 +6,7 @@ import com.hwhub.backend.presentation.rest.auth.dto.LoginRequest
 import com.hwhub.backend.presentation.rest.auth.dto.LoginResponse
 import com.hwhub.backend.presentation.rest.auth.dto.LoginUserDto
 import com.hwhub.backend.presentation.rest.auth.dto.RegisterRequest
+import com.hwhub.backend.presentation.rest.auth.dto.RegisterResponse
 import org.springframework.http.HttpStatus
 import spock.lang.Specification
 
@@ -28,6 +29,7 @@ class AuthControllerSpec extends Specification {
                 "Taro",
                 "ja",
                 "profile-key",
+                null, // emailVerifiedAt
                 true
         )
 
@@ -69,6 +71,7 @@ class AuthControllerSpec extends Specification {
                 "Hanako",
                 "ja",
                 null,
+                null, // verification
                 true
         )
 
@@ -78,19 +81,19 @@ class AuthControllerSpec extends Specification {
         then:
         1 * authService.register(_ as UserModel) >> { UserModel arg ->
             // Controller が組み立てた UserModel が正しいかチェック
-            assert arg.userId == null          // create なので null のはず
+            assert arg.userId == null
             assert arg.email == "new@example.com"
             assert arg.password == "plain-pass"
             assert arg.displayName == "Hanako"
             assert arg.locale == "ja"
-            // 戻り値として LoginInfo を返す
-            new AuthService.LoginInfo("reg-token-456", inserted)
+            // 戻り値として RegisterInfo を返す (verificationRequired=false)
+            new AuthService.RegisterInfo(false, "reg-token-456", inserted, null)
         }
 
         and:
         response.statusCode == HttpStatus.OK
 
-        LoginResponse body = response.body
+        RegisterResponse body = response.body
         body.accessToken == "reg-token-456"
 
         LoginUserDto dto = body.user
@@ -98,5 +101,47 @@ class AuthControllerSpec extends Specification {
         dto.getEmail() == "new@example.com"
         dto.getDisplayName() == "Hanako"
         dto.getLocale() == "ja"
+    }
+
+    def "register returns verification info when required"() {
+        given:
+        def request = new RegisterRequest("verify@example.com", "pw", "Verify", "ja", null)
+        def user = UserModel.reconstruct(100L, "verify@example.com", "hash", "Verify", "ja", null, null, true)
+
+        when:
+        def response = controller.register(request)
+
+        then:
+        1 * authService.register(_) >> new AuthService.RegisterInfo(true, null, user, java.time.LocalDateTime.now().plusDays(1))
+
+        and:
+        response.statusCode == HttpStatus.OK
+        response.body.emailVerificationRequired == true
+        response.body.accessToken == null
+        response.body.verificationExpiresAt != null
+    }
+
+    def "verifyEmail calls service and returns 204"() {
+        given:
+        def req = new com.hwhub.backend.presentation.rest.auth.dto.VerifyEmailRequest("token-123")
+
+        when:
+        def response = controller.verifyEmail(req)
+
+        then:
+        1 * authService.verifyEmail("token-123")
+        response.statusCode == HttpStatus.NO_CONTENT
+    }
+
+    def "resendVerification calls service and returns 204"() {
+        given:
+        def req = new com.hwhub.backend.presentation.rest.auth.dto.ResendVerificationRequest("resend@example.com")
+
+        when:
+        def response = controller.resendVerification(req)
+
+        then:
+        1 * authService.resendVerification("resend@example.com")
+        response.statusCode == HttpStatus.NO_CONTENT
     }
 }

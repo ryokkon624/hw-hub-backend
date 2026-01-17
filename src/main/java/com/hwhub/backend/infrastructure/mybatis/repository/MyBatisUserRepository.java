@@ -3,11 +3,13 @@ package com.hwhub.backend.infrastructure.mybatis.repository;
 import com.hwhub.backend.domain.model.HouseholdModel;
 import com.hwhub.backend.domain.model.UserModel;
 import com.hwhub.backend.domain.repository.UserRepository;
+import com.hwhub.backend.infrastructure.mybatis.converter.DateConverter;
 import com.hwhub.backend.infrastructure.mybatis.converter.UserConverter;
 import com.hwhub.backend.infrastructure.mybatis.custom.mapper.UserHouseholdCustomMapper;
 import com.hwhub.backend.infrastructure.mybatis.generated.entity.MUser;
 import com.hwhub.backend.infrastructure.mybatis.generated.entity.MUserExample;
 import com.hwhub.backend.infrastructure.mybatis.generated.mapper.MUserMapper;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -125,6 +127,19 @@ public class MyBatisUserRepository implements UserRepository {
     update.setIsActive(true);
     update.setUpdateUserId(userId);
     update.setUpdateProgram(program);
+
+    mapper.updateByPrimaryKeySelective(update);
+  }
+
+  @Override
+  public void markEmailVerified(
+      Long userId, LocalDateTime verifiedAt, Long updateUserId, String programTypeCode) {
+    MUser update = new MUser();
+    update.setUserId(userId);
+    update.setIsActive(true);
+    update.setEmailVerifiedAt(DateConverter.toDate(verifiedAt));
+    update.setUpdateUserId(updateUserId);
+    update.setUpdateProgram(programTypeCode);
 
     mapper.updateByPrimaryKeySelective(update);
   }

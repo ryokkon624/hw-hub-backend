@@ -167,7 +167,8 @@ class HouseholdInvitationServiceSpec extends Specification {
                 "hashed",
                 "テスト太郎",
                 "ja",
-                null,
+                "ja",
+                null, 
                 true
         )
 
@@ -209,6 +210,7 @@ class HouseholdInvitationServiceSpec extends Specification {
                 "既存ユーザ",
                 "ja",
                 null,
+                null, 
                 true
         )
 
@@ -253,6 +255,7 @@ class HouseholdInvitationServiceSpec extends Specification {
                 "既存ユーザ",
                 "ja",
                 null,
+                null, 
                 true
         )
 
