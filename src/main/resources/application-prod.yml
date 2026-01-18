@@ -46,3 +46,6 @@ hwhub:
       max-requests-per-day: 5
       front-base-url: https://familyapp-hwhub.com
       verify-path: /email-verify
+
+  mail:
+    from: no-reply@familyapp-hwhub.com

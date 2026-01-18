@@ -19,9 +19,6 @@ hwhub:
       shopping-item: shopping-item
       user-icon: user-icon
     url-ttl-seconds: 600
-
-  mail:
-    from: no-reply@local.familyapp-hwhub.com
     
 management:
   endpoints:
