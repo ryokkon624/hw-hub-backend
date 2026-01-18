@@ -798,52 +798,52 @@ public class THouseworkTaskExample {
     }
 
     public Criteria andDoneAtEqualTo(Date value) {
-      addCriterion("done_at =", value, "doneAt");
+      addCriterionForJDBCDate("done_at =", value, "doneAt");
       return (Criteria) this;
     }
 
     public Criteria andDoneAtNotEqualTo(Date value) {
-      addCriterion("done_at <>", value, "doneAt");
+      addCriterionForJDBCDate("done_at <>", value, "doneAt");
       return (Criteria) this;
     }
 
     public Criteria andDoneAtGreaterThan(Date value) {
-      addCriterion("done_at >", value, "doneAt");
+      addCriterionForJDBCDate("done_at >", value, "doneAt");
       return (Criteria) this;
     }
 
     public Criteria andDoneAtGreaterThanOrEqualTo(Date value) {
-      addCriterion("done_at >=", value, "doneAt");
+      addCriterionForJDBCDate("done_at >=", value, "doneAt");
       return (Criteria) this;
     }
 
     public Criteria andDoneAtLessThan(Date value) {
-      addCriterion("done_at <", value, "doneAt");
+      addCriterionForJDBCDate("done_at <", value, "doneAt");
       return (Criteria) this;
     }
 
     public Criteria andDoneAtLessThanOrEqualTo(Date value) {
-      addCriterion("done_at <=", value, "doneAt");
+      addCriterionForJDBCDate("done_at <=", value, "doneAt");
       return (Criteria) this;
     }
 
     public Criteria andDoneAtIn(List<Date> values) {
-      addCriterion("done_at in", values, "doneAt");
+      addCriterionForJDBCDate("done_at in", values, "doneAt");
       return (Criteria) this;
     }
 
     public Criteria andDoneAtNotIn(List<Date> values) {
-      addCriterion("done_at not in", values, "doneAt");
+      addCriterionForJDBCDate("done_at not in", values, "doneAt");
       return (Criteria) this;
     }
 
     public Criteria andDoneAtBetween(Date value1, Date value2) {
-      addCriterion("done_at between", value1, value2, "doneAt");
+      addCriterionForJDBCDate("done_at between", value1, value2, "doneAt");
       return (Criteria) this;
     }
 
     public Criteria andDoneAtNotBetween(Date value1, Date value2) {
-      addCriterion("done_at not between", value1, value2, "doneAt");
+      addCriterionForJDBCDate("done_at not between", value1, value2, "doneAt");
       return (Criteria) this;
     }
 

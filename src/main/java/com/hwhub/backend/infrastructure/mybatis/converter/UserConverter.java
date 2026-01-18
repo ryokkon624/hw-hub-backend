@@ -19,6 +19,7 @@ public final class UserConverter {
         entity.getDisplayName(),
         entity.getLocale(),
         entity.getProfileImageKey(),
+        DateConverter.toLocalDateTime(entity.getEmailVerifiedAt()),
         entity.getIsActive());
   }
 
@@ -34,6 +35,8 @@ public final class UserConverter {
     entity.setDisplayName(model.getDisplayName());
     entity.setLocale(model.getLocale());
     entity.setProfileImageKey(model.getProfileImageKey());
+    entity.setEmailVerifiedAt(DateConverter.toDate(model.getEmailVerifiedAt()));
+    entity.setIsActive(model.isActive());
 
     return entity;
   }

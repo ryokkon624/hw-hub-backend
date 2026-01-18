@@ -1,5 +1,6 @@
 package com.hwhub.backend.domain.model;
 
+import java.time.LocalDateTime;
 import lombok.Getter;
 
 @Getter
@@ -12,6 +13,7 @@ public class UserModel {
   private String locale;
   private String profileImageKey;
   private String iconUrl;
+  private LocalDateTime emailVerifiedAt;
   private boolean isActive;
 
   /**
@@ -25,6 +27,7 @@ public class UserModel {
    * @param locale 利用言語
    * @param profileImageKey プロフィール画像ストレージキー
    * @param iconUrl アイコンのURL
+   * @param emailVerifiedAt 認証完了日時
    * @param isActive 活性フラグ
    */
   private UserModel(
@@ -36,6 +39,7 @@ public class UserModel {
       String locale,
       String profileImageKey,
       String iconUrl,
+      LocalDateTime emailVerifiedAt,
       boolean isActive) {
     this.userId = userId;
     this.email = email;
@@ -45,6 +49,7 @@ public class UserModel {
     this.locale = locale;
     this.profileImageKey = profileImageKey;
     this.iconUrl = iconUrl;
+    this.emailVerifiedAt = emailVerifiedAt;
     this.isActive = isActive;
   }
 
@@ -57,6 +62,7 @@ public class UserModel {
    * @param displayName 表示名
    * @param locale 利用言語
    * @param profileImageKey プロフィール画像ストレージキー
+   * @param emailVerifiedAt 認証完了日時
    * @param isActive 活性フラグ
    * @return インスタンスを返す。
    */
@@ -67,9 +73,19 @@ public class UserModel {
       String displayName,
       String locale,
       String profileImageKey,
+      LocalDateTime emailVerifiedAt,
       boolean isActive) {
     return new UserModel(
-        userId, email, null, passwordHash, displayName, locale, profileImageKey, null, isActive);
+        userId,
+        email,
+        null,
+        passwordHash,
+        displayName,
+        locale,
+        profileImageKey,
+        null,
+        emailVerifiedAt,
+        isActive);
   }
 
   /**
@@ -82,7 +98,7 @@ public class UserModel {
    * @return ユーザIDがnullのインスタンスを返す。
    */
   public static UserModel create(String email, String password, String displayName, String locale) {
-    return new UserModel(null, email, password, null, displayName, locale, null, null, true);
+    return new UserModel(null, email, password, null, displayName, locale, null, null, null, true);
   }
 
   /**

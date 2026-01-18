@@ -2,6 +2,7 @@ package com.hwhub.backend.domain.repository;
 
 import com.hwhub.backend.domain.model.HouseholdModel;
 import com.hwhub.backend.domain.model.UserModel;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,4 +25,7 @@ public interface UserRepository {
   void deactivate(Long userId, String program);
 
   void updateForReactivation(UserModel user, Long userId, String program);
+
+  void markEmailVerified(
+      Long userId, LocalDateTime verifiedAt, Long updateUserId, String programTypeCode);
 }

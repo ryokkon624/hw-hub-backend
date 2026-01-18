@@ -37,7 +37,12 @@ public class SecurityConfig {
                     .permitAll()
                     // 認証なしで叩けるAPI: swagger, auth
                     .requestMatchers(
-                        "/api/auth/login", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**")
+                        "/api/auth/login",
+                        "/api/auth/email-verification/verify",
+                        "/api/auth/email-verification/resend",
+                        "/swagger-ui.html",
+                        "/swagger-ui/**",
+                        "/v3/api-docs/**")
                     .permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/auth/register")
                     .permitAll()

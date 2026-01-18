@@ -19,7 +19,7 @@ hwhub:
       shopping-item: shopping-item
       user-icon: user-icon
     url-ttl-seconds: 600
-
+    
 management:
   endpoints:
     web:
