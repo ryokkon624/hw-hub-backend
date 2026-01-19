@@ -15,9 +15,9 @@ spring:
             enable: false
 logging:
   level:
-    com.hwhub.backend: DEBUG
-    org.mybatis: DEBUG
-    org.springframework.security: DEBUG
+    "[com.hwhub.backend]": DEBUG
+    "[org.mybatis]": DEBUG
+    "[org.springframework.security]": DEBUG
 
 hwhub:
   jwt:

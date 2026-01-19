@@ -16,9 +16,9 @@ spring:
             enable: true
 logging:
   level:
-    com.hwhub.backend: INFO
-    org.mybatis: WARN
-    org.springframework.security: INFO
+    "[com.hwhub.backend]": INFO
+    "[org.mybatis]": WARN
+    "[org.springframework.security]": INFO
 
 hwhub:
   jwt:
