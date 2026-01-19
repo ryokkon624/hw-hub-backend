@@ -14,7 +14,7 @@ env:
   ECS_CLUSTER: hwhub-stg
   ECS_SERVICE: hwhub-backend-stg
   TASK_FAMILY: hwhub-backend
-  BASE_REVISION: "29"
+  BASE_REVISION: "33"
   CONTAINER_NAME: hwhub-backend
   ECR_REPOSITORY: hwhub-backend
   AWS_ACCOUNT_ID: "564323392873"
@@ -52,8 +52,8 @@ jobs:
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
 
-      # rev10のtaskdefを取得して「register可能な形」に整形する
-      - name: Fetch base task definition (rev10) and sanitize
+      # 既存のtaskdefを取得して「register可能な形」に整形する
+      - name: Fetch base task definition and sanitize
         run: |
           aws ecs describe-task-definition \
             --task-definition "${TASK_FAMILY}:${BASE_REVISION}" \
