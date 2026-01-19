@@ -1,0 +1,86 @@
+{
+  "properties": [
+    {
+      "name": "hwhub.jwt.secret",
+      "type": "java.lang.String",
+      "description": "JWT signing secret"
+    },
+    {
+      "name": "hwhub.jwt.expiry-millis",
+      "type": "java.lang.Integer"
+    },
+    {
+      "name": "hwhub.auth.email-verification.enabled",
+      "type": "java.lang.Boolean"
+    },
+    {
+      "name": "hwhub.auth.email-verification.send-mail",
+      "type": "java.lang.Boolean"
+    },
+    {
+      "name": "hwhub.auth.email-verification.token-ttl-minutes",
+      "type": "java.lang.Integer"
+    },
+    {
+      "name": "hwhub.auth.email-verification.resend-cooldown-seconds",
+      "type": "java.lang.Integer"
+    },
+    {
+      "name": "hwhub.auth.email-verification.max-requests-per-day",
+      "type": "java.lang.Integer"
+    },
+    {
+      "name": "hwhub.auth.email-verification.front-base-url",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "hwhub.auth.email-verification.verify-path",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "hwhub.aws.s3.region",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "hwhub.aws.s3.endpoint",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "hwhub.aws.s3.access-key",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "hwhub.aws.s3.secret-key",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "hwhub.aws.s3.path-style-access-enabled",
+      "type": "java.lang.Boolean"
+    },
+    {
+      "name": "hwhub.cors.allowed-origins",
+      "type": "java.util.List<java.lang.String>",
+      "description": "CORS allowed origins"
+    },
+    {
+      "name": "hwhub.mail.from",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "hwhub.object-storage.bucket",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "hwhub.object-storage.base-path.shopping-item",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "hwhub.object-storage.base-path.user-icon",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "hwhub.object-storage.url-ttl-seconds",
+      "type": "java.lang.Integer"
+    }
+  ]
+}
