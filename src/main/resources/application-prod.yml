@@ -46,6 +46,14 @@ hwhub:
       max-requests-per-day: 5
       front-base-url: https://familyapp-hwhub.com
       verify-path: /email-verify
+    password-reset:
+      enabled: true
+      send-mail: true
+      token-ttl-minutes: 30
+      resend-cooldown-seconds: 60
+      max-requests-per-day: 5
+      front-base-url: https://familyapp-hwhub.com
+      reset-path: /password/reset
 
   mail:
     from: no-reply@familyapp-hwhub.com

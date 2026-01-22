@@ -47,6 +47,14 @@ hwhub:
       max-requests-per-day: 5
       front-base-url: http://localhost:5173
       verify-path: /email-verify
+    password-reset:
+      enabled: true
+      send-mail: true
+      token-ttl-minutes: 30
+      resend-cooldown-seconds: 60
+      max-requests-per-day: 5
+      front-base-url: http://localhost:5173
+      reset-path: /password/reset
 
   mail:
     from: no-reply@local.familyapp-hwhub.com

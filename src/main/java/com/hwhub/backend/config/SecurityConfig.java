@@ -35,11 +35,13 @@ public class SecurityConfig {
                     // actuator
                     .requestMatchers("/actuator/health", "/actuator/info")
                     .permitAll()
-                    // 認証なしで叩けるAPI: swagger, auth
+                    // 認証なしで叩けるAPI: swagger, auth, /api/auth/password-reset
                     .requestMatchers(
                         "/api/auth/login",
                         "/api/auth/email-verification/verify",
                         "/api/auth/email-verification/resend",
+                        "/api/auth/password-reset/request",
+                        "/api/auth/password-reset/confirm",
                         "/swagger-ui.html",
                         "/swagger-ui/**",
                         "/v3/api-docs/**")

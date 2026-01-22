@@ -38,6 +38,34 @@
       "type": "java.lang.String"
     },
     {
+      "name": "hwhub.auth.password-reset.enabled",
+      "type": "java.lang.Boolean"
+    },
+    {
+      "name": "hwhub.auth.password-reset.send-mail",
+      "type": "java.lang.Boolean"
+    },
+    {
+      "name": "hwhub.auth.password-reset.token-ttl-minutes",
+      "type": "java.lang.Integer"
+    },
+    {
+      "name": "hwhub.auth.password-reset.resend-cooldown-seconds",
+      "type": "java.lang.Integer"
+    },
+    {
+      "name": "hwhub.auth.password-reset.max-requests-per-day",
+      "type": "java.lang.Integer"
+    },
+    {
+      "name": "hwhub.auth.password-reset.front-base-url",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "hwhub.auth.password-reset.reset-path",
+      "type": "java.lang.String"
+    },
+    {
       "name": "hwhub.aws.s3.region",
       "type": "java.lang.String"
     },

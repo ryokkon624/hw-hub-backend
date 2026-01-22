@@ -99,71 +99,21 @@
             ORDER BY
                 t.table_name;
          -->
-        <table tableName="m_announcement" enableCountByExample="false" enableUpdateByExample="false"
-            enableDeleteByExample="false" enableSelectByExample="true"
-            selectByExampleQueryId="false">
-            <generatedKey column="announcement_id" sqlStatement="JDBC" identity="true" />
-        </table>
-        <table tableName="m_code" enableCountByExample="false" enableUpdateByExample="false"
-            enableDeleteByExample="false" enableSelectByExample="true"
-            selectByExampleQueryId="false"></table>
-        <table tableName="m_household" enableCountByExample="false" enableUpdateByExample="false"
-            enableDeleteByExample="false" enableSelectByExample="true"
-            selectByExampleQueryId="false">
-            <generatedKey column="household_id" sqlStatement="JDBC" identity="true" />
-        </table>
-        <table tableName="m_household_member" enableCountByExample="false"
-            enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="true"
-            selectByExampleQueryId="false"></table>
-        <table tableName="m_housework" enableCountByExample="false" enableUpdateByExample="false"
-            enableDeleteByExample="false" enableSelectByExample="true"
-            selectByExampleQueryId="false">
-            <generatedKey column="housework_id" sqlStatement="JDBC" identity="true" />
-        </table>
-        <table tableName="m_housework_template" enableCountByExample="false"
-            enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="true"
-            selectByExampleQueryId="false">
-            <generatedKey column="housework_template_id" sqlStatement="JDBC" identity="true" />
-        </table>
-        <table tableName="m_user" enableCountByExample="false" enableUpdateByExample="false"
-            enableDeleteByExample="false" enableSelectByExample="true"
-            selectByExampleQueryId="false">
-            <generatedKey column="user_id" sqlStatement="JDBC" identity="true" />
-        </table>
-        <table tableName="t_household_invitation" enableCountByExample="false"
-            enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="true"
-            selectByExampleQueryId="false"></table>
-        <table tableName="t_housework_task" enableCountByExample="false"
-            enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="true"
-            selectByExampleQueryId="false">
-            <generatedKey column="housework_task_id" sqlStatement="JDBC" identity="true" />
-        </table>
-        <table tableName="t_housework_task_assignment_history" enableCountByExample="false"
-            enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="true"
-            selectByExampleQueryId="false">
-            <generatedKey column="housework_task_assignment_history_id" sqlStatement="JDBC"
-                identity="true" />
-        </table>
-        <table tableName="t_housework_task_recalc_request" enableCountByExample="false"
-            enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="true"
-            selectByExampleQueryId="false">
-            <generatedKey column="request_id" sqlStatement="JDBC" identity="true" />
-        </table>
-        <table tableName="t_shopping_item" enableCountByExample="false"
-            enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="true"
-            selectByExampleQueryId="false">
-            <generatedKey column="shopping_item_id" sqlStatement="JDBC" identity="true" />
-        </table>
-        <table tableName="t_shopping_item_attachment" enableCountByExample="false"
-            enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="true"
-            selectByExampleQueryId="false">
-            <generatedKey column="shopping_item_attachment_id" sqlStatement="JDBC" identity="true" />
-        </table>
-        <table tableName="t_user_email_verification" enableCountByExample="false"
-            enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="true"
-            selectByExampleQueryId="false">
-            <generatedKey column="user_email_verification_id" sqlStatement="JDBC" identity="true" />
-        </table>
+        <table tableName="m_announcement" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="true" selectByExampleQueryId="false"><generatedKey column="announcement_id" sqlStatement="JDBC" identity="true"/></table>
+        <table tableName="m_code" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="true" selectByExampleQueryId="false"></table>
+        <table tableName="m_household" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="true" selectByExampleQueryId="false"><generatedKey column="household_id" sqlStatement="JDBC" identity="true"/></table>
+        <table tableName="m_household_member" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="true" selectByExampleQueryId="false"></table>
+        <table tableName="m_housework" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="true" selectByExampleQueryId="false"><generatedKey column="housework_id" sqlStatement="JDBC" identity="true"/></table>
+        <table tableName="m_housework_template" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="true" selectByExampleQueryId="false"><generatedKey column="housework_template_id" sqlStatement="JDBC" identity="true"/></table>
+        <table tableName="m_user" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="true" selectByExampleQueryId="false"><generatedKey column="user_id" sqlStatement="JDBC" identity="true"/></table>
+        <table tableName="t_household_invitation" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="true" selectByExampleQueryId="false"></table>
+        <table tableName="t_housework_task" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="true" selectByExampleQueryId="false"><generatedKey column="housework_task_id" sqlStatement="JDBC" identity="true"/></table>
+        <table tableName="t_housework_task_assignment_history" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="true" selectByExampleQueryId="false"><generatedKey column="housework_task_assignment_history_id" sqlStatement="JDBC" identity="true"/></table>
+        <table tableName="t_housework_task_recalc_request" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="true" selectByExampleQueryId="false"><generatedKey column="request_id" sqlStatement="JDBC" identity="true"/></table>
+        <table tableName="t_shopping_item" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="true" selectByExampleQueryId="false"><generatedKey column="shopping_item_id" sqlStatement="JDBC" identity="true"/></table>
+        <table tableName="t_shopping_item_attachment" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="true" selectByExampleQueryId="false"><generatedKey column="shopping_item_attachment_id" sqlStatement="JDBC" identity="true"/></table>
+        <table tableName="t_user_email_verification" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="true" selectByExampleQueryId="false"><generatedKey column="user_email_verification_id" sqlStatement="JDBC" identity="true"/></table>
+        <table tableName="t_user_password_reset" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="true" selectByExampleQueryId="false"><generatedKey column="user_password_reset_id" sqlStatement="JDBC" identity="true"/></table>
 
     </context>
 </generatorConfiguration>

@@ -48,9 +48,18 @@ public class JwtProvider {
 
   // トークンから userId を取り出す
   public Long getUserIdFromToken(String token) {
-    Claims claims =
-        Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token).getBody();
+    return Long.parseLong(parseClaims(token).getSubject());
+  }
 
-    return Long.parseLong(claims.getSubject());
+  public Date getIssuedAtFromToken(String token) {
+    return parseClaims(token).getIssuedAt();
+  }
+
+  private Claims parseClaims(String token) {
+    return Jwts.parserBuilder()
+        .setSigningKey(getSigningKey())
+        .build()
+        .parseClaimsJws(token)
+        .getBody();
   }
 }
