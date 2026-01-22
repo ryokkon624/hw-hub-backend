@@ -44,31 +44,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         Instant tokenIatInstant = issuedAt.toInstant();
 
-        userRepository
-            .findPasswordChangedAt(userId)
-            .ifPresentOrElse(
-                passwordChangedAt -> {
-                  Instant pwChangedInstant =
-                      passwordChangedAt.atZone(ZoneId.of("Asia/Tokyo")).toInstant();
+        boolean isValid = true;
 
-                  if (tokenIatInstant.isBefore(pwChangedInstant)) {
-                    // 古いトークンなので認証しない
-                    return;
-                  }
-                  // userId を principal として Authentication を作成
-                  UsernamePasswordAuthenticationToken authentication =
-                      new UsernamePasswordAuthenticationToken(
-                          userId.toString(), null, List.of() // いま役割(role)は使わないので空リスト
-                          );
+        var opt = userRepository.findPasswordChangedAt(userId);
+        if (opt.isPresent()) {
+          Instant pwChangedInstant = opt.get().atZone(ZoneId.of("Asia/Tokyo")).toInstant();
+          if (tokenIatInstant.isBefore(pwChangedInstant)) {
+            isValid = false;
+          }
+        }
 
-                  authentication.setDetails(
-                      new WebAuthenticationDetailsSource().buildDetails(request));
+        if (isValid) {
+          // userId を principal として Authentication を作成
+          UsernamePasswordAuthenticationToken authentication =
+              new UsernamePasswordAuthenticationToken(
+                  userId.toString(), null, List.of() // いま役割(role)は使わないので空リスト
+                  );
 
-                  SecurityContextHolder.getContext().setAuthentication(authentication);
-                },
-                () -> {
-                  // PasswordChangeedAtはnull許容のため認証OK
-                });
+          authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+          SecurityContextHolder.getContext().setAuthentication(authentication);
+        }
       }
     }
 

@@ -59,6 +59,7 @@ class UserConverterSpec extends Specification{
                 2L,                      // userId
                 "another@example.com",   // email
                 "hashed-2",              // passwordHash
+                null,                    // passwordChangedAt
                 "別ユーザ",                 // displayName
                 "en",                    // locale
                 "profile/key/002",       // profileImageKey

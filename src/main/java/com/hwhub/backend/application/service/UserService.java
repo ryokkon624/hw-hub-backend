@@ -31,16 +31,20 @@ public class UserService {
 
   @Transactional(readOnly = true)
   public UserModel getProfile(Long userId) {
-    UserModel model = userRepository.findById(userId)
-        .orElseThrow(() -> new ResourceNotFoundException("User not found. userId=" + userId));
+    UserModel model =
+        userRepository
+            .findById(userId)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found. userId=" + userId));
     model.setIconUrl(userIconService.getIconUrl(model.getProfileImageKey()));
     return model;
   }
 
   @Transactional
   public UserModel updateProfile(Long userId, String displayName, String locale) {
-    UserModel user = userRepository.findById(userId)
-        .orElseThrow(() -> new ResourceNotFoundException("User not found. userId=" + userId));
+    UserModel user =
+        userRepository
+            .findById(userId)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found. userId=" + userId));
 
     user.changeProfile(displayName, locale);
     userRepository.updateForEnduser(user, userId, ProgramType.ONL_USR.getCode());
@@ -63,7 +67,8 @@ public class UserService {
         if (members.size() > 1) {
           // 自分以外にもメンバーがいる場合は退会不可
           throw new IllegalArgumentException(
-              "Cannot delete account because you are the owner of household '" + h.getName()
+              "Cannot delete account because you are the owner of household '"
+                  + h.getName()
                   + "' which has other members. Please transfer ownership or remove members first.");
         }
         // メンバーが自分のみならOK（この世帯は後日バッチ削除される）
@@ -80,15 +85,16 @@ public class UserService {
   /**
    * ログイン中ユーザのパスワードを変更する。
    *
-   * <p>
-   * 重要： passwordChangedAt を更新して、既存JWTを（後段の検証で）無効化できるようにする。
+   * <p>重要： passwordChangedAt を更新して、既存JWTを（後段の検証で）無効化できるようにする。
    */
   @Transactional
   public void changePassword(String currentPassword, String newPassword) {
     Long userId = authUserResolver.requireUserId();
 
-    UserModel user = userRepository.findById(userId)
-        .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
+    UserModel user =
+        userRepository
+            .findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
 
     // 現在パスワード一致チェック
     if (!passwordEncoder.matches(currentPassword, user.getPasswordHash())) {

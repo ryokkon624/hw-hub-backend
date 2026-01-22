@@ -49,6 +49,7 @@ class AuthServiceSpec extends Specification{
                 10L,
                 "test@example.com",
                 "hashed-password",
+                null,
                 "テストユーザ",
                 "ja",
                 "icon/key/001",
@@ -111,6 +112,7 @@ class AuthServiceSpec extends Specification{
                 11L,
                 "inactive@example.com",
                 "hashed-password",
+                null,
                 "退会済みユーザ",
                 "ja",
                 null,
@@ -155,6 +157,7 @@ class AuthServiceSpec extends Specification{
                 10L,
                 "test@example.com",
                 "hashed-password",
+                null,
                 "テストユーザ",
                 "ja",
                 null,
@@ -184,6 +187,7 @@ class AuthServiceSpec extends Specification{
                 99L,
                 "new@example.com",
                 "hashed-password",
+                null,
                 "新規ユーザ",
                 "ja",
                  "icon/key/999",
@@ -217,7 +221,7 @@ class AuthServiceSpec extends Specification{
                 "ja"
         )
         def existingUser = UserModel.reconstruct(
-                20L, "dup@example.com", "hash", "Exist", "en", null, null, true
+                20L, "dup@example.com", "hash", null, "Exist", "en", null, null, true
         )
 
         when:
@@ -232,7 +236,7 @@ class AuthServiceSpec extends Specification{
     def "registerはメール認証有効時にVerificationRequiredを返す"() {
         given:
         def model = UserModel.create("verify@example.com", "pw", "VerifyMe", "ja")
-        def inserted = UserModel.reconstruct(100L, "verify@example.com", "hash", "VerifyMe", "ja", null, null, true)
+        def inserted = UserModel.reconstruct(100L, "verify@example.com", "hash", null, "VerifyMe", "ja", null, null, true)
 
         // Re-init with enabled=true, sendMail=true
         def props = new EmailVerificationProperties(true, true, 30, 60, 5, "http://front", "/verify")

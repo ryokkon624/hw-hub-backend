@@ -14,11 +14,15 @@ class UserServiceSpec extends Specification {
     UserRepository userRepository = Mock()
     UserIconService userIconService = Mock()
     com.hwhub.backend.domain.repository.HouseholdMemberRepository householdMemberRepository = Mock()
+    org.springframework.security.crypto.password.PasswordEncoder passwordEncoder = Mock()
+    AuthUserResolver authUserResolver = Mock()
 
     UserService service = new UserService(
             userRepository,
             userIconService,
-            householdMemberRepository
+            householdMemberRepository,
+            passwordEncoder,
+            authUserResolver
     )
 
     // ==================================
@@ -208,5 +212,86 @@ class UserServiceSpec extends Specification {
         // 退会処理が進む
         1 * userRepository.deactivate(userId, ProgramType.ONL_USR.code)
         1 * householdMemberRepository.deleteByUserId(userId)
+    }
+
+    // ==================================
+    // changePassword
+    // ==================================
+
+    def "changePasswordはユーザが見つからない場合、IllegalArgumentExceptionをthrowする"() {
+        given:
+        Long userId = 50L
+        String currentPass = "old"
+        String newPass = "new"
+
+        when:
+        service.changePassword(currentPass, newPass)
+
+        then:
+        1 * authUserResolver.requireUserId() >> userId
+        1 * userRepository.findById(userId) >> Optional.empty()
+        thrown(IllegalArgumentException)
+    }
+
+    def "changePasswordは現在のパスワードが一致しない場合、CurrentPasswordInvalidExceptionをthrowする"() {
+        given:
+        Long userId = 51L
+        def user = Mock(UserModel) {
+            getPasswordHash() >> "hashedOld"
+        }
+
+        when:
+        service.changePassword("wrong", "new")
+
+        then:
+        1 * authUserResolver.requireUserId() >> userId
+        1 * userRepository.findById(userId) >> Optional.of(user)
+        1 * passwordEncoder.matches("wrong", "hashedOld") >> false
+        thrown(com.hwhub.backend.presentation.rest.common.CurrentPasswordInvalidException)
+    }
+
+    def "changePasswordは新しいパスワードが古いパスワードと同じ場合、PasswordSameAsOldExceptionをthrowする"() {
+        given:
+        Long userId = 52L
+        def user = Mock(UserModel) {
+            getPasswordHash() >> "hashedOld"
+        }
+
+        when:
+        service.changePassword("old", "old")
+
+        then:
+        1 * authUserResolver.requireUserId() >> userId
+        1 * userRepository.findById(userId) >> Optional.of(user)
+        1 * passwordEncoder.matches("old", "hashedOld") >> true
+        // 2nd check
+        1 * passwordEncoder.matches("old", "hashedOld") >> true
+        thrown(com.hwhub.backend.presentation.rest.common.PasswordSameAsOldException)
+    }
+
+    def "changePasswordは有効な場合、パスワードハッシュを更新する"() {
+        given:
+        Long userId = 53L
+        def user = Mock(UserModel) {
+            getPasswordHash() >> "hashedOld"
+        }
+
+        when:
+        service.changePassword("old", "new")
+
+        then:
+        1 * authUserResolver.requireUserId() >> userId
+        1 * userRepository.findById(userId) >> Optional.of(user)
+        
+        // 1. match current
+        1 * passwordEncoder.matches("old", "hashedOld") >> true
+        // 2. match new (should be false)
+        1 * passwordEncoder.matches("new", "hashedOld") >> false
+        
+        // 3. encode new
+        1 * passwordEncoder.encode("new") >> "hashedNew"
+        
+        1 * user.changePasswordHash("hashedNew", _)
+        1 * userRepository.updatePassword(user, userId, ProgramType.ONL_USR.code)
     }
 }

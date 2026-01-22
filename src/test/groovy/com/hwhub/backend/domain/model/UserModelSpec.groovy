@@ -1,6 +1,7 @@
 package com.hwhub.backend.domain.model
 
 import spock.lang.Specification
+import java.time.LocalDateTime
 
 class UserModelSpec extends Specification {
 
@@ -19,6 +20,7 @@ class UserModelSpec extends Specification {
                 userId,
                 email,
                 passwordHash,
+                null,
                 displayName,
                 locale,
                 profileImageKey,
@@ -31,6 +33,7 @@ class UserModelSpec extends Specification {
         model.email == email
         model.password == null                     // ★ reconstructなのでnull
         model.passwordHash == passwordHash
+        model.passwordChangedAt == null // added
         model.displayName == displayName
         model.locale == locale
         model.profileImageKey == profileImageKey
@@ -77,12 +80,29 @@ class UserModelSpec extends Specification {
         model.passwordHash == "new-hashed-password"
     }
 
+    def "changePasswordHash updates passwordHash and passwordChangedAt"() {
+        given:
+        def model = UserModel.reconstruct(
+                1L, "test@example.com", "old", null, "User", "en", null, null, true
+        )
+        def newHash = "new-hash"
+        def changedAt = LocalDateTime.now()
+
+        when:
+        model.changePasswordHash(newHash, changedAt)
+
+        then:
+        model.passwordHash == newHash
+        model.passwordChangedAt == changedAt
+    }
+
     def "setIconUrlでiconUrlが設定される"() {
         given:
         def model = UserModel.reconstruct(
                 1L,
                 "test@example.com",
                 "hashed",
+                null,
                 "テストユーザ",
                 "ja",
                 "icon/key.png",
@@ -103,6 +123,7 @@ class UserModelSpec extends Specification {
                 1L,
                 "test@example.com",
                 "hashed",
+                null,
                 "旧表示名",
                 "ja",
                 null,
@@ -124,6 +145,7 @@ class UserModelSpec extends Specification {
                 1L,
                 "test@example.com",
                 "hashed",
+                null,
                 "テストユーザ",
                 "ja",
                 "old/key.png",
@@ -144,6 +166,7 @@ class UserModelSpec extends Specification {
                 1L,
                 "inactive@example.com",
                 "hashed",
+                null,
                 "退会ユーザ",
                 "ja",
                 null,
