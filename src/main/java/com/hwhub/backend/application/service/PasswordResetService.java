@@ -8,6 +8,7 @@ import com.hwhub.backend.domain.notification.PasswordResetMailSender;
 import com.hwhub.backend.domain.repository.UserPasswordResetRepository;
 import com.hwhub.backend.domain.repository.UserRepository;
 import com.hwhub.backend.presentation.rest.common.PasswordResetCooldownException;
+import com.hwhub.backend.presentation.rest.common.PasswordResetDisabledException;
 import com.hwhub.backend.presentation.rest.common.PasswordResetLimitExceededException;
 import com.hwhub.backend.presentation.rest.common.PasswordResetTokenExpiredException;
 import com.hwhub.backend.presentation.rest.common.PasswordResetTokenInvalidException;
@@ -37,8 +38,8 @@ public class PasswordResetService {
   @Transactional
   public void requestReset(String email) {
     if (!properties.enabled()) {
-      // 無効化中は何もしない
-      return;
+      // 無効化中はException
+      throw new PasswordResetDisabledException();
     }
 
     Optional<UserModel> userOpt = userRepository.findByEmail(email);

@@ -8,6 +8,7 @@ import com.hwhub.backend.domain.notification.PasswordResetMailSender
 import com.hwhub.backend.domain.repository.UserPasswordResetRepository
 import com.hwhub.backend.domain.repository.UserRepository
 import com.hwhub.backend.presentation.rest.common.PasswordResetCooldownException
+import com.hwhub.backend.presentation.rest.common.PasswordResetDisabledException
 import com.hwhub.backend.presentation.rest.common.PasswordResetLimitExceededException
 import com.hwhub.backend.presentation.rest.common.PasswordResetTokenExpiredException
 import com.hwhub.backend.presentation.rest.common.PasswordResetTokenInvalidException
@@ -51,7 +52,7 @@ class PasswordResetServiceSpec extends Specification {
     // requestReset
     // ===========================================
 
-    def "requestResetはproperties.enabledがfalseの場合チェックを行う"() {
+    def "requestResetはproperties.enabledがfalseの場合、PasswordResetDisabledExceptionをthrowする"() {
         given:
         def service = createService(createProps(false))
 
@@ -60,6 +61,7 @@ class PasswordResetServiceSpec extends Specification {
 
         then:
         0 * userRepository.findByEmail(_)
+        thrown(PasswordResetDisabledException)
     }
 
     def "requestResetはユーザが見つからない場合、セキュリティ上の理由で早期リターンする"() {

@@ -181,6 +181,13 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
   }
 
+  @ExceptionHandler(PasswordResetDisabledException.class)
+  public ResponseEntity<ErrorResponse> handlePasswordResetDisabled(
+      PasswordResetDisabledException ex) {
+    ErrorResponse body = ErrorResponse.of("PASSWORD_RESET_DISABLED", ex.getMessage());
+    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
+  }
+
   /** 最後の砦：想定していない例外 */
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ErrorResponse> handleException(Exception ex, HttpServletRequest req) {

@@ -301,6 +301,19 @@ class GlobalExceptionHandlerSpec extends Specification {
         response.body.errorCode == "PASSWORD_RESET_LIMIT_EXCEEDED"
     }
 
+    def "handlePasswordResetDisabled は 403 と PASSWORD_RESET_DISABLED を返す"() {
+        given:
+        def ex = new PasswordResetDisabledException()
+
+        when:
+        def response = handler.handlePasswordResetDisabled(ex)
+
+        then:
+        response.statusCode == HttpStatus.FORBIDDEN
+        response.body != null
+        response.body.errorCode == "PASSWORD_RESET_DISABLED"
+    }
+
     // ============================================
     // Other Auth Exceptions
     // ============================================
