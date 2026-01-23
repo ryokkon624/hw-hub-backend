@@ -67,6 +67,7 @@ src/main/java/com/hwhub/backend
 - Docker / Docker Compose
 - MySQL（基本は docker compose で起動）
 - LocalStack（S3をローカルで擬似利用する場合に使用）
+- Mailhog（メールをローカルで擬似利用する場合に使用）
 
 ### 4.2 起動
 
@@ -74,7 +75,7 @@ src/main/java/com/hwhub/backend
 # DB 起動（hw-hub-databaseリポジトリ側で実行してください）
 docker compose up -d
 
-# LocalStack 起動（当リポジトリで実行してください）
+# LocalStack, Mailhog 起動（当リポジトリで実行してください）
 docker compose up -d
 
 # アプリ起動（IDE からでも OK）
