@@ -121,7 +121,7 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(EmailVerificationTooManyRequestsException.class)
   public ResponseEntity<ErrorResponse> handleTooMany(EmailVerificationTooManyRequestsException ex) {
-    ErrorResponse body = ErrorResponse.of("EMAIL_VERIFICATION_TOO_MANY_REQUESTS", ex.getMessage());
+    ErrorResponse body = ErrorResponse.of("EMAIL_VERIFICATION_LIMIT_EXCEEDED", ex.getMessage());
     return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(body);
   }
 
@@ -134,6 +134,57 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(EmailNotVerifiedException.class)
   public ResponseEntity<ErrorResponse> hundleNotVerified(EmailNotVerifiedException ex) {
     ErrorResponse body = ErrorResponse.of("EMAIL_NOT_VERIFIED", ex.getMessage());
+    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
+  }
+
+  @ExceptionHandler(PasswordResetTokenInvalidException.class)
+  public ResponseEntity<ErrorResponse> handleTokenInvalid(PasswordResetTokenInvalidException ex) {
+    ErrorResponse body = ErrorResponse.of("PASSWORD_RESET_TOKEN_INVALID", ex.getMessage());
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+  }
+
+  @ExceptionHandler(PasswordResetTokenExpiredException.class)
+  public ResponseEntity<ErrorResponse> handleTokenExpired(PasswordResetTokenExpiredException ex) {
+    ErrorResponse body = ErrorResponse.of("PASSWORD_RESET_TOKEN_EXPIRED", ex.getMessage());
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+  }
+
+  @ExceptionHandler(PasswordResetCooldownException.class)
+  public ResponseEntity<ErrorResponse> handleCooldown(PasswordResetCooldownException ex) {
+    ErrorResponse body = ErrorResponse.of("PASSWORD_RESET_COOLDOWN", ex.getMessage());
+    return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(body);
+  }
+
+  @ExceptionHandler(PasswordResetLimitExceededException.class)
+  public ResponseEntity<ErrorResponse> handleLimitExceeded(PasswordResetLimitExceededException ex) {
+    ErrorResponse body = ErrorResponse.of("PASSWORD_RESET_LIMIT_EXCEEDED", ex.getMessage());
+    return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(body);
+  }
+
+  @ExceptionHandler(CurrentPasswordInvalidException.class)
+  public ResponseEntity<ErrorResponse> handleCurrentPasswordInvalidException(
+      CurrentPasswordInvalidException ex) {
+    ErrorResponse body = ErrorResponse.of("CURRENT_PASSWORD_INVALID", ex.getMessage());
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+  }
+
+  @ExceptionHandler(PasswordSameAsOldException.class)
+  public ResponseEntity<ErrorResponse> handleSameAsOldException(PasswordSameAsOldException ex) {
+    ErrorResponse body = ErrorResponse.of("PASSWORD_SAME_AS_OLD", ex.getMessage());
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+  }
+
+  @ExceptionHandler(PasswordPolicyViolationException.class)
+  public ResponseEntity<ErrorResponse> handlePolicyViolationException(
+      PasswordPolicyViolationException ex) {
+    ErrorResponse body = ErrorResponse.of("PASSWORD_TOO_WEAK", ex.getMessage());
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+  }
+
+  @ExceptionHandler(PasswordResetDisabledException.class)
+  public ResponseEntity<ErrorResponse> handlePasswordResetDisabled(
+      PasswordResetDisabledException ex) {
+    ErrorResponse body = ErrorResponse.of("PASSWORD_RESET_DISABLED", ex.getMessage());
     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
   }
 

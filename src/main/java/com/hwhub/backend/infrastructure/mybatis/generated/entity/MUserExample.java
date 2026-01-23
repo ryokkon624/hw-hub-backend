@@ -305,6 +305,66 @@ public class MUserExample {
       return (Criteria) this;
     }
 
+    public Criteria andPasswordChangedAtIsNull() {
+      addCriterion("password_changed_at is null");
+      return (Criteria) this;
+    }
+
+    public Criteria andPasswordChangedAtIsNotNull() {
+      addCriterion("password_changed_at is not null");
+      return (Criteria) this;
+    }
+
+    public Criteria andPasswordChangedAtEqualTo(Date value) {
+      addCriterion("password_changed_at =", value, "passwordChangedAt");
+      return (Criteria) this;
+    }
+
+    public Criteria andPasswordChangedAtNotEqualTo(Date value) {
+      addCriterion("password_changed_at <>", value, "passwordChangedAt");
+      return (Criteria) this;
+    }
+
+    public Criteria andPasswordChangedAtGreaterThan(Date value) {
+      addCriterion("password_changed_at >", value, "passwordChangedAt");
+      return (Criteria) this;
+    }
+
+    public Criteria andPasswordChangedAtGreaterThanOrEqualTo(Date value) {
+      addCriterion("password_changed_at >=", value, "passwordChangedAt");
+      return (Criteria) this;
+    }
+
+    public Criteria andPasswordChangedAtLessThan(Date value) {
+      addCriterion("password_changed_at <", value, "passwordChangedAt");
+      return (Criteria) this;
+    }
+
+    public Criteria andPasswordChangedAtLessThanOrEqualTo(Date value) {
+      addCriterion("password_changed_at <=", value, "passwordChangedAt");
+      return (Criteria) this;
+    }
+
+    public Criteria andPasswordChangedAtIn(List<Date> values) {
+      addCriterion("password_changed_at in", values, "passwordChangedAt");
+      return (Criteria) this;
+    }
+
+    public Criteria andPasswordChangedAtNotIn(List<Date> values) {
+      addCriterion("password_changed_at not in", values, "passwordChangedAt");
+      return (Criteria) this;
+    }
+
+    public Criteria andPasswordChangedAtBetween(Date value1, Date value2) {
+      addCriterion("password_changed_at between", value1, value2, "passwordChangedAt");
+      return (Criteria) this;
+    }
+
+    public Criteria andPasswordChangedAtNotBetween(Date value1, Date value2) {
+      addCriterion("password_changed_at not between", value1, value2, "passwordChangedAt");
+      return (Criteria) this;
+    }
+
     public Criteria andAuthProviderIsNull() {
       addCriterion("auth_provider is null");
       return (Criteria) this;

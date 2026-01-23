@@ -9,6 +9,8 @@ public class MUser {
 
   private String passwordHash;
 
+  private Date passwordChangedAt;
+
   private String authProvider;
 
   private String authProviderId;
@@ -57,6 +59,14 @@ public class MUser {
 
   public void setPasswordHash(String passwordHash) {
     this.passwordHash = passwordHash == null ? null : passwordHash.trim();
+  }
+
+  public Date getPasswordChangedAt() {
+    return passwordChangedAt;
+  }
+
+  public void setPasswordChangedAt(Date passwordChangedAt) {
+    this.passwordChangedAt = passwordChangedAt;
   }
 
   public String getAuthProvider() {

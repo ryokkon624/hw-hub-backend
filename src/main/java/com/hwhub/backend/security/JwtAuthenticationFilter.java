@@ -1,10 +1,14 @@
 package com.hwhub.backend.security;
 
+import com.hwhub.backend.domain.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,6 +22,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   private final JwtProvider jwtProvider;
+  private final UserRepository userRepository;
 
   @Override
   protected void doFilterInternal(
@@ -32,15 +37,34 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       if (jwtProvider.validateToken(token)) {
         Long userId = jwtProvider.getUserIdFromToken(token);
 
-        // userId を principal として Authentication を作成
-        UsernamePasswordAuthenticationToken authentication =
-            new UsernamePasswordAuthenticationToken(
-                userId.toString(), null, List.of() // いま役割(role)は使わないので空リスト
-                );
+        Date issuedAt = jwtProvider.getIssuedAtFromToken(token);
+        if (issuedAt == null) {
+          filterChain.doFilter(request, response);
+          return;
+        }
+        Instant tokenIatInstant = issuedAt.toInstant();
 
-        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        boolean isValid = true;
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        var opt = userRepository.findPasswordChangedAt(userId);
+        if (opt.isPresent()) {
+          Instant pwChangedInstant = opt.get().atZone(ZoneId.of("Asia/Tokyo")).toInstant();
+          if (tokenIatInstant.isBefore(pwChangedInstant)) {
+            isValid = false;
+          }
+        }
+
+        if (isValid) {
+          // userId を principal として Authentication を作成
+          UsernamePasswordAuthenticationToken authentication =
+              new UsernamePasswordAuthenticationToken(
+                  userId.toString(), null, List.of() // いま役割(role)は使わないので空リスト
+                  );
+
+          authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+          SecurityContextHolder.getContext().setAuthentication(authentication);
+        }
       }
     }
 
@@ -52,9 +76,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     String path = request.getServletPath();
 
     // ログインAPIは JWT 検証不要
-    if (path.startsWith("/api/auth/login")) {
-      return true;
-    }
+    if (path.startsWith("/api/auth/login")) return true;
+    if (path.startsWith("/api/auth/email-verification/verify")) return true;
+    if (path.startsWith("/api/auth/email-verification/resend")) return true;
+    if (path.startsWith("/api/auth/password-reset/request")) return true;
+    if (path.startsWith("/api/auth/password-reset/confirm")) return true;
 
     // それ以外のパスはフィルタ実行
     return false;

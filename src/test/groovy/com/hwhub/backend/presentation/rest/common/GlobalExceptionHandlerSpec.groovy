@@ -186,7 +186,7 @@ class GlobalExceptionHandlerSpec extends Specification {
         then:
         response.statusCode == HttpStatus.TOO_MANY_REQUESTS
         response.body != null
-        response.body.errorCode == "EMAIL_VERIFICATION_TOO_MANY_REQUESTS"
+        response.body.errorCode == "EMAIL_VERIFICATION_LIMIT_EXCEEDED"
     }
 
     // ============================================
@@ -243,5 +243,118 @@ class GlobalExceptionHandlerSpec extends Specification {
         response.body != null
         response.body.errorCode == "INTERNAL_SERVER_ERROR"
         response.body.message == "Unexpected error occurred."
+    }
+
+    // ============================================
+    // PasswordReset Exceptions
+    // ============================================
+
+    def "handleTokenInvalid (PasswordReset) は 400 と PASSWORD_RESET_TOKEN_INVALID を返す"() {
+        given:
+        def ex = new com.hwhub.backend.presentation.rest.common.PasswordResetTokenInvalidException()
+
+        when:
+        def response = handler.handleTokenInvalid(ex)
+
+        then:
+        response.statusCode == HttpStatus.BAD_REQUEST
+        response.body != null
+        response.body.errorCode == "PASSWORD_RESET_TOKEN_INVALID"
+    }
+
+    def "handleTokenExpired (PasswordReset) は 400 と PASSWORD_RESET_TOKEN_EXPIRED を返す"() {
+        given:
+        def ex = new com.hwhub.backend.presentation.rest.common.PasswordResetTokenExpiredException()
+
+        when:
+        def response = handler.handleTokenExpired(ex)
+
+        then:
+        response.statusCode == HttpStatus.BAD_REQUEST
+        response.body != null
+        response.body.errorCode == "PASSWORD_RESET_TOKEN_EXPIRED"
+    }
+
+    def "handleCooldown (PasswordReset) は 429 と PASSWORD_RESET_COOLDOWN を返す"() {
+        given:
+        def ex = new com.hwhub.backend.presentation.rest.common.PasswordResetCooldownException()
+
+        when:
+        def response = handler.handleCooldown(ex)
+
+        then:
+        response.statusCode == HttpStatus.TOO_MANY_REQUESTS
+        response.body != null
+        response.body.errorCode == "PASSWORD_RESET_COOLDOWN"
+    }
+
+    def "handleLimitExceeded (PasswordReset) は 429 と PASSWORD_RESET_LIMIT_EXCEEDED を返す"() {
+        given:
+        def ex = new com.hwhub.backend.presentation.rest.common.PasswordResetLimitExceededException()
+
+        when:
+        def response = handler.handleLimitExceeded(ex)
+
+        then:
+        response.statusCode == HttpStatus.TOO_MANY_REQUESTS
+        response.body != null
+        response.body.errorCode == "PASSWORD_RESET_LIMIT_EXCEEDED"
+    }
+
+    def "handlePasswordResetDisabled は 403 と PASSWORD_RESET_DISABLED を返す"() {
+        given:
+        def ex = new PasswordResetDisabledException()
+
+        when:
+        def response = handler.handlePasswordResetDisabled(ex)
+
+        then:
+        response.statusCode == HttpStatus.FORBIDDEN
+        response.body != null
+        response.body.errorCode == "PASSWORD_RESET_DISABLED"
+    }
+
+    // ============================================
+    // Other Auth Exceptions
+    // ============================================
+
+    def "handleCurrentPasswordInvalidException は 400 と CURRENT_PASSWORD_INVALID を返す"() {
+        given:
+        def ex = new com.hwhub.backend.presentation.rest.common.CurrentPasswordInvalidException()
+
+        when:
+        def response = handler.handleCurrentPasswordInvalidException(ex)
+
+        then:
+        response.statusCode == HttpStatus.BAD_REQUEST
+        response.body != null
+        response.body.errorCode == "CURRENT_PASSWORD_INVALID"
+    }
+
+    def "handleSameAsOldException は 400 と PASSWORD_SAME_AS_OLD を返す"() {
+        given:
+        def ex = new com.hwhub.backend.presentation.rest.common.PasswordSameAsOldException()
+
+        when:
+        def response = handler.handleSameAsOldException(ex)
+
+        then:
+        response.statusCode == HttpStatus.BAD_REQUEST
+        response.body != null
+        response.body.errorCode == "PASSWORD_SAME_AS_OLD"
+    }
+
+    def "handlePolicyViolationException は 400 と PASSWORD_TOO_WEAK を返す"() {
+        given:
+        def ex = new com.hwhub.backend.presentation.rest.common.PasswordPolicyViolationException()
+
+        when:
+        def response = handler.handlePolicyViolationException(ex)
+
+        then:
+        response.statusCode == HttpStatus.BAD_REQUEST
+        response.body != null
+        response.body.errorCode == "PASSWORD_TOO_WEAK"
+        response.body.message == "Password policy violation"
     }
 }

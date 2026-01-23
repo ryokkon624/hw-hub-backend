@@ -14,10 +14,12 @@ public enum ProgramType implements CodeEnum {
   ONL_SHPATCH("OnlShpAtch"),
   ONL_SHP("OnlShp"),
   ONL_USRICON("OnlUsrIcon"),
+  ONL_USR("OnlUsr"),
+  ONL_PWDRST("OnlPwdRst"),
   BTC_INV_EXPR("BtcInvExpr"),
   BTC_TSK_GEN("BtcTskGen"),
   BTC_TSK_RECL("BtcTskRecl"),
-  ONL_USR("OnlUsr");
+  BTC_HLD_CLEN("BtcHldClen");
 
   private final String code;
 

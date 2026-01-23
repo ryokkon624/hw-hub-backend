@@ -3,13 +3,15 @@ package com.hwhub.backend.security
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import com.hwhub.backend.domain.repository.UserRepository
 import org.springframework.security.core.context.SecurityContextHolder
 import spock.lang.Specification
 
 class JwtAuthenticationFilterSpec extends Specification {
 
     JwtProvider jwtProvider = Mock()
-    JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtProvider)
+    UserRepository userRepository = Mock() // Mock UserRepository
+    JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtProvider, userRepository)
 
     def cleanup() {
         // 各テスト後にコンテキストをクリア
@@ -27,6 +29,10 @@ class JwtAuthenticationFilterSpec extends Specification {
         and: "JwtProvider が有効判定 & userId 返す"
         1 * jwtProvider.validateToken("valid-token") >> true
         1 * jwtProvider.getUserIdFromToken("valid-token") >> 123L
+        1 * jwtProvider.getIssuedAtFromToken("valid-token") >> new Date()
+        
+        and: "UserRepository がパスワード変更日時を返す（変更なし）"
+        1 * userRepository.findPasswordChangedAt(123L) >> Optional.empty()
 
         when:
         filter.doFilterInternal(request, response, chain)
@@ -40,6 +46,57 @@ class JwtAuthenticationFilterSpec extends Specification {
         auth.principal == "123"      // userId.toString()
         auth.credentials == null
         auth.authorities.empty        // ロールは空リスト
+        auth.authorities.empty        // ロールは空リスト
+    }
+
+    def "パスワード変更日時がトークン発行日時より後の場合 Authentication はセットされない"() {
+        given:
+        def request = Mock(HttpServletRequest) {
+            getHeader("Authorization") >> "Bearer valid-token"
+        }
+        def response = Mock(HttpServletResponse)
+        def chain = Mock(FilterChain)
+        
+        def issuedAt = new Date()
+        def passwordChangedAt = issuedAt.toInstant().plusSeconds(60).atZone(java.time.ZoneId.of("Asia/Tokyo")).toLocalDateTime()
+
+        and:
+        1 * jwtProvider.validateToken("valid-token") >> true
+        1 * jwtProvider.getUserIdFromToken("valid-token") >> 123L
+        1 * jwtProvider.getIssuedAtFromToken("valid-token") >> issuedAt
+        1 * userRepository.findPasswordChangedAt(123L) >> Optional.of(passwordChangedAt)
+
+        when:
+        filter.doFilterInternal(request, response, chain)
+
+        then:
+        1 * chain.doFilter(request, response)
+        SecurityContextHolder.context.authentication == null
+    }
+
+    def "パスワード変更日時がトークン発行日時より前の場合 Authentication がセットされる"() {
+        given:
+        def request = Mock(HttpServletRequest) {
+            getHeader("Authorization") >> "Bearer valid-token"
+        }
+        def response = Mock(HttpServletResponse)
+        def chain = Mock(FilterChain)
+        
+        def issuedAt = new Date()
+        def passwordChangedAt = issuedAt.toInstant().minusSeconds(60).atZone(java.time.ZoneId.of("Asia/Tokyo")).toLocalDateTime()
+
+        and:
+        1 * jwtProvider.validateToken("valid-token") >> true
+        1 * jwtProvider.getUserIdFromToken("valid-token") >> 123L
+        1 * jwtProvider.getIssuedAtFromToken("valid-token") >> issuedAt
+        1 * userRepository.findPasswordChangedAt(123L) >> Optional.of(passwordChangedAt)
+
+        when:
+        filter.doFilterInternal(request, response, chain)
+
+        then:
+        1 * chain.doFilter(request, response)
+        SecurityContextHolder.context.authentication != null
     }
 
     def "トークンが無効な場合 Authentication はセットされない"() {

@@ -98,4 +98,16 @@ class JwtProviderSpec extends Specification {
         then:
         extracted == userId
     }
+
+    def "getIssuedAtFromToken はトークンのiatを取得する"() {
+        given:
+        String token = jwtProvider.generateToken(1L, "User")
+
+        when:
+        Date iat = jwtProvider.getIssuedAtFromToken(token)
+
+        then:
+        iat != null
+        iat.before(new Date(System.currentTimeMillis() + 1000)) // within reasonable time
+    }
 }

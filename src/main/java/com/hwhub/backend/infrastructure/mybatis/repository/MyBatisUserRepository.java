@@ -5,6 +5,7 @@ import com.hwhub.backend.domain.model.UserModel;
 import com.hwhub.backend.domain.repository.UserRepository;
 import com.hwhub.backend.infrastructure.mybatis.converter.DateConverter;
 import com.hwhub.backend.infrastructure.mybatis.converter.UserConverter;
+import com.hwhub.backend.infrastructure.mybatis.custom.mapper.UserCustomMapper;
 import com.hwhub.backend.infrastructure.mybatis.custom.mapper.UserHouseholdCustomMapper;
 import com.hwhub.backend.infrastructure.mybatis.generated.entity.MUser;
 import com.hwhub.backend.infrastructure.mybatis.generated.entity.MUserExample;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Repository;
 public class MyBatisUserRepository implements UserRepository {
 
   private final MUserMapper mapper;
+  private final UserCustomMapper customMapper;
   private final UserHouseholdCustomMapper userHouseholdCustomMapper;
 
   private static final String AUTH_PROVIDER_LOCAL = "LOCAL";
@@ -142,5 +144,22 @@ public class MyBatisUserRepository implements UserRepository {
     update.setUpdateProgram(programTypeCode);
 
     mapper.updateByPrimaryKeySelective(update);
+  }
+
+  @Override
+  public void updatePassword(UserModel model, Long updateUserId, String programTypeCode) {
+    MUser update = new MUser();
+    update.setUserId(model.getUserId());
+    update.setPasswordHash(model.getPasswordHash());
+    update.setPasswordChangedAt(DateConverter.toDate(model.getPasswordChangedAt()));
+    update.setUpdateUserId(updateUserId);
+    update.setUpdateProgram(programTypeCode);
+
+    mapper.updateByPrimaryKeySelective(update);
+  }
+
+  @Override
+  public Optional<LocalDateTime> findPasswordChangedAt(Long userId) {
+    return customMapper.findPasswordChangedAt(userId);
   }
 }

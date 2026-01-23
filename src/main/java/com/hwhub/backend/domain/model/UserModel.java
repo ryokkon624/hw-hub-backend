@@ -9,6 +9,7 @@ public class UserModel {
   private String email;
   private String password;
   private String passwordHash;
+  private LocalDateTime passwordChangedAt;
   private String displayName;
   private String locale;
   private String profileImageKey;
@@ -23,6 +24,7 @@ public class UserModel {
    * @param email メールアドレス
    * @param password パスワード
    * @param passwordHash パスワードハッシュ
+   * @param passwordChangedAt パスワード最終変更日時
    * @param displayName 表示名
    * @param locale 利用言語
    * @param profileImageKey プロフィール画像ストレージキー
@@ -35,6 +37,7 @@ public class UserModel {
       String email,
       String password,
       String passwordHash,
+      LocalDateTime passwordChangedAt,
       String displayName,
       String locale,
       String profileImageKey,
@@ -45,6 +48,7 @@ public class UserModel {
     this.email = email;
     this.password = password;
     this.passwordHash = passwordHash;
+    this.passwordChangedAt = passwordChangedAt;
     this.displayName = displayName;
     this.locale = locale;
     this.profileImageKey = profileImageKey;
@@ -59,6 +63,7 @@ public class UserModel {
    * @param userId ユーザID
    * @param email メールアドレス
    * @param passwordHash パスワードハッシュ
+   * @param passwordChangedAt パスワード最終変更日時
    * @param displayName 表示名
    * @param locale 利用言語
    * @param profileImageKey プロフィール画像ストレージキー
@@ -70,6 +75,7 @@ public class UserModel {
       Long userId,
       String email,
       String passwordHash,
+      LocalDateTime passwordChangedAt,
       String displayName,
       String locale,
       String profileImageKey,
@@ -80,6 +86,7 @@ public class UserModel {
         email,
         null,
         passwordHash,
+        passwordChangedAt,
         displayName,
         locale,
         profileImageKey,
@@ -98,7 +105,8 @@ public class UserModel {
    * @return ユーザIDがnullのインスタンスを返す。
    */
   public static UserModel create(String email, String password, String displayName, String locale) {
-    return new UserModel(null, email, password, null, displayName, locale, null, null, null, true);
+    return new UserModel(
+        null, email, password, null, null, displayName, locale, null, null, null, true);
   }
 
   /**
@@ -108,6 +116,11 @@ public class UserModel {
    */
   public void setPasswordHash(String passwordHash) {
     this.passwordHash = passwordHash;
+  }
+
+  public void changePasswordHash(String passwordHash, LocalDateTime changedAt) {
+    this.passwordHash = passwordHash;
+    this.passwordChangedAt = changedAt;
   }
 
   /**

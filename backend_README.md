@@ -35,6 +35,7 @@ src/main/java/com/hwhub/backend
 ├── domain/                # ビジネスルール
 │   ├── enums/             # コードマスタ由来の Enum（※編集禁止）
 │   ├── model/             # ドメインモデル
+│   ├── notification/      # 通知
 │   ├── repository/        # リポジトリIF
 │   └── storage/           # ストレージ操作IF
 ├── infrastructure/        # 外部接続実装（DB, S3等）
@@ -47,6 +48,7 @@ src/main/java/com/hwhub/backend
 │   │   │   ├── entity/    
 │   │   │   └── mapper/    
 │   │   └── repository/    # リポジトリ実装
+│   ├── notification/      # 通知
 │   └── s3/                # AWS S3操作実装
 ├── presentation/          # 外部接点（API）
 │   └── rest/              # Controller + DTO
@@ -65,6 +67,7 @@ src/main/java/com/hwhub/backend
 - Docker / Docker Compose
 - MySQL（基本は docker compose で起動）
 - LocalStack（S3をローカルで擬似利用する場合に使用）
+- Mailhog（メールをローカルで擬似利用する場合に使用）
 
 ### 4.2 起動
 
@@ -72,7 +75,7 @@ src/main/java/com/hwhub/backend
 # DB 起動（hw-hub-databaseリポジトリ側で実行してください）
 docker compose up -d
 
-# LocalStack 起動（当リポジトリで実行してください）
+# LocalStack, Mailhog 起動（当リポジトリで実行してください）
 docker compose up -d
 
 # アプリ起動（IDE からでも OK）
@@ -153,7 +156,11 @@ hw-hub-databaseリポジトリ側で実施してください。
 Gradle タスク `generateEnums` を実行すると、`com.hwhub.backend.domain.enums` 配下が更新されます。
 
 ```bash
+# Enum生成
 ./gradlew generateEnums
+
+# コード整形
+./gradlew spotlessApply
 ```
 
 - 変更が入った `domain/enums` をコミットして反映します。
@@ -162,6 +169,7 @@ Gradle タスク `generateEnums` を実行すると、`com.hwhub.backend.domain.
 ### 9.2 DB 定義変更 → MyBatis Generator（MBG）再実行
 
 **テーブル定義やカラムを変更した場合は MBG の再実行が必要です。**  
+テーブル追加をした場合は、`src/main/resources/generator/generatorConfig.xml`のtableタグを更新してください。tableタグの直前にコメントアウトされているSQLを発行した結果を張り付ければOKです。
 生成物は `infrastructure/mybatis/generated/*` に出力されます。
 
 実行コマンドはプロジェクトの Gradle タスク名に依存するため、まずタスク名を確認します：
@@ -199,4 +207,7 @@ Gradle タスク `generateEnums` を実行すると、`com.hwhub.backend.domain.
 - `SPRING_DATASOURCE_PASSWORD`（Secret）
 - `HWHUB_JWT_SECRET`（Secret）
 - `HWHUB_OBJECT_STORAGE_BUCKET`
+- `SES_SMTP_HOST`
+- `SES_SMTP_USER`
+- `SES_SMTP_PASSWORD`
 

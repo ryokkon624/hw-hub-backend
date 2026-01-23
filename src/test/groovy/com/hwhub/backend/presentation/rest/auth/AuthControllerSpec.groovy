@@ -26,6 +26,7 @@ class AuthControllerSpec extends Specification {
                 1L,
                 "user@example.com",
                 "hashed",
+                null,
                 "Taro",
                 "ja",
                 "profile-key",
@@ -68,6 +69,7 @@ class AuthControllerSpec extends Specification {
                 10L,
                 "new@example.com",
                 "hashed-pass",
+                null,
                 "Hanako",
                 "ja",
                 null,
@@ -106,7 +108,7 @@ class AuthControllerSpec extends Specification {
     def "register returns verification info when required"() {
         given:
         def request = new RegisterRequest("verify@example.com", "pw", "Verify", "ja", null)
-        def user = UserModel.reconstruct(100L, "verify@example.com", "hash", "Verify", "ja", null, null, true)
+        def user = UserModel.reconstruct(100L, "verify@example.com", "hash", null, "Verify", "ja", null, null, true)
 
         when:
         def response = controller.register(request)

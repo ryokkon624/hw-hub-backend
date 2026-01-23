@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -91,5 +92,17 @@ public class UserController {
   public void deleteAccount(Authentication authentication) {
     Long userId = Long.parseLong(authentication.getName());
     userService.deleteAccount(userId);
+  }
+
+  /**
+   * ログイン中のパスワード変更
+   *
+   * @param request 入力値
+   * @return 204 No Content（成功時は返却なし）
+   */
+  @PutMapping("/me/password")
+  public ResponseEntity<Void> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
+    userService.changePassword(request.currentPassword(), request.newPassword());
+    return ResponseEntity.noContent().build();
   }
 }

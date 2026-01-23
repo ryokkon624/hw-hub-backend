@@ -28,4 +28,8 @@ public interface UserRepository {
 
   void markEmailVerified(
       Long userId, LocalDateTime verifiedAt, Long updateUserId, String programTypeCode);
+
+  void updatePassword(UserModel model, Long updateUserId, String programTypeCode);
+
+  Optional<LocalDateTime> findPasswordChangedAt(Long userId);
 }
