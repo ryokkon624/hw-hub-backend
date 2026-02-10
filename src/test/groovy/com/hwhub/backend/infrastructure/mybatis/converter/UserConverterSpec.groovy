@@ -1,6 +1,7 @@
 package com.hwhub.backend.infrastructure.mybatis.converter
 
 import com.hwhub.backend.domain.model.UserModel
+import com.hwhub.backend.domain.enums.AuthProvider
 import com.hwhub.backend.infrastructure.mybatis.generated.entity.MUser
 import spock.lang.Specification
 
@@ -40,9 +41,6 @@ class UserConverterSpec extends Specification{
         }
 
         and: "reconstructの仕様どおりpasswordとiconUrlはnullのままである"
-        // 注意: reconstructではpasswordはnullになるはずだが、UserConverter.toEntityではpasswordHashを使う。
-        // UserModelのフィールドとしてpassword(生パスワード)とpasswordHashがある。
-        // UserConverter.toModelではreconstructを使うため、raw passwordはnullになる。
         model.password == null
         model.iconUrl == null
     }
@@ -60,7 +58,9 @@ class UserConverterSpec extends Specification{
                 "another@example.com",   // email
                 "hashed-2",              // passwordHash
                 null,                    // passwordChangedAt
-                "別ユーザ",                 // displayName
+                AuthProvider.LOCAL.code, // authProvider
+                null,                    // authProviderId
+                "別ユーザ",               // displayName
                 "en",                    // locale
                 "profile/key/002",       // profileImageKey
                 now,                     // emailVerifiedAt
@@ -76,12 +76,13 @@ class UserConverterSpec extends Specification{
             userId == 2L
             email == "another@example.com"
             passwordHash == "hashed-2"
+            passwordChangedAt == null
+            authProvider == AuthProvider.LOCAL.code
+            authProviderId == null
             displayName == "別ユーザ"
             locale == "en"
             profileImageKey == "profile/key/002"
             isActive == true
-            // Time conversion verification might have nanosecond precision issues, strictly speaking
-            // but for unit test usually fine or use DateConverter logic validity
             emailVerifiedAt != null 
         }
     }

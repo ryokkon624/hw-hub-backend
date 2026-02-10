@@ -357,4 +357,99 @@ class GlobalExceptionHandlerSpec extends Specification {
         response.body.errorCode == "PASSWORD_TOO_WEAK"
         response.body.message == "Password policy violation"
     }
+
+    // ============================================
+    // Google OAuth Exceptions
+    // ============================================
+
+    def "handleOAuthStateMismatch は 400 と OAUTH_STATE_MISMATCH を返す"() {
+        given:
+        def ex = new OAuthStateMismatchException()
+
+        when:
+        def response = handler.handleOAuthStateMismatch(ex)
+
+        then:
+        response.statusCode == HttpStatus.BAD_REQUEST
+        response.body != null
+        response.body.errorCode == "OAUTH_STATE_MISMATCH"
+    }
+
+    def "handleOAuthIdTokenInvalid は 400 と OAUTH_ID_TOKEN_INVALID を返す"() {
+        given:
+        def ex = new OAuthIdTokenInvalidException()
+
+        when:
+        def response = handler.handleOAuthIdTokenInvalid(ex)
+
+        then:
+        response.statusCode == HttpStatus.BAD_REQUEST
+        response.body != null
+        response.body.errorCode == "OAUTH_ID_TOKEN_INVALID"
+    }
+
+    def "handleOAuthEmailNotVerified は 400 と OAUTH_EMAIL_NOT_VERIFIED を返す"() {
+        given:
+        def ex = new OAuthEmailNotVerifiedException()
+
+        when:
+        def response = handler.handleOAuthEmailNotVerified(ex)
+
+        then:
+        response.statusCode == HttpStatus.BAD_REQUEST
+        response.body != null
+        response.body.errorCode == "OAUTH_EMAIL_NOT_VERIFIED"
+    }
+
+    def "handleOAuthEmailAlreadyRegistered は 400 と OAUTH_EMAIL_ALREADY_REGISTERED を返す"() {
+        given:
+        def ex = new OAuthEmailAlreadyRegisteredException()
+
+        when:
+        def response = handler.handleOAuthEmailAlreadyRegistered(ex)
+
+        then:
+        response.statusCode == HttpStatus.BAD_REQUEST
+        response.body != null
+        response.body.errorCode == "OAUTH_EMAIL_ALREADY_REGISTERED"
+    }
+
+    def "handleGoogleAccountAlreadyLinked は 409 と GOOGLE_ALREADY_LINKED を返す"() {
+        given:
+        def ex = new GoogleAccountAlreadyLinkedException()
+
+        when:
+        def response = handler.handleGoogleAccountAlreadyLinked(ex)
+
+        then:
+        response.statusCode == HttpStatus.CONFLICT
+        response.body != null
+        response.body.errorCode == "GOOGLE_ALREADY_LINKED"
+    }
+
+    def "handleGoogleSubAlreadyUsed は 409 と GOOGLE_SUB_ALREADY_USED を返す"() {
+        given:
+        def ex = new GoogleSubAlreadyUsedException()
+
+        when:
+        def response = handler.handleGoogleSubAlreadyUsed(ex)
+
+        then:
+        response.statusCode == HttpStatus.CONFLICT
+        response.body != null
+        response.body.errorCode == "GOOGLE_SUB_ALREADY_USED"
+    }
+
+    def "handlePasswordLoginNotAllowed は 400 と PASSWORD_LOGIN_NOT_ALLOWED を返す"() {
+        given:
+        def ex = new PasswordLoginNotAllowedException()
+
+        when:
+        def response = handler.handlePasswordLoginNotAllowed(ex)
+
+        then:
+        response.statusCode == HttpStatus.BAD_REQUEST
+        response.body != null
+        response.body.errorCode == "PASSWORD_LOGIN_NOT_ALLOWED"
+    }
 }

@@ -1,6 +1,7 @@
 package com.hwhub.backend.application.service
 
 import com.hwhub.backend.domain.enums.ProgramType
+import com.hwhub.backend.domain.enums.AuthProvider
 import com.hwhub.backend.domain.model.UserModel
 import com.hwhub.backend.domain.repository.UserRepository
 import com.hwhub.backend.presentation.rest.auth.dto.LoginRequest
@@ -50,6 +51,8 @@ class AuthServiceSpec extends Specification{
                 "test@example.com",
                 "hashed-password",
                 null,
+                AuthProvider.LOCAL.code,
+                null,
                 "テストユーザ",
                 "ja",
                 "icon/key/001",
@@ -78,7 +81,7 @@ class AuthServiceSpec extends Specification{
 
 
     // Fix: Using correct exception class
-    def "login throws EmailNotVerifiedException when enabled and not verified"() {
+    def "loginは認証有効かつ未認証の場合EmailNotVerifiedExceptionを投げる"() {
         given:
         def request = new LoginRequest()
         request.setEmail("unverified@example.com")
@@ -113,6 +116,8 @@ class AuthServiceSpec extends Specification{
                 "inactive@example.com",
                 "hashed-password",
                 null,
+                AuthProvider.LOCAL.code,
+                null,
                 "退会済みユーザ",
                 "ja",
                 null,
@@ -131,6 +136,27 @@ class AuthServiceSpec extends Specification{
         // 活性チェックで例外が出る
         def ex = thrown(BadCredentialsException)
         ex.message == "Account is deactivated"
+    }
+
+    def "loginはGoogle連携ユーザの場合PasswordLoginNotAllowedExceptionを投げる"() {
+        given:
+        def request = new LoginRequest()
+        request.setEmail("google@example.com")
+        request.setPassword("any")
+        
+        def user = Mock(UserModel) {
+            getPasswordHash() >> "hash"
+            isActive() >> true
+            getAuthProvider() >> "GOOGLE"
+        }
+
+        when:
+        service.login(request)
+
+        then:
+        1 * userRepository.findByEmail("google@example.com") >> Optional.of(user)
+        1 * passwordEncoder.matches("any", "hash") >> true
+        thrown(com.hwhub.backend.presentation.rest.common.PasswordLoginNotAllowedException)
     }
 
     def "loginはemailが存在しないときIllegalArgumentException"() {
@@ -157,6 +183,8 @@ class AuthServiceSpec extends Specification{
                 10L,
                 "test@example.com",
                 "hashed-password",
+                null,
+                AuthProvider.LOCAL.code,
                 null,
                 "テストユーザ",
                 "ja",
@@ -187,6 +215,8 @@ class AuthServiceSpec extends Specification{
                 99L,
                 "new@example.com",
                 "hashed-password",
+                null,
+                AuthProvider.LOCAL.code,
                 null,
                 "新規ユーザ",
                 "ja",
@@ -221,7 +251,7 @@ class AuthServiceSpec extends Specification{
                 "ja"
         )
         def existingUser = UserModel.reconstruct(
-                20L, "dup@example.com", "hash", null, "Exist", "en", null, null, true
+                20L, "dup@example.com", "hash", null, AuthProvider.LOCAL.code, null, "Exist", "en", null, null, true
         )
 
         when:
@@ -236,7 +266,7 @@ class AuthServiceSpec extends Specification{
     def "registerはメール認証有効時にVerificationRequiredを返す"() {
         given:
         def model = UserModel.create("verify@example.com", "pw", "VerifyMe", "ja")
-        def inserted = UserModel.reconstruct(100L, "verify@example.com", "hash", null, "VerifyMe", "ja", null, null, true)
+        def inserted = UserModel.reconstruct(100L, "verify@example.com", "hash", null, AuthProvider.LOCAL.code, null, "VerifyMe", "ja", null, null, true)
 
         // Re-init with enabled=true, sendMail=true
         def props = new EmailVerificationProperties(true, true, 30, 60, 5, "http://front", "/verify")
@@ -306,7 +336,7 @@ class AuthServiceSpec extends Specification{
 
     // --- New Verification Tests ---
 
-    def "verifyEmail verifies user when token is valid"() {
+    def "verifyEmailはトークンが有効な場合ユーザを認証済みにする"() {
         given:
         def token = "valid-token"
         // Mock a user verification model found in DB
@@ -323,7 +353,7 @@ class AuthServiceSpec extends Specification{
         1 * userRepository.markEmailVerified(10L, _, _, _)
     }
 
-    def "verifyEmail throws exception when token is invalid"() {
+    def "verifyEmailはトークンが無効な場合例外を投げる"() {
         when:
         service.verifyEmail("invalid")
 
@@ -332,7 +362,7 @@ class AuthServiceSpec extends Specification{
         thrown(com.hwhub.backend.presentation.rest.common.EmailVerificationTokenInvalidException)
     }
 
-    def "resendVerification sends mail if user exists and not verified"() {
+    def "resendVerificationはユーザが存在し未認証の場合メールを送信する"() {
         given:
         def email = "resend@example.com"
         def user = Mock(UserModel)
@@ -358,7 +388,7 @@ class AuthServiceSpec extends Specification{
         1 * verificationMailSender.sendVerificationMail(email, "Resender", _, "ja")
     }
 
-    def "resendVerification throws cooldown exception if too fast"() {
+    def "resendVerificationはリクエスト頻度が高すぎる場合例外を投げる"() {
         given:
         def email = "fast@example.com"
         def user = Mock(UserModel)

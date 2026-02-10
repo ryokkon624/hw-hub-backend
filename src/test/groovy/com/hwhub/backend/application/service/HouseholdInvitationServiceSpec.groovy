@@ -3,6 +3,7 @@ package com.hwhub.backend.application.service
 import com.hwhub.backend.domain.enums.HouseholdMemberStatus
 import com.hwhub.backend.domain.enums.InvitationStatus
 import com.hwhub.backend.domain.enums.ProgramType
+import com.hwhub.backend.domain.enums.AuthProvider
 import com.hwhub.backend.domain.model.HouseholdInvitationModel
 import com.hwhub.backend.domain.model.HouseholdMemberModel
 import com.hwhub.backend.domain.model.UserModel
@@ -166,6 +167,8 @@ class HouseholdInvitationServiceSpec extends Specification {
                 "user@example.com",
                 "hashed",
                 null,
+                AuthProvider.LOCAL.code,
+                null,
                 "テスト太郎",
                 "ja",
                 "ja",
@@ -208,6 +211,8 @@ class HouseholdInvitationServiceSpec extends Specification {
                 userId,
                 "user2@example.com",
                 "hashed2",
+                null,
+                AuthProvider.LOCAL.code,
                 null,
                 "既存ユーザ",
                 "ja",
@@ -254,6 +259,8 @@ class HouseholdInvitationServiceSpec extends Specification {
                 userId,
                 "user2@example.com",
                 "hashed2",
+                null,
+                AuthProvider.LOCAL.code,
                 null,
                 "既存ユーザ",
                 "ja",
