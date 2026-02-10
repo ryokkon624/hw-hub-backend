@@ -16,6 +16,7 @@ public enum ProgramType implements CodeEnum {
   ONL_USRICON("OnlUsrIcon"),
   ONL_USR("OnlUsr"),
   ONL_PWDRST("OnlPwdRst"),
+  ONL_AUTH_GOOGLE("OnlAuthGgl"),
   BTC_INV_EXPR("BtcInvExpr"),
   BTC_TSK_GEN("BtcTskGen"),
   BTC_TSK_RECL("BtcTskRecl"),

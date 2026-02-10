@@ -188,6 +188,53 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
   }
 
+  @ExceptionHandler(OAuthStateMismatchException.class)
+  public ResponseEntity<ErrorResponse> handleOAuthStateMismatch(OAuthStateMismatchException ex) {
+    ErrorResponse body = ErrorResponse.of("OAUTH_STATE_MISMATCH", ex.getMessage());
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+  }
+
+  @ExceptionHandler(OAuthIdTokenInvalidException.class)
+  public ResponseEntity<ErrorResponse> handleOAuthIdTokenInvalid(OAuthIdTokenInvalidException ex) {
+    ErrorResponse body = ErrorResponse.of("OAUTH_ID_TOKEN_INVALID", ex.getMessage());
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+  }
+
+  @ExceptionHandler(OAuthEmailNotVerifiedException.class)
+  public ResponseEntity<ErrorResponse> handleOAuthEmailNotVerified(
+      OAuthEmailNotVerifiedException ex) {
+    ErrorResponse body = ErrorResponse.of("OAUTH_EMAIL_NOT_VERIFIED", ex.getMessage());
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+  }
+
+  @ExceptionHandler(OAuthEmailAlreadyRegisteredException.class)
+  public ResponseEntity<ErrorResponse> handleOAuthEmailAlreadyRegistered(
+      OAuthEmailAlreadyRegisteredException ex) {
+    ErrorResponse body = ErrorResponse.of("OAUTH_EMAIL_ALREADY_REGISTERED", ex.getMessage());
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+  }
+
+  @ExceptionHandler(GoogleAccountAlreadyLinkedException.class)
+  public ResponseEntity<ErrorResponse> handleGoogleAccountAlreadyLinked(
+      GoogleAccountAlreadyLinkedException ex) {
+    ErrorResponse body = ErrorResponse.of("GOOGLE_ALREADY_LINKED", ex.getMessage());
+    return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+  }
+
+  @ExceptionHandler(GoogleSubAlreadyUsedException.class)
+  public ResponseEntity<ErrorResponse> handleGoogleSubAlreadyUsed(
+      GoogleSubAlreadyUsedException ex) {
+    ErrorResponse body = ErrorResponse.of("GOOGLE_SUB_ALREADY_USED", ex.getMessage());
+    return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+  }
+
+  @ExceptionHandler(PasswordLoginNotAllowedException.class)
+  public ResponseEntity<ErrorResponse> handlePasswordLoginNotAllowed(
+      PasswordLoginNotAllowedException ex) {
+    ErrorResponse body = ErrorResponse.of("PASSWORD_LOGIN_NOT_ALLOWED", ex.getMessage());
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+  }
+
   /** 最後の砦：想定していない例外 */
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ErrorResponse> handleException(Exception ex, HttpServletRequest req) {

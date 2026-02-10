@@ -1,11 +1,16 @@
 package com.hwhub.backend.application.service;
 
+import com.hwhub.backend.application.service.oauth.GoogleOAuthService;
+import com.hwhub.backend.domain.enums.AuthProvider;
 import com.hwhub.backend.domain.enums.ProgramType;
 import com.hwhub.backend.domain.model.HouseholdModel;
 import com.hwhub.backend.domain.model.UserModel;
+import com.hwhub.backend.domain.oauth.google.GoogleUserInfo;
 import com.hwhub.backend.domain.repository.HouseholdMemberRepository;
 import com.hwhub.backend.domain.repository.UserRepository;
 import com.hwhub.backend.presentation.rest.common.CurrentPasswordInvalidException;
+import com.hwhub.backend.presentation.rest.common.GoogleAccountAlreadyLinkedException;
+import com.hwhub.backend.presentation.rest.common.GoogleSubAlreadyUsedException;
 import com.hwhub.backend.presentation.rest.common.PasswordSameAsOldException;
 import com.hwhub.backend.presentation.rest.common.ResourceNotFoundException;
 import java.time.LocalDateTime;
@@ -24,6 +29,7 @@ public class UserService {
   private final HouseholdMemberRepository householdMemberRepository;
   private final PasswordEncoder passwordEncoder;
   private final AuthUserResolver authUserResolver;
+  private final GoogleOAuthService googleOAuthService;
 
   public List<HouseholdModel> getHouseholds(Long userId) {
     return userRepository.findHouseholdsByUserId(userId);
@@ -111,5 +117,38 @@ public class UserService {
     LocalDateTime now = LocalDateTime.now();
     user.changePasswordHash(newHash, now);
     userRepository.updatePassword(user, userId, ProgramType.ONL_USR.getCode());
+  }
+
+  @Transactional
+  public void linkGoogleAccount(Long loginUserId, String code) {
+    // code -> token -> userinfo
+    var token = googleOAuthService.exchangeCodeForToken(code);
+    GoogleUserInfo info = googleOAuthService.fetchUserInfo(token.getAccessToken());
+
+    // すでにこのログインユーザーが GOOGLE 連携済みなら弾く
+    var user = userRepository.findById(loginUserId).orElseThrow();
+    if (AuthProvider.GOOGLE.getCode().equals(user.getAuthProvider())
+        && user.getAuthProviderId() != null) {
+      throw new GoogleAccountAlreadyLinkedException();
+    }
+
+    // sub の重複チェック（別ユーザーがこのsubを使ってたらNG）
+    userRepository
+        .findByAuthProviderAndAuthProviderId(AuthProvider.GOOGLE.getCode(), info.getSub())
+        .ifPresent(
+            existingUser -> {
+              if (!existingUser.getUserId().equals(loginUserId)) {
+                throw new GoogleSubAlreadyUsedException();
+              }
+            });
+
+    // password_hash を NULL に更新＝以後パスワードログイン不可
+    String displayName =
+        info.getName() != null && !info.getName().isBlank()
+            ? info.getName()
+            : user.getDisplayName();
+
+    userRepository.linkGoogleAccount(
+        loginUserId, info.getSub(), info.getEmail(), displayName, ProgramType.ONL_USR.getCode());
   }
 }

@@ -3,14 +3,30 @@ package com.hwhub.backend.presentation.rest.user;
 import com.hwhub.backend.application.service.UserIconService;
 import com.hwhub.backend.application.service.UserService;
 import com.hwhub.backend.domain.model.UserModel;
-import com.hwhub.backend.presentation.rest.user.dto.*;
+import com.hwhub.backend.presentation.rest.auth.GoogleOAuthLinkHelper;
+import com.hwhub.backend.presentation.rest.user.dto.ChangePasswordRequest;
+import com.hwhub.backend.presentation.rest.user.dto.CreateIconUploadUrlRequest;
+import com.hwhub.backend.presentation.rest.user.dto.CreateIconUploadUrlResponse;
+import com.hwhub.backend.presentation.rest.user.dto.OAuthStartResponse;
+import com.hwhub.backend.presentation.rest.user.dto.UpdateIconRequest;
+import com.hwhub.backend.presentation.rest.user.dto.UpdateUserProfileRequest;
+import com.hwhub.backend.presentation.rest.user.dto.UserHouseholdDto;
+import com.hwhub.backend.presentation.rest.user.dto.UserProfileResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 /**
@@ -25,6 +41,7 @@ public class UserController {
 
   private final UserService userService;
   private final UserIconService userIconService;
+  private final GoogleOAuthLinkHelper linkHelper;
 
   /**
    * 認証ユーザーが所属する全ての世帯（Household）の情報を取得します。
@@ -104,5 +121,25 @@ public class UserController {
   public ResponseEntity<Void> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
     userService.changePassword(request.currentPassword(), request.newPassword());
     return ResponseEntity.noContent().build();
+  }
+
+  /** Googleアカウント連携開始（ログイン中ユーザーのみ） GET /api/users/me/google/link/start */
+  @GetMapping("/me/google/link/start")
+  public ResponseEntity<OAuthStartResponse> startGoogleLink(
+      Authentication authentication, HttpServletResponse response) {
+    Long userId = requireUserId(authentication);
+
+    String state = linkHelper.generateStateForLink(userId);
+    linkHelper.setStateCookie(response, state);
+
+    String url = linkHelper.buildAuthorizationUrl(state);
+    return ResponseEntity.ok(new OAuthStartResponse(url));
+  }
+
+  private Long requireUserId(Authentication authentication) {
+    if (authentication == null || authentication.getName() == null) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthenticated");
+    }
+    return Long.parseLong(authentication.getName());
   }
 }

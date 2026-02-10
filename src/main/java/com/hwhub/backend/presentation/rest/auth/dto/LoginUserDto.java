@@ -9,6 +9,7 @@ import lombok.Data;
 public class LoginUserDto {
   private Long userId;
   private String email;
+  private String authProvider;
   private String displayName;
   private String locale;
   private String iconUrl;
@@ -20,6 +21,7 @@ public class LoginUserDto {
     return new LoginUserDto(
         model.getUserId(),
         model.getEmail(),
+        model.getAuthProvider(),
         model.getDisplayName(),
         model.getLocale(),
         model.getIconUrl());
