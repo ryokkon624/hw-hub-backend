@@ -14,7 +14,7 @@ env:
   ECS_CLUSTER: hwhub-stg
   ECS_SERVICE: hwhub-backend-stg
   TASK_FAMILY: hwhub-backend
-  BASE_REVISION: "33"
+  BASE_REVISION: "37"
   CONTAINER_NAME: hwhub-backend
   ECR_REPOSITORY: hwhub-backend
   AWS_ACCOUNT_ID: "564323392873"
