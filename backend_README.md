@@ -189,7 +189,40 @@ Gradle タスク `generateEnums` を実行すると、`com.hwhub.backend.domain.
 
 ---
 
-## 10. よくあるトラブルシュート
+## 10. Google OAuth
+
+### 10.1. Google OAuth: ログイン
+GoogleアカウントでHwHubにログインする際に利用するAPI群。
+
+| メソッド | パス | 説明 |
+| --- | --- | --- |
+| GET | /oauth/google/start | Google OAuth開始。stateを生成し、Cookieに保存後、Googleの認証画面にリダイレクトする。 |
+| GET | /oauth/google/callback | Google OAuthコールバック。stateを検証後、Googleからアクセストークンを取得し、HwHubのJWTを生成して返す。 |
+
+### 10.2. Google Link: アカウントの連携
+ログイン中のHwHubアカウントにGoogleアカウントを連携する際に利用するAPI群。
+
+| メソッド | パス | 説明 |
+| --- | --- | --- |
+| GET | /api/users/me/google/link/start | Google Link開始。stateを生成し、Cookieに保存後、Googleの認証画面にリダイレクトする。 |
+| GET | /api/users/me/google/link/callback | Google Linkコールバック。stateを検証後、Googleからアクセストークンを取得し、HwHubのJWTを生成して返す。 |
+
+### 10.3. 動作確認
+開発環境でGoogleアカウント連携の動作確認を行う場合は、プロジェクトルート直下に.envファイルを作成すること。
+.envファイルには以下の3つの環境変数を定義すること。設定する値は管理者に確認すること。
+
+- GOOGLE_CLIENT_ID
+- GOOGLE_CLIENT_SECRET
+- HWHUB_JWT_SECRET
+
+```text
+GOOGLE_OAUTH_CLIENT_ID=xxxxx-xxxxxxxxx.apps.googleusercontent.com
+GOOGLE_OAUTH_CLIENT_SECRET=xxxxxxxxxxxxxxxx
+HWHUB_OAUTH_STATE_SECRET=xxxxxxxxxxxxxxxx
+```
+---
+
+## 11. よくあるトラブルシュート
 
 - 403 / CORS / JWT 周り：`security/`, `config/` を確認
 - DB 接続：`SPRING_DATASOURCE_*` の環境変数/Secrets を確認
@@ -210,4 +243,6 @@ Gradle タスク `generateEnums` を実行すると、`com.hwhub.backend.domain.
 - `SES_SMTP_HOST`
 - `SES_SMTP_USER`
 - `SES_SMTP_PASSWORD`
+- `GOOGLE_CLIENT_ID`
+- `GOOGLE_CLIENT_SECRET`（Secret）
 
