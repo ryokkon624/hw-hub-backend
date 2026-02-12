@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -68,11 +69,13 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(IllegalArgumentException.class)
   public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex) {
-
-    ErrorResponse body =
-        ErrorResponse.of(
-            "BAD_REQUEST", ex.getMessage() != null ? ex.getMessage() : "Invalid request.");
-
+    // ログイン系だけ判定
+    if ("Invalid email or password".equals(ex.getMessage())) {
+      ErrorResponse body =
+          ErrorResponse.of("AUTH_INVALID_CREDENTIALS", "Invalid email or password.");
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
+    }
+    ErrorResponse body = ErrorResponse.of("BAD_REQUEST", ex.getMessage());
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
   }
 
@@ -90,11 +93,17 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(ResourceNotFoundException.class)
   public ResponseEntity<ErrorResponse> handleResourceNotFound(ResourceNotFoundException ex) {
 
-    ErrorResponse body =
-        ErrorResponse.of(
-            "NOT_FOUND", ex.getMessage() != null ? ex.getMessage() : "Resource not found.");
+    ErrorResponse body = ErrorResponse.of("NOT_FOUND",
+        ex.getMessage() != null ? ex.getMessage() : "Resource not found.");
 
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+  }
+
+  @ExceptionHandler(BadCredentialsException.class)
+  public ResponseEntity<ErrorResponse> handleBadCredentials(BadCredentialsException ex) {
+    // セキュリティ上の理由で、理由は伏せて統一メッセージにする
+    ErrorResponse body = ErrorResponse.of("AUTH_INVALID_CREDENTIALS", "Invalid email or password.");
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
   }
 
   /** 既に使われているemailアドレスで登録しようとした場合 */
