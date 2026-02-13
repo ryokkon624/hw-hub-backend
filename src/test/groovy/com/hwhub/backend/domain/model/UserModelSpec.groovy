@@ -2,6 +2,7 @@ package com.hwhub.backend.domain.model
 
 import spock.lang.Specification
 import java.time.LocalDateTime
+import com.hwhub.backend.domain.enums.AuthProvider
 
 class UserModelSpec extends Specification {
 
@@ -20,6 +21,8 @@ class UserModelSpec extends Specification {
                 userId,
                 email,
                 passwordHash,
+                null,
+                AuthProvider.LOCAL.code,
                 null,
                 displayName,
                 locale,
@@ -83,7 +86,7 @@ class UserModelSpec extends Specification {
     def "changePasswordHash updates passwordHash and passwordChangedAt"() {
         given:
         def model = UserModel.reconstruct(
-                1L, "test@example.com", "old", null, "User", "en", null, null, true
+                1L, "test@example.com", "old", null, AuthProvider.LOCAL.code, null, "User", "en", null, null, true
         )
         def newHash = "new-hash"
         def changedAt = LocalDateTime.now()
@@ -103,10 +106,12 @@ class UserModelSpec extends Specification {
                 "test@example.com",
                 "hashed",
                 null,
+                AuthProvider.LOCAL.code,
+                null,
                 "テストユーザ",
                 "ja",
                 "icon/key.png",
-                null, 
+                null,
                 true
         )
 
@@ -124,10 +129,12 @@ class UserModelSpec extends Specification {
                 "test@example.com",
                 "hashed",
                 null,
+                AuthProvider.LOCAL.code,
+                null,
                 "旧表示名",
                 "ja",
                 null,
-                null, 
+                null,
                 true
         )
 
@@ -146,10 +153,12 @@ class UserModelSpec extends Specification {
                 "test@example.com",
                 "hashed",
                 null,
+                AuthProvider.LOCAL.code,
+                null,
                 "テストユーザ",
                 "ja",
                 "old/key.png",
-                null, 
+                null,
                 true
         )
 
@@ -167,10 +176,12 @@ class UserModelSpec extends Specification {
                 "inactive@example.com",
                 "hashed",
                 null,
+                AuthProvider.LOCAL.code,
+                null,
                 "退会ユーザ",
                 "ja",
                 null,
-                null, 
+                null,
                 false
         )
 
@@ -179,5 +190,26 @@ class UserModelSpec extends Specification {
 
         then:
         model.isActive == true
+    }
+
+    def "createGoogleUser initializes google user correctly"() {
+        given:
+        String email = "c@c.com"
+        String sub = "sub123"
+        String name = "Carol"
+        LocalDateTime now = LocalDateTime.now()
+
+        when:
+        def user = UserModel.createGoogleUser(email, sub, name, now)
+
+        then:
+        user.userId == null
+        user.email == email
+        user.authProvider == AuthProvider.GOOGLE.code
+        user.authProviderId == sub
+        user.displayName == name
+        user.locale == "ja" // default as per impl
+        user.emailVerifiedAt == now
+        user.isActive == true
     }
 }

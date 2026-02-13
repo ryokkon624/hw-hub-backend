@@ -5,6 +5,8 @@ import com.hwhub.backend.application.service.UserIconService
 import com.hwhub.backend.application.service.UserService
 import com.hwhub.backend.domain.model.HouseholdModel
 import com.hwhub.backend.domain.model.UserModel
+import com.hwhub.backend.domain.enums.AuthProvider
+import com.hwhub.backend.presentation.rest.user.dto.ChangePasswordRequest
 import com.hwhub.backend.presentation.rest.user.dto.CreateIconUploadUrlRequest
 import com.hwhub.backend.presentation.rest.user.dto.CreateIconUploadUrlResponse
 import com.hwhub.backend.presentation.rest.user.dto.UpdateIconRequest
@@ -16,10 +18,13 @@ import spock.lang.Specification
 
 class UserControllerSpec extends Specification {
 
+
     UserService userService = Mock()
     UserIconService userIconService = Mock()
 
-    UserController controller = new UserController(userService, userIconService)
+    com.hwhub.backend.presentation.rest.auth.GoogleOAuthLinkHelper linkHelper = Mock()
+
+    UserController controller = new UserController(userService, userIconService, linkHelper)
 
     // ----------------------------------------------------
     // getUserHouseholds
@@ -71,6 +76,8 @@ class UserControllerSpec extends Specification {
                 "user@example.com",
                 "hashed",
                 null,
+                AuthProvider.LOCAL.code,
+                null,
                 "Taro",
                 "ja",
                 "icon-key",
@@ -105,6 +112,8 @@ class UserControllerSpec extends Specification {
                 userId,
                 "hanako@example.com",
                 "hashed",
+                null,
+                AuthProvider.LOCAL.code,
                 null,
                 "Hanako",
                 "en",
@@ -185,5 +194,59 @@ class UserControllerSpec extends Specification {
 
         then:
         1 * userService.deleteAccount(userId)
+    }
+
+    // ----------------------------------------------------
+    // changePassword
+    // ----------------------------------------------------
+
+    def "changePassword はリクエストパラメータで UserService.changePassword を呼ぶ"() {
+        given:
+        def req = new ChangePasswordRequest("old", "new")
+        
+        when:
+        def response = controller.changePassword(req)
+
+        then:
+        1 * userService.changePassword("old", "new")
+        response.statusCode == HttpStatus.NO_CONTENT
+    }
+
+    // ----------------------------------------------------
+    // startGoogleLink
+    // ----------------------------------------------------
+
+    def "startGoogleLink は認証ユーザIDでステートを生成し、Cookieを設定し、URLを返す"() {
+        given:
+        Long userId = 70L
+        Authentication auth = Mock()
+        auth.getName() >> String.valueOf(userId)
+        def responseMock = Mock(jakarta.servlet.http.HttpServletResponse)
+
+        def state = "generated-state"
+        def url = "https://accounts.google.com/..."
+
+        when:
+        def result = controller.startGoogleLink(auth, responseMock)
+
+        then:
+        1 * linkHelper.generateStateForLink(userId) >> state
+        1 * linkHelper.setStateCookie(responseMock, state)
+        1 * linkHelper.buildAuthorizationUrl(state) >> url
+
+        result.statusCode == HttpStatus.OK
+        result.body.authorizationUrl() == url
+    }
+
+    def "startGoogleLink は認証がない場合 UNAUTHORIZED を投げる"() {
+        given:
+        def responseMock = Mock(jakarta.servlet.http.HttpServletResponse)
+
+        when:
+        controller.startGoogleLink(null, responseMock)
+
+        then:
+        def ex = thrown(ResponseStatusException)
+        ex.statusCode == HttpStatus.UNAUTHORIZED
     }
 }

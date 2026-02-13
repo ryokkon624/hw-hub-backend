@@ -357,4 +357,161 @@ class GlobalExceptionHandlerSpec extends Specification {
         response.body.errorCode == "PASSWORD_TOO_WEAK"
         response.body.message == "Password policy violation"
     }
+
+    // ============================================
+    // Google OAuth Exceptions
+    // ============================================
+
+    def "handleOAuthStateMismatch は 400 と OAUTH_STATE_MISMATCH を返す"() {
+        given:
+        def ex = new OAuthStateMismatchException()
+
+        when:
+        def response = handler.handleOAuthStateMismatch(ex)
+
+        then:
+        response.statusCode == HttpStatus.BAD_REQUEST
+        response.body != null
+        response.body.errorCode == "OAUTH_STATE_MISMATCH"
+    }
+
+    def "handleOAuthIdTokenInvalid は 400 と OAUTH_ID_TOKEN_INVALID を返す"() {
+        given:
+        def ex = new OAuthIdTokenInvalidException()
+
+        when:
+        def response = handler.handleOAuthIdTokenInvalid(ex)
+
+        then:
+        response.statusCode == HttpStatus.BAD_REQUEST
+        response.body != null
+        response.body.errorCode == "OAUTH_ID_TOKEN_INVALID"
+    }
+
+    def "handleOAuthEmailNotVerified は 400 と OAUTH_EMAIL_NOT_VERIFIED を返す"() {
+        given:
+        def ex = new OAuthEmailNotVerifiedException()
+
+        when:
+        def response = handler.handleOAuthEmailNotVerified(ex)
+
+        then:
+        response.statusCode == HttpStatus.BAD_REQUEST
+        response.body != null
+        response.body.errorCode == "OAUTH_EMAIL_NOT_VERIFIED"
+    }
+
+    def "handleOAuthEmailAlreadyRegistered は 400 と OAUTH_EMAIL_ALREADY_REGISTERED を返す"() {
+        given:
+        def ex = new OAuthEmailAlreadyRegisteredException()
+
+        when:
+        def response = handler.handleOAuthEmailAlreadyRegistered(ex)
+
+        then:
+        response.statusCode == HttpStatus.BAD_REQUEST
+        response.body != null
+        response.body.errorCode == "OAUTH_EMAIL_ALREADY_REGISTERED"
+    }
+
+    def "handleGoogleAccountAlreadyLinked は 409 と GOOGLE_ALREADY_LINKED を返す"() {
+        given:
+        def ex = new GoogleAccountAlreadyLinkedException()
+
+        when:
+        def response = handler.handleGoogleAccountAlreadyLinked(ex)
+
+        then:
+        response.statusCode == HttpStatus.CONFLICT
+        response.body != null
+        response.body.errorCode == "GOOGLE_ALREADY_LINKED"
+    }
+
+    def "handleGoogleSubAlreadyUsed は 409 と GOOGLE_SUB_ALREADY_USED を返す"() {
+        given:
+        def ex = new GoogleSubAlreadyUsedException()
+
+        when:
+        def response = handler.handleGoogleSubAlreadyUsed(ex)
+
+        then:
+        response.statusCode == HttpStatus.CONFLICT
+        response.body != null
+        response.body.errorCode == "GOOGLE_SUB_ALREADY_USED"
+    }
+
+    def "handlePasswordLoginNotAllowed は 400 と PASSWORD_LOGIN_NOT_ALLOWED を返す"() {
+        given:
+        def ex = new PasswordLoginNotAllowedException()
+
+        when:
+        def response = handler.handlePasswordLoginNotAllowed(ex)
+
+        then:
+        response.statusCode == HttpStatus.BAD_REQUEST
+        response.body != null
+        response.body.errorCode == "PASSWORD_LOGIN_NOT_ALLOWED"
+    }
+
+    // ============================================
+    // Additional Coverage Tests
+    // ============================================
+
+    def "handleIllegalArgument (Auth Error) は 401 と AUTH_INVALID_CREDENTIALS を返す"() {
+        given:
+        def ex = new IllegalArgumentException("Invalid email or password")
+
+        when:
+        def response = handler.handleIllegalArgument(ex)
+
+        then:
+        response.statusCode == HttpStatus.UNAUTHORIZED
+        response.body != null
+        response.body.errorCode == "AUTH_INVALID_CREDENTIALS"
+        response.body.message == "Invalid email or password."
+    }
+
+    def "handleBadCredentials は 401 と AUTH_INVALID_CREDENTIALS を返す"() {
+        given:
+        def ex = new org.springframework.security.authentication.BadCredentialsException("Bad credentials")
+
+        when:
+        def response = handler.handleBadCredentials(ex)
+
+        then:
+        response.statusCode == HttpStatus.UNAUTHORIZED
+        response.body != null
+        response.body.errorCode == "AUTH_INVALID_CREDENTIALS"
+        response.body.message == "Invalid email or password."
+    }
+
+    def "handleConstraintViolation (Null PropertyPath) は詳細の path が null になる"() {
+        given:
+        ConstraintViolation<?> violation = Mock()
+        violation.getPropertyPath() >> null
+        violation.getMessage() >> "must be positive"
+
+        def ex = new ConstraintViolationException("validation error", [violation] as Set)
+
+        when:
+        def response = handler.handleConstraintViolation(ex)
+
+        then:
+        response.statusCode == HttpStatus.BAD_REQUEST
+        response.body.details[0].field == null
+        response.body.details[0].message == "must be positive"
+    }
+
+    def "handleResourceNotFound (Null Message) はデフォルトメッセージを返す"() {
+        given:
+        def ex = new ResourceNotFoundException(null)
+
+        when:
+        def response = handler.handleResourceNotFound(ex)
+
+        then:
+        response.statusCode == HttpStatus.NOT_FOUND
+        response.body.errorCode == "NOT_FOUND"
+        response.body.message == "Resource not found."
+    }
 }

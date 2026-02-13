@@ -11,4 +11,32 @@
         WHERE user_id = #{userId}
     </select>
 
+    <update id="updateAuthProvider">
+        UPDATE
+            m_user
+        SET
+            auth_provider = #{authProvider},
+            auth_provider_id = #{authProviderId},
+            update_user_id = #{updateUserId},
+            update_program = #{programTypeCode}
+        WHERE
+            user_id = #{userId}
+    </update>
+
+    <update id="linkGoogleAccount">
+        UPDATE
+            m_user
+        SET
+            auth_provider = #{authProvider},
+            auth_provider_id = #{authProviderId},
+            email = #{email},
+            display_name = #{displayName},
+            password_hash = NULL,
+            password_changed_at = NOW(6),
+            email_verified_at = IF(email_verified_at IS NULL, NOW(6), email_verified_at),
+            update_user_id = #{userId},
+            update_program = #{program}
+        WHERE
+            user_id = #{userId}
+    </update>
 </mapper>

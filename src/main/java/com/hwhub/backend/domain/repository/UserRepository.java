@@ -32,4 +32,12 @@ public interface UserRepository {
   void updatePassword(UserModel model, Long updateUserId, String programTypeCode);
 
   Optional<LocalDateTime> findPasswordChangedAt(Long userId);
+
+  Optional<UserModel> findByAuthProviderAndAuthProviderId(String provider, String providerId);
+
+  void updateAuthProvider(
+      Long userId, String provider, String providerId, Long updateUserId, String programTypeCode);
+
+  void linkGoogleAccount(
+      Long userId, String googleSub, String email, String displayName, String programTypeCode);
 }

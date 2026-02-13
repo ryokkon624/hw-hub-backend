@@ -42,6 +42,7 @@ public class SecurityConfig {
                         "/api/auth/email-verification/resend",
                         "/api/auth/password-reset/request",
                         "/api/auth/password-reset/confirm",
+                        "/oauth/google/**",
                         "/swagger-ui.html",
                         "/swagger-ui/**",
                         "/v3/api-docs/**")

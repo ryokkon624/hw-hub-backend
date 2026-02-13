@@ -4,6 +4,8 @@ import com.hwhub.backend.domain.enums.ProgramType
 import com.hwhub.backend.domain.model.HouseholdModel
 import com.hwhub.backend.domain.model.UserModel
 import com.hwhub.backend.domain.repository.UserRepository
+import com.hwhub.backend.domain.oauth.google.GoogleTokenResponse
+import com.hwhub.backend.domain.oauth.google.GoogleUserInfo
 import com.hwhub.backend.presentation.rest.common.ResourceNotFoundException
 import spock.lang.Specification
 
@@ -16,13 +18,15 @@ class UserServiceSpec extends Specification {
     com.hwhub.backend.domain.repository.HouseholdMemberRepository householdMemberRepository = Mock()
     org.springframework.security.crypto.password.PasswordEncoder passwordEncoder = Mock()
     AuthUserResolver authUserResolver = Mock()
+    com.hwhub.backend.application.service.oauth.GoogleOAuthService googleOAuthService = Mock()
 
     UserService service = new UserService(
             userRepository,
             userIconService,
             householdMemberRepository,
             passwordEncoder,
-            authUserResolver
+            authUserResolver,
+            googleOAuthService
     )
 
     // ==================================
@@ -293,5 +297,100 @@ class UserServiceSpec extends Specification {
         
         1 * user.changePasswordHash("hashedNew", _)
         1 * userRepository.updatePassword(user, userId, ProgramType.ONL_USR.code)
+    }
+
+    // ==================================
+    // linkGoogleAccount
+    // ==================================
+
+    def "linkGoogleAccountは正常にGoogleアカウントを連携する"() {
+        given:
+        Long loginUserId = 60L
+        String code = "auth-code"
+        String token = "access-token"
+        String sub = "google-sub"
+        String email = "test@example.com"
+        String name = "Google Name"
+
+        def tokenResponse = new GoogleTokenResponse(accessToken: token)
+        def userInfo = new GoogleUserInfo(sub: sub, email: email, name: name)
+        
+        def user = Mock(UserModel) {
+            getUserId() >> loginUserId
+            getAuthProvider() >> "LOCAL"
+            getDisplayName() >> "Local Name"
+        }
+
+        when:
+        service.linkGoogleAccount(loginUserId, code)
+
+        then:
+        1 * googleOAuthService.exchangeCodeForToken(code) >> tokenResponse
+        1 * googleOAuthService.fetchUserInfo(token) >> userInfo
+
+        1 * userRepository.findById(loginUserId) >> Optional.of(user)
+        
+        // 重複チェック
+        1 * userRepository.findByAuthProviderAndAuthProviderId("GOOGLE", sub) >> Optional.empty()
+
+        // リンク処理
+        1 * userRepository.linkGoogleAccount(loginUserId, sub, email, name, ProgramType.ONL_USR.code)
+    }
+
+    def "linkGoogleAccountは既に自身が連携済みの場合GoogleAccountAlreadyLinkedExceptionを投げる"() {
+        given:
+        Long loginUserId = 61L
+        String code = "code"
+        
+        def tokenResponse = new GoogleTokenResponse(accessToken: "token")
+        def userInfo = new GoogleUserInfo(sub: "sub", email: "email")
+
+        def user = Mock(UserModel) {
+            getAuthProvider() >> "GOOGLE"
+            getAuthProviderId() >> "sub"
+        }
+
+        when:
+        service.linkGoogleAccount(loginUserId, code)
+
+        then:
+        1 * googleOAuthService.exchangeCodeForToken(code) >> tokenResponse
+        1 * googleOAuthService.fetchUserInfo("token") >> userInfo
+        1 * userRepository.findById(loginUserId) >> Optional.of(user)
+
+        thrown(com.hwhub.backend.presentation.rest.common.GoogleAccountAlreadyLinkedException)
+    }
+
+    def "linkGoogleAccountは別のユーザが既にそのGoogleアカウントを使用している場合GoogleSubAlreadyUsedExceptionを投げる"() {
+        given:
+        Long loginUserId = 62L
+        Long otherUserId = 99L
+        String code = "code"
+        String sub = "sub"
+
+        def tokenResponse = new GoogleTokenResponse(accessToken: "token")
+        def userInfo = new GoogleUserInfo(sub: sub, email: "email")
+
+        def user = Mock(UserModel) {
+            getUserId() >> loginUserId
+            getAuthProvider() >> "LOCAL"
+        }
+        
+        def otherUser = Mock(UserModel) {
+            getUserId() >> otherUserId
+        }
+
+        when:
+        service.linkGoogleAccount(loginUserId, code)
+
+        then:
+        1 * googleOAuthService.exchangeCodeForToken(code) >> tokenResponse
+        1 * googleOAuthService.fetchUserInfo("token") >> userInfo
+        1 * userRepository.findById(loginUserId) >> Optional.of(user)
+
+        // 重複チェックで別ユーザが見つかる
+        1 * userRepository.findByAuthProviderAndAuthProviderId("GOOGLE", sub) >> Optional.of(otherUser)
+
+        thrown(com.hwhub.backend.presentation.rest.common.GoogleSubAlreadyUsedException)
     }
 }

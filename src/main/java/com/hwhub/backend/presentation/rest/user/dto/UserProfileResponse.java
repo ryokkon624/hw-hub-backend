@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 public class UserProfileResponse {
   private Long userId;
   private String email;
+  private String authProvider;
   private String displayName;
   private String locale;
   private String iconUrl;
@@ -18,6 +19,7 @@ public class UserProfileResponse {
 
     dto.setUserId(model.getUserId());
     dto.setEmail(model.getEmail());
+    dto.setAuthProvider(model.getAuthProvider());
     dto.setDisplayName(model.getDisplayName());
     dto.setLocale(model.getLocale());
     dto.setIconUrl(model.getIconUrl());

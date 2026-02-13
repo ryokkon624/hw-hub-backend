@@ -1,6 +1,7 @@
 package com.hwhub.backend.application.service;
 
 import com.hwhub.backend.config.EmailVerificationProperties;
+import com.hwhub.backend.domain.enums.AuthProvider;
 import com.hwhub.backend.domain.enums.ProgramType;
 import com.hwhub.backend.domain.model.UserEmailVerificationModel;
 import com.hwhub.backend.domain.model.UserModel;
@@ -14,6 +15,7 @@ import com.hwhub.backend.presentation.rest.common.EmailNotVerifiedException;
 import com.hwhub.backend.presentation.rest.common.EmailVerificationCooldownException;
 import com.hwhub.backend.presentation.rest.common.EmailVerificationTokenInvalidException;
 import com.hwhub.backend.presentation.rest.common.EmailVerificationTooManyRequestsException;
+import com.hwhub.backend.presentation.rest.common.PasswordLoginNotAllowedException;
 import com.hwhub.backend.security.JwtProvider;
 import com.hwhub.backend.tool.VerificationTokenGenerator;
 import java.time.LocalDateTime;
@@ -50,6 +52,12 @@ public class AuthService {
 
     if (!user.isActive()) {
       throw new BadCredentialsException("Account is deactivated");
+    }
+
+    // Google連携済みなら「パスワードログイン禁止」
+    if (AuthProvider.GOOGLE.getCode().equals(user.getAuthProvider())
+        || user.getPasswordHash() == null) {
+      throw new PasswordLoginNotAllowedException();
     }
 
     if (emailVerificationProperties.enabled() && user.getEmailVerifiedAt() == null) {

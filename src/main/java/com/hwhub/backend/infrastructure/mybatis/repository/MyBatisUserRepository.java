@@ -1,5 +1,6 @@
 package com.hwhub.backend.infrastructure.mybatis.repository;
 
+import com.hwhub.backend.domain.enums.AuthProvider;
 import com.hwhub.backend.domain.model.HouseholdModel;
 import com.hwhub.backend.domain.model.UserModel;
 import com.hwhub.backend.domain.repository.UserRepository;
@@ -23,8 +24,6 @@ public class MyBatisUserRepository implements UserRepository {
   private final MUserMapper mapper;
   private final UserCustomMapper customMapper;
   private final UserHouseholdCustomMapper userHouseholdCustomMapper;
-
-  private static final String AUTH_PROVIDER_LOCAL = "LOCAL";
 
   @Override
   public Optional<UserModel> findByEmail(String email) {
@@ -86,7 +85,6 @@ public class MyBatisUserRepository implements UserRepository {
   @Override
   public UserModel insert(UserModel model, Long userId, String program) {
     MUser entity = UserConverter.toEntity(model);
-    entity.setAuthProvider(AUTH_PROVIDER_LOCAL);
     entity.setCreateUserId(userId);
     entity.setCreateProgram(program);
     entity.setUpdateUserId(userId);
@@ -161,5 +159,31 @@ public class MyBatisUserRepository implements UserRepository {
   @Override
   public Optional<LocalDateTime> findPasswordChangedAt(Long userId) {
     return customMapper.findPasswordChangedAt(userId);
+  }
+
+  @Override
+  public Optional<UserModel> findByAuthProviderAndAuthProviderId(
+      String provider, String providerId) {
+    MUserExample example = new MUserExample();
+    example.createCriteria().andAuthProviderEqualTo(provider).andAuthProviderIdEqualTo(providerId);
+
+    var entities = mapper.selectByExample(example);
+    if (entities == null || entities.isEmpty()) {
+      return Optional.empty();
+    }
+    return Optional.of(UserConverter.toModel(entities.getFirst()));
+  }
+
+  @Override
+  public void updateAuthProvider(
+      Long userId, String provider, String providerId, Long updateUserId, String programTypeCode) {
+    customMapper.updateAuthProvider(userId, provider, providerId, updateUserId, programTypeCode);
+  }
+
+  @Override
+  public void linkGoogleAccount(
+      Long userId, String googleSub, String email, String displayName, String programTypeCode) {
+    customMapper.linkGoogleAccount(
+        userId, AuthProvider.GOOGLE.getCode(), googleSub, email, displayName, programTypeCode);
   }
 }

@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -68,11 +69,13 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(IllegalArgumentException.class)
   public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex) {
-
-    ErrorResponse body =
-        ErrorResponse.of(
-            "BAD_REQUEST", ex.getMessage() != null ? ex.getMessage() : "Invalid request.");
-
+    // ログイン系だけ判定
+    if ("Invalid email or password".equals(ex.getMessage())) {
+      ErrorResponse body =
+          ErrorResponse.of("AUTH_INVALID_CREDENTIALS", "Invalid email or password.");
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
+    }
+    ErrorResponse body = ErrorResponse.of("BAD_REQUEST", ex.getMessage());
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
   }
 
@@ -90,11 +93,17 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(ResourceNotFoundException.class)
   public ResponseEntity<ErrorResponse> handleResourceNotFound(ResourceNotFoundException ex) {
 
-    ErrorResponse body =
-        ErrorResponse.of(
-            "NOT_FOUND", ex.getMessage() != null ? ex.getMessage() : "Resource not found.");
+    ErrorResponse body = ErrorResponse.of("NOT_FOUND",
+        ex.getMessage() != null ? ex.getMessage() : "Resource not found.");
 
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+  }
+
+  @ExceptionHandler(BadCredentialsException.class)
+  public ResponseEntity<ErrorResponse> handleBadCredentials(BadCredentialsException ex) {
+    // セキュリティ上の理由で、理由は伏せて統一メッセージにする
+    ErrorResponse body = ErrorResponse.of("AUTH_INVALID_CREDENTIALS", "Invalid email or password.");
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
   }
 
   /** 既に使われているemailアドレスで登録しようとした場合 */
@@ -186,6 +195,53 @@ public class GlobalExceptionHandler {
       PasswordResetDisabledException ex) {
     ErrorResponse body = ErrorResponse.of("PASSWORD_RESET_DISABLED", ex.getMessage());
     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
+  }
+
+  @ExceptionHandler(OAuthStateMismatchException.class)
+  public ResponseEntity<ErrorResponse> handleOAuthStateMismatch(OAuthStateMismatchException ex) {
+    ErrorResponse body = ErrorResponse.of("OAUTH_STATE_MISMATCH", ex.getMessage());
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+  }
+
+  @ExceptionHandler(OAuthIdTokenInvalidException.class)
+  public ResponseEntity<ErrorResponse> handleOAuthIdTokenInvalid(OAuthIdTokenInvalidException ex) {
+    ErrorResponse body = ErrorResponse.of("OAUTH_ID_TOKEN_INVALID", ex.getMessage());
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+  }
+
+  @ExceptionHandler(OAuthEmailNotVerifiedException.class)
+  public ResponseEntity<ErrorResponse> handleOAuthEmailNotVerified(
+      OAuthEmailNotVerifiedException ex) {
+    ErrorResponse body = ErrorResponse.of("OAUTH_EMAIL_NOT_VERIFIED", ex.getMessage());
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+  }
+
+  @ExceptionHandler(OAuthEmailAlreadyRegisteredException.class)
+  public ResponseEntity<ErrorResponse> handleOAuthEmailAlreadyRegistered(
+      OAuthEmailAlreadyRegisteredException ex) {
+    ErrorResponse body = ErrorResponse.of("OAUTH_EMAIL_ALREADY_REGISTERED", ex.getMessage());
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+  }
+
+  @ExceptionHandler(GoogleAccountAlreadyLinkedException.class)
+  public ResponseEntity<ErrorResponse> handleGoogleAccountAlreadyLinked(
+      GoogleAccountAlreadyLinkedException ex) {
+    ErrorResponse body = ErrorResponse.of("GOOGLE_ALREADY_LINKED", ex.getMessage());
+    return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+  }
+
+  @ExceptionHandler(GoogleSubAlreadyUsedException.class)
+  public ResponseEntity<ErrorResponse> handleGoogleSubAlreadyUsed(
+      GoogleSubAlreadyUsedException ex) {
+    ErrorResponse body = ErrorResponse.of("GOOGLE_SUB_ALREADY_USED", ex.getMessage());
+    return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+  }
+
+  @ExceptionHandler(PasswordLoginNotAllowedException.class)
+  public ResponseEntity<ErrorResponse> handlePasswordLoginNotAllowed(
+      PasswordLoginNotAllowedException ex) {
+    ErrorResponse body = ErrorResponse.of("PASSWORD_LOGIN_NOT_ALLOWED", ex.getMessage());
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
   }
 
   /** 最後の砦：想定していない例外 */

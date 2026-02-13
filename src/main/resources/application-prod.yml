@@ -54,6 +54,28 @@ hwhub:
       max-requests-per-day: 5
       front-base-url: https://familyapp-hwhub.com
       reset-path: /password/reset
-
+    google:
+      client-id: ${GOOGLE_OAUTH_CLIENT_ID}
+      client-secret: ${GOOGLE_OAUTH_CLIENT_SECRET}
+      # Google Cloud 側に登録する redirect URI と完全一致させる
+      redirect-uri: https://api.familyapp-hwhub.com/oauth/google/callback
+      # フロント（302の戻し先の土台）
+      front-base-url: https://stg.familyapp-hwhub.com
+      # 成功/失敗時に、front-base-url + path にリダイレクトする
+      success-redirect-path: /login
+      failure-redirect-path: /login
+      # Google側に要求するスコープ（基本はこれでOK）
+      scope: "openid email profile"
+      state-ttl-seconds: 300
+      # state署名用のシークレット（HMAC）。十分長いランダム文字列を Secrets Manager 等に置く
+      oauth-state-secret: ${HWHUB_OAUTH_STATE_SECRET}
+      # （任意）Cookie名を変えたい場合
+      state-cookie-name: hwhub_google_oauth_state
+      # CookieのSecure属性（開発時はfalse、本番時はtrue推奨）
+      state-cookie-secure: false
+      # 連携成功時のリダイレクト先パス
+      google-link-success-redirect-path: /settings/account
+      # 連携失敗時のリダイレクト先パス
+      google-link-failure-redirect-path: /settings/account      
   mail:
     from: no-reply@familyapp-hwhub.com

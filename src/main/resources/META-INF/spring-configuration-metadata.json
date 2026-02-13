@@ -38,6 +38,62 @@
       "type": "java.lang.String"
     },
     {
+      "name": "hwhub.auth.google.enabled",
+      "type": "java.lang.Boolean"
+    },
+    {
+      "name": "hwhub.auth.google.client-id",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "hwhub.auth.google.client-secret",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "hwhub.auth.google.redirect-uri",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "hwhub.auth.google.front-base-url",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "hwhub.auth.google.success-redirect-path",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "hwhub.auth.google.failure-redirect-path",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "hwhub.auth.google.scope",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "hwhub.auth.google.state-ttl-seconds",
+      "type": "java.lang.Integer"
+    },
+    {
+      "name": "hwhub.auth.google.oauth-state-secret",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "hwhub.auth.google.state-cookie-name",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "hwhub.auth.google.state-cookie-secure",
+      "type": "java.lang.Boolean"
+    },
+    {
+      "name": "hwhub.auth.google.google-link-success-redirect-path",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "hwhub.auth.google.google-link-failure-redirect-path",
+      "type": "java.lang.String"
+    },
+    {
       "name": "hwhub.auth.password-reset.enabled",
       "type": "java.lang.Boolean"
     },

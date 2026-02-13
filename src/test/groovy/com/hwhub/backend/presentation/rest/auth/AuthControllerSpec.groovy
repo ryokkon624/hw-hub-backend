@@ -2,11 +2,14 @@ package com.hwhub.backend.presentation.rest.auth
 
 import com.hwhub.backend.application.service.AuthService
 import com.hwhub.backend.domain.model.UserModel
+import com.hwhub.backend.domain.enums.AuthProvider
 import com.hwhub.backend.presentation.rest.auth.dto.LoginRequest
 import com.hwhub.backend.presentation.rest.auth.dto.LoginResponse
 import com.hwhub.backend.presentation.rest.auth.dto.LoginUserDto
 import com.hwhub.backend.presentation.rest.auth.dto.RegisterRequest
 import com.hwhub.backend.presentation.rest.auth.dto.RegisterResponse
+import com.hwhub.backend.presentation.rest.auth.dto.VerifyEmailRequest
+import com.hwhub.backend.presentation.rest.auth.dto.ResendVerificationRequest
 import org.springframework.http.HttpStatus
 import spock.lang.Specification
 
@@ -26,6 +29,8 @@ class AuthControllerSpec extends Specification {
                 1L,
                 "user@example.com",
                 "hashed",
+                null,
+                AuthProvider.LOCAL.code,
                 null,
                 "Taro",
                 "ja",
@@ -70,6 +75,8 @@ class AuthControllerSpec extends Specification {
                 "new@example.com",
                 "hashed-pass",
                 null,
+                AuthProvider.LOCAL.code,
+                null,
                 "Hanako",
                 "ja",
                 null,
@@ -105,10 +112,10 @@ class AuthControllerSpec extends Specification {
         dto.getLocale() == "ja"
     }
 
-    def "register returns verification info when required"() {
+    def "registerは認証が必要な場合、認証情報を返す"() {
         given:
         def request = new RegisterRequest("verify@example.com", "pw", "Verify", "ja", null)
-        def user = UserModel.reconstruct(100L, "verify@example.com", "hash", null, "Verify", "ja", null, null, true)
+        def user = UserModel.reconstruct(100L, "verify@example.com", "hash", null, AuthProvider.LOCAL.code, null, "Verify", "ja", null, null, true)
 
         when:
         def response = controller.register(request)
@@ -123,9 +130,9 @@ class AuthControllerSpec extends Specification {
         response.body.verificationExpiresAt != null
     }
 
-    def "verifyEmail calls service and returns 204"() {
+    def "verifyEmailはサービスを呼び出し、204 No Contentを返す"() {
         given:
-        def req = new com.hwhub.backend.presentation.rest.auth.dto.VerifyEmailRequest("token-123")
+        def req = new VerifyEmailRequest("token-123")
 
         when:
         def response = controller.verifyEmail(req)
@@ -135,9 +142,9 @@ class AuthControllerSpec extends Specification {
         response.statusCode == HttpStatus.NO_CONTENT
     }
 
-    def "resendVerification calls service and returns 204"() {
+    def "resendVerificationはサービスを呼び出し、204 No Contentを返す"() {
         given:
-        def req = new com.hwhub.backend.presentation.rest.auth.dto.ResendVerificationRequest("resend@example.com")
+        def req = new ResendVerificationRequest("resend@example.com")
 
         when:
         def response = controller.resendVerification(req)

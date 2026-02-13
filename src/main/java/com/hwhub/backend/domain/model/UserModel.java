@@ -1,5 +1,6 @@
 package com.hwhub.backend.domain.model;
 
+import com.hwhub.backend.domain.enums.AuthProvider;
 import java.time.LocalDateTime;
 import lombok.Getter;
 
@@ -10,6 +11,8 @@ public class UserModel {
   private String password;
   private String passwordHash;
   private LocalDateTime passwordChangedAt;
+  private String authProvider;
+  private String authProviderId;
   private String displayName;
   private String locale;
   private String profileImageKey;
@@ -25,6 +28,8 @@ public class UserModel {
    * @param password パスワード
    * @param passwordHash パスワードハッシュ
    * @param passwordChangedAt パスワード最終変更日時
+   * @param authProvider 認証提供者
+   * @param authProviderId 認証提供者ID
    * @param displayName 表示名
    * @param locale 利用言語
    * @param profileImageKey プロフィール画像ストレージキー
@@ -38,6 +43,8 @@ public class UserModel {
       String password,
       String passwordHash,
       LocalDateTime passwordChangedAt,
+      String authProvider,
+      String authProviderId,
       String displayName,
       String locale,
       String profileImageKey,
@@ -49,6 +56,8 @@ public class UserModel {
     this.password = password;
     this.passwordHash = passwordHash;
     this.passwordChangedAt = passwordChangedAt;
+    this.authProvider = authProvider;
+    this.authProviderId = authProviderId;
     this.displayName = displayName;
     this.locale = locale;
     this.profileImageKey = profileImageKey;
@@ -64,6 +73,8 @@ public class UserModel {
    * @param email メールアドレス
    * @param passwordHash パスワードハッシュ
    * @param passwordChangedAt パスワード最終変更日時
+   * @param authProvider 認証提供者
+   * @param authProviderId 認証提供者ID
    * @param displayName 表示名
    * @param locale 利用言語
    * @param profileImageKey プロフィール画像ストレージキー
@@ -76,6 +87,8 @@ public class UserModel {
       String email,
       String passwordHash,
       LocalDateTime passwordChangedAt,
+      String authProvider,
+      String authProviderId,
       String displayName,
       String locale,
       String profileImageKey,
@@ -87,6 +100,8 @@ public class UserModel {
         null,
         passwordHash,
         passwordChangedAt,
+        authProvider,
+        authProviderId,
         displayName,
         locale,
         profileImageKey,
@@ -106,7 +121,46 @@ public class UserModel {
    */
   public static UserModel create(String email, String password, String displayName, String locale) {
     return new UserModel(
-        null, email, password, null, null, displayName, locale, null, null, null, true);
+        null,
+        email,
+        password,
+        null,
+        null,
+        AuthProvider.LOCAL.getCode(),
+        null,
+        displayName,
+        locale,
+        null,
+        null,
+        null,
+        true);
+  }
+
+  /**
+   * Google認証による新規追加時のファクトリメソッド。
+   *
+   * @param email メールアドレス
+   * @param googleSub Googleサブ
+   * @param displayName 表示名
+   * @param now 現在日時
+   * @return ユーザIDがnullのインスタンスを返す。
+   */
+  public static UserModel createGoogleUser(
+      String email, String googleSub, String displayName, LocalDateTime now) {
+    return new UserModel(
+        null,
+        email,
+        null,
+        null,
+        null,
+        AuthProvider.GOOGLE.getCode(),
+        googleSub,
+        displayName,
+        "ja",
+        null,
+        null,
+        now,
+        true);
   }
 
   /**

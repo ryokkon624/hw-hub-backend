@@ -17,6 +17,8 @@ public final class UserConverter {
         entity.getEmail(),
         entity.getPasswordHash(),
         DateConverter.toLocalDateTime(entity.getPasswordChangedAt()),
+        entity.getAuthProvider(),
+        entity.getAuthProviderId(),
         entity.getDisplayName(),
         entity.getLocale(),
         entity.getProfileImageKey(),
@@ -34,6 +36,8 @@ public final class UserConverter {
     entity.setEmail(model.getEmail());
     entity.setPasswordHash(model.getPasswordHash());
     entity.setPasswordChangedAt(DateConverter.toDate(model.getPasswordChangedAt()));
+    entity.setAuthProvider(model.getAuthProvider());
+    entity.setAuthProviderId(model.getAuthProviderId());
     entity.setDisplayName(model.getDisplayName());
     entity.setLocale(model.getLocale());
     entity.setProfileImageKey(model.getProfileImageKey());
