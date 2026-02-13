@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -97,8 +98,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         var opt = userRepository.findPasswordChangedAt(userId);
         if (opt.isPresent()) {
-          Instant pwChangedInstant = opt.get().atZone(ZoneId.of("Asia/Tokyo")).toInstant();
-          if (tokenIatInstant.isBefore(pwChangedInstant)) {
+          Instant pwChangedInstant =
+              opt.get().atZone(ZoneId.of("Asia/Tokyo")).toInstant().truncatedTo(ChronoUnit.SECONDS);
+          // トークン発行時刻がパスワード変更時刻より古い場合、無効とする
+          if (tokenIatInstant.plusSeconds(1).isBefore(pwChangedInstant)) {
             isValid = false;
           }
         }

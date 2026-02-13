@@ -133,7 +133,7 @@ class GoogleOAuthLinkHelperSpec extends Specification {
 
         then:
         result.statusCodeValue == 302
-        result.headers[HttpHeaders.LOCATION][0] == "http://localhost:3000/settings?notice=linked&token=token123"
+        result.headers[HttpHeaders.LOCATION][0] == "http://localhost:3000/oauth/result?notice=linked&token=token123&next=%2Fsettings"
     }
 
     def "redirectToLinkFailureは正しいURLを構築する"() {

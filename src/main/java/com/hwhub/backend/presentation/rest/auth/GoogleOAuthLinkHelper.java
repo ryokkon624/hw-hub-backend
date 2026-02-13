@@ -90,7 +90,15 @@ public class GoogleOAuthLinkHelper {
   public ResponseEntity<Void> redirectToLinkSuccess(String notice, String token) {
     String base = props.getFrontBaseUrl();
     String path = props.getGoogleLinkSuccessRedirectPath();
-    String url = base + path + "?notice=" + urlEncode(notice) + "&token=" + urlEncode(token);
+    String url =
+        base
+            + "/oauth/result"
+            + "?notice="
+            + urlEncode(notice)
+            + "&token="
+            + urlEncode(token)
+            + "&next="
+            + urlEncode(path);
 
     return ResponseEntity.status(302).header(HttpHeaders.LOCATION, url).build();
   }
