@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hwhub.backend.infrastructure.mybatis.generated.mapper.TNotificationEventMapper">
+  <resultMap id="BaseResultMap" type="com.hwhub.backend.infrastructure.mybatis.generated.entity.TNotificationEvent">
+    <id column="notification_event_id" jdbcType="BIGINT" property="notificationEventId" />
+    <result column="household_id" jdbcType="BIGINT" property="householdId" />
+    <result column="event_type_code" jdbcType="VARCHAR" property="eventTypeCode" />
+    <result column="actor_user_id" jdbcType="BIGINT" property="actorUserId" />
+    <result column="target_user_id" jdbcType="BIGINT" property="targetUserId" />
+    <result column="entity_type_code" jdbcType="VARCHAR" property="entityTypeCode" />
+    <result column="entity_id" jdbcType="BIGINT" property="entityId" />
+    <result column="occurred_at" jdbcType="TIMESTAMP" property="occurredAt" />
+    <result column="processed_at" jdbcType="TIMESTAMP" property="processedAt" />
+    <result column="dedupe_key" jdbcType="VARCHAR" property="dedupeKey" />
+    <result column="create_user_id" jdbcType="BIGINT" property="createUserId" />
+    <result column="create_program" jdbcType="VARCHAR" property="createProgram" />
+    <result column="created_at" jdbcType="TIMESTAMP" property="createdAt" />
+    <result column="update_user_id" jdbcType="BIGINT" property="updateUserId" />
+    <result column="update_program" jdbcType="VARCHAR" property="updateProgram" />
+    <result column="updated_at" jdbcType="TIMESTAMP" property="updatedAt" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.hwhub.backend.infrastructure.mybatis.generated.entity.TNotificationEvent">
+    <result column="params_json" jdbcType="LONGVARCHAR" property="paramsJson" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    notification_event_id, household_id, event_type_code, actor_user_id, target_user_id, 
+    entity_type_code, entity_id, occurred_at, processed_at, dedupe_key, create_user_id, 
+    create_program, created_at, update_user_id, update_program, updated_at
+  </sql>
+  <sql id="Blob_Column_List">
+    params_json
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.TNotificationEventExample" resultMap="ResultMapWithBLOBs">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    'false' as QUERYID,
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from t_notification_event
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.TNotificationEventExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    'false' as QUERYID,
+    <include refid="Base_Column_List" />
+    from t_notification_event
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from t_notification_event
+    where notification_event_id = #{notificationEventId,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from t_notification_event
+    where notification_event_id = #{notificationEventId,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" keyColumn="notification_event_id" keyProperty="notificationEventId" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.TNotificationEvent" useGeneratedKeys="true">
+    insert into t_notification_event (household_id, event_type_code, actor_user_id, 
+      target_user_id, entity_type_code, entity_id, 
+      occurred_at, processed_at, dedupe_key, 
+      create_user_id, create_program, created_at, 
+      update_user_id, update_program, updated_at, 
+      params_json)
+    values (#{householdId,jdbcType=BIGINT}, #{eventTypeCode,jdbcType=VARCHAR}, #{actorUserId,jdbcType=BIGINT}, 
+      #{targetUserId,jdbcType=BIGINT}, #{entityTypeCode,jdbcType=VARCHAR}, #{entityId,jdbcType=BIGINT}, 
+      #{occurredAt,jdbcType=TIMESTAMP}, #{processedAt,jdbcType=TIMESTAMP}, #{dedupeKey,jdbcType=VARCHAR}, 
+      #{createUserId,jdbcType=BIGINT}, #{createProgram,jdbcType=VARCHAR}, #{createdAt,jdbcType=TIMESTAMP}, 
+      #{updateUserId,jdbcType=BIGINT}, #{updateProgram,jdbcType=VARCHAR}, #{updatedAt,jdbcType=TIMESTAMP}, 
+      #{paramsJson,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" keyColumn="notification_event_id" keyProperty="notificationEventId" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.TNotificationEvent" useGeneratedKeys="true">
+    insert into t_notification_event
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="householdId != null">
+        household_id,
+      </if>
+      <if test="eventTypeCode != null">
+        event_type_code,
+      </if>
+      <if test="actorUserId != null">
+        actor_user_id,
+      </if>
+      <if test="targetUserId != null">
+        target_user_id,
+      </if>
+      <if test="entityTypeCode != null">
+        entity_type_code,
+      </if>
+      <if test="entityId != null">
+        entity_id,
+      </if>
+      <if test="occurredAt != null">
+        occurred_at,
+      </if>
+      <if test="processedAt != null">
+        processed_at,
+      </if>
+      <if test="dedupeKey != null">
+        dedupe_key,
+      </if>
+      <if test="createUserId != null">
+        create_user_id,
+      </if>
+      <if test="createProgram != null">
+        create_program,
+      </if>
+      <if test="createdAt != null">
+        created_at,
+      </if>
+      <if test="updateUserId != null">
+        update_user_id,
+      </if>
+      <if test="updateProgram != null">
+        update_program,
+      </if>
+      <if test="updatedAt != null">
+        updated_at,
+      </if>
+      <if test="paramsJson != null">
+        params_json,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="householdId != null">
+        #{householdId,jdbcType=BIGINT},
+      </if>
+      <if test="eventTypeCode != null">
+        #{eventTypeCode,jdbcType=VARCHAR},
+      </if>
+      <if test="actorUserId != null">
+        #{actorUserId,jdbcType=BIGINT},
+      </if>
+      <if test="targetUserId != null">
+        #{targetUserId,jdbcType=BIGINT},
+      </if>
+      <if test="entityTypeCode != null">
+        #{entityTypeCode,jdbcType=VARCHAR},
+      </if>
+      <if test="entityId != null">
+        #{entityId,jdbcType=BIGINT},
+      </if>
+      <if test="occurredAt != null">
+        #{occurredAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="processedAt != null">
+        #{processedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="dedupeKey != null">
+        #{dedupeKey,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserId != null">
+        #{createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="createProgram != null">
+        #{createProgram,jdbcType=VARCHAR},
+      </if>
+      <if test="createdAt != null">
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUserId != null">
+        #{updateUserId,jdbcType=BIGINT},
+      </if>
+      <if test="updateProgram != null">
+        #{updateProgram,jdbcType=VARCHAR},
+      </if>
+      <if test="updatedAt != null">
+        #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="paramsJson != null">
+        #{paramsJson,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.TNotificationEvent">
+    update t_notification_event
+    <set>
+      <if test="householdId != null">
+        household_id = #{householdId,jdbcType=BIGINT},
+      </if>
+      <if test="eventTypeCode != null">
+        event_type_code = #{eventTypeCode,jdbcType=VARCHAR},
+      </if>
+      <if test="actorUserId != null">
+        actor_user_id = #{actorUserId,jdbcType=BIGINT},
+      </if>
+      <if test="targetUserId != null">
+        target_user_id = #{targetUserId,jdbcType=BIGINT},
+      </if>
+      <if test="entityTypeCode != null">
+        entity_type_code = #{entityTypeCode,jdbcType=VARCHAR},
+      </if>
+      <if test="entityId != null">
+        entity_id = #{entityId,jdbcType=BIGINT},
+      </if>
+      <if test="occurredAt != null">
+        occurred_at = #{occurredAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="processedAt != null">
+        processed_at = #{processedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="dedupeKey != null">
+        dedupe_key = #{dedupeKey,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserId != null">
+        create_user_id = #{createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="createProgram != null">
+        create_program = #{createProgram,jdbcType=VARCHAR},
+      </if>
+      <if test="createdAt != null">
+        created_at = #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUserId != null">
+        update_user_id = #{updateUserId,jdbcType=BIGINT},
+      </if>
+      <if test="updateProgram != null">
+        update_program = #{updateProgram,jdbcType=VARCHAR},
+      </if>
+      <if test="updatedAt != null">
+        updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="paramsJson != null">
+        params_json = #{paramsJson,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where notification_event_id = #{notificationEventId,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.TNotificationEvent">
+    update t_notification_event
+    set household_id = #{householdId,jdbcType=BIGINT},
+      event_type_code = #{eventTypeCode,jdbcType=VARCHAR},
+      actor_user_id = #{actorUserId,jdbcType=BIGINT},
+      target_user_id = #{targetUserId,jdbcType=BIGINT},
+      entity_type_code = #{entityTypeCode,jdbcType=VARCHAR},
+      entity_id = #{entityId,jdbcType=BIGINT},
+      occurred_at = #{occurredAt,jdbcType=TIMESTAMP},
+      processed_at = #{processedAt,jdbcType=TIMESTAMP},
+      dedupe_key = #{dedupeKey,jdbcType=VARCHAR},
+      create_user_id = #{createUserId,jdbcType=BIGINT},
+      create_program = #{createProgram,jdbcType=VARCHAR},
+      created_at = #{createdAt,jdbcType=TIMESTAMP},
+      update_user_id = #{updateUserId,jdbcType=BIGINT},
+      update_program = #{updateProgram,jdbcType=VARCHAR},
+      updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+      params_json = #{paramsJson,jdbcType=LONGVARCHAR}
+    where notification_event_id = #{notificationEventId,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.TNotificationEvent">
+    update t_notification_event
+    set household_id = #{householdId,jdbcType=BIGINT},
+      event_type_code = #{eventTypeCode,jdbcType=VARCHAR},
+      actor_user_id = #{actorUserId,jdbcType=BIGINT},
+      target_user_id = #{targetUserId,jdbcType=BIGINT},
+      entity_type_code = #{entityTypeCode,jdbcType=VARCHAR},
+      entity_id = #{entityId,jdbcType=BIGINT},
+      occurred_at = #{occurredAt,jdbcType=TIMESTAMP},
+      processed_at = #{processedAt,jdbcType=TIMESTAMP},
+      dedupe_key = #{dedupeKey,jdbcType=VARCHAR},
+      create_user_id = #{createUserId,jdbcType=BIGINT},
+      create_program = #{createProgram,jdbcType=VARCHAR},
+      created_at = #{createdAt,jdbcType=TIMESTAMP},
+      update_user_id = #{updateUserId,jdbcType=BIGINT},
+      update_program = #{updateProgram,jdbcType=VARCHAR},
+      updated_at = #{updatedAt,jdbcType=TIMESTAMP}
+    where notification_event_id = #{notificationEventId,jdbcType=BIGINT}
+  </update>
+</mapper>
