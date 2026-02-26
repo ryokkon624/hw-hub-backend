@@ -1,10 +1,12 @@
 package com.hwhub.backend.config;
 
 import java.util.List;
+import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.lang.NonNull;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -18,10 +20,10 @@ public class CorsConfig implements WebMvcConfigurer {
   private List<String> allowedOrigins = List.of("http://localhost:5173");
 
   @Override
-  public void addCorsMappings(CorsRegistry registry) {
+  public void addCorsMappings(@NonNull CorsRegistry registry) {
     registry
         .addMapping("/api/**")
-        .allowedOrigins(allowedOrigins.toArray(new String[0]))
+        .allowedOrigins(Objects.requireNonNull(allowedOrigins.toArray(new String[0])))
         .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
         .allowedHeaders("Authorization", "Content-Type", "Accept")
         .exposedHeaders("Authorization")

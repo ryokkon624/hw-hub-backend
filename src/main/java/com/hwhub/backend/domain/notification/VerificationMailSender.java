@@ -1,5 +1,8 @@
 package com.hwhub.backend.domain.notification;
 
+import org.springframework.lang.NonNull;
+
 public interface VerificationMailSender {
-  void sendVerificationMail(String toEmail, String displayName, String verifyUrl, String locale);
+  void sendVerificationMail(
+      @NonNull String toEmail, String displayName, @NonNull String verifyUrl, String locale);
 }
