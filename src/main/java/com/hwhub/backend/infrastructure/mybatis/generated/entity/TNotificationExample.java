@@ -225,73 +225,73 @@ public class TNotificationExample {
       return (Criteria) this;
     }
 
-    public Criteria andNotificationTypeCodeIsNull() {
-      addCriterion("notification_type_code is null");
+    public Criteria andNotificationTypeIsNull() {
+      addCriterion("notification_type is null");
       return (Criteria) this;
     }
 
-    public Criteria andNotificationTypeCodeIsNotNull() {
-      addCriterion("notification_type_code is not null");
+    public Criteria andNotificationTypeIsNotNull() {
+      addCriterion("notification_type is not null");
       return (Criteria) this;
     }
 
-    public Criteria andNotificationTypeCodeEqualTo(String value) {
-      addCriterion("notification_type_code =", value, "notificationTypeCode");
+    public Criteria andNotificationTypeEqualTo(String value) {
+      addCriterion("notification_type =", value, "notificationType");
       return (Criteria) this;
     }
 
-    public Criteria andNotificationTypeCodeNotEqualTo(String value) {
-      addCriterion("notification_type_code <>", value, "notificationTypeCode");
+    public Criteria andNotificationTypeNotEqualTo(String value) {
+      addCriterion("notification_type <>", value, "notificationType");
       return (Criteria) this;
     }
 
-    public Criteria andNotificationTypeCodeGreaterThan(String value) {
-      addCriterion("notification_type_code >", value, "notificationTypeCode");
+    public Criteria andNotificationTypeGreaterThan(String value) {
+      addCriterion("notification_type >", value, "notificationType");
       return (Criteria) this;
     }
 
-    public Criteria andNotificationTypeCodeGreaterThanOrEqualTo(String value) {
-      addCriterion("notification_type_code >=", value, "notificationTypeCode");
+    public Criteria andNotificationTypeGreaterThanOrEqualTo(String value) {
+      addCriterion("notification_type >=", value, "notificationType");
       return (Criteria) this;
     }
 
-    public Criteria andNotificationTypeCodeLessThan(String value) {
-      addCriterion("notification_type_code <", value, "notificationTypeCode");
+    public Criteria andNotificationTypeLessThan(String value) {
+      addCriterion("notification_type <", value, "notificationType");
       return (Criteria) this;
     }
 
-    public Criteria andNotificationTypeCodeLessThanOrEqualTo(String value) {
-      addCriterion("notification_type_code <=", value, "notificationTypeCode");
+    public Criteria andNotificationTypeLessThanOrEqualTo(String value) {
+      addCriterion("notification_type <=", value, "notificationType");
       return (Criteria) this;
     }
 
-    public Criteria andNotificationTypeCodeLike(String value) {
-      addCriterion("notification_type_code like", value, "notificationTypeCode");
+    public Criteria andNotificationTypeLike(String value) {
+      addCriterion("notification_type like", value, "notificationType");
       return (Criteria) this;
     }
 
-    public Criteria andNotificationTypeCodeNotLike(String value) {
-      addCriterion("notification_type_code not like", value, "notificationTypeCode");
+    public Criteria andNotificationTypeNotLike(String value) {
+      addCriterion("notification_type not like", value, "notificationType");
       return (Criteria) this;
     }
 
-    public Criteria andNotificationTypeCodeIn(List<String> values) {
-      addCriterion("notification_type_code in", values, "notificationTypeCode");
+    public Criteria andNotificationTypeIn(List<String> values) {
+      addCriterion("notification_type in", values, "notificationType");
       return (Criteria) this;
     }
 
-    public Criteria andNotificationTypeCodeNotIn(List<String> values) {
-      addCriterion("notification_type_code not in", values, "notificationTypeCode");
+    public Criteria andNotificationTypeNotIn(List<String> values) {
+      addCriterion("notification_type not in", values, "notificationType");
       return (Criteria) this;
     }
 
-    public Criteria andNotificationTypeCodeBetween(String value1, String value2) {
-      addCriterion("notification_type_code between", value1, value2, "notificationTypeCode");
+    public Criteria andNotificationTypeBetween(String value1, String value2) {
+      addCriterion("notification_type between", value1, value2, "notificationType");
       return (Criteria) this;
     }
 
-    public Criteria andNotificationTypeCodeNotBetween(String value1, String value2) {
-      addCriterion("notification_type_code not between", value1, value2, "notificationTypeCode");
+    public Criteria andNotificationTypeNotBetween(String value1, String value2) {
+      addCriterion("notification_type not between", value1, value2, "notificationType");
       return (Criteria) this;
     }
 
@@ -675,73 +675,73 @@ public class TNotificationExample {
       return (Criteria) this;
     }
 
-    public Criteria andLinkTypeCodeIsNull() {
-      addCriterion("link_type_code is null");
+    public Criteria andLinkTypeIsNull() {
+      addCriterion("link_type is null");
       return (Criteria) this;
     }
 
-    public Criteria andLinkTypeCodeIsNotNull() {
-      addCriterion("link_type_code is not null");
+    public Criteria andLinkTypeIsNotNull() {
+      addCriterion("link_type is not null");
       return (Criteria) this;
     }
 
-    public Criteria andLinkTypeCodeEqualTo(String value) {
-      addCriterion("link_type_code =", value, "linkTypeCode");
+    public Criteria andLinkTypeEqualTo(String value) {
+      addCriterion("link_type =", value, "linkType");
       return (Criteria) this;
     }
 
-    public Criteria andLinkTypeCodeNotEqualTo(String value) {
-      addCriterion("link_type_code <>", value, "linkTypeCode");
+    public Criteria andLinkTypeNotEqualTo(String value) {
+      addCriterion("link_type <>", value, "linkType");
       return (Criteria) this;
     }
 
-    public Criteria andLinkTypeCodeGreaterThan(String value) {
-      addCriterion("link_type_code >", value, "linkTypeCode");
+    public Criteria andLinkTypeGreaterThan(String value) {
+      addCriterion("link_type >", value, "linkType");
       return (Criteria) this;
     }
 
-    public Criteria andLinkTypeCodeGreaterThanOrEqualTo(String value) {
-      addCriterion("link_type_code >=", value, "linkTypeCode");
+    public Criteria andLinkTypeGreaterThanOrEqualTo(String value) {
+      addCriterion("link_type >=", value, "linkType");
       return (Criteria) this;
     }
 
-    public Criteria andLinkTypeCodeLessThan(String value) {
-      addCriterion("link_type_code <", value, "linkTypeCode");
+    public Criteria andLinkTypeLessThan(String value) {
+      addCriterion("link_type <", value, "linkType");
       return (Criteria) this;
     }
 
-    public Criteria andLinkTypeCodeLessThanOrEqualTo(String value) {
-      addCriterion("link_type_code <=", value, "linkTypeCode");
+    public Criteria andLinkTypeLessThanOrEqualTo(String value) {
+      addCriterion("link_type <=", value, "linkType");
       return (Criteria) this;
     }
 
-    public Criteria andLinkTypeCodeLike(String value) {
-      addCriterion("link_type_code like", value, "linkTypeCode");
+    public Criteria andLinkTypeLike(String value) {
+      addCriterion("link_type like", value, "linkType");
       return (Criteria) this;
     }
 
-    public Criteria andLinkTypeCodeNotLike(String value) {
-      addCriterion("link_type_code not like", value, "linkTypeCode");
+    public Criteria andLinkTypeNotLike(String value) {
+      addCriterion("link_type not like", value, "linkType");
       return (Criteria) this;
     }
 
-    public Criteria andLinkTypeCodeIn(List<String> values) {
-      addCriterion("link_type_code in", values, "linkTypeCode");
+    public Criteria andLinkTypeIn(List<String> values) {
+      addCriterion("link_type in", values, "linkType");
       return (Criteria) this;
     }
 
-    public Criteria andLinkTypeCodeNotIn(List<String> values) {
-      addCriterion("link_type_code not in", values, "linkTypeCode");
+    public Criteria andLinkTypeNotIn(List<String> values) {
+      addCriterion("link_type not in", values, "linkType");
       return (Criteria) this;
     }
 
-    public Criteria andLinkTypeCodeBetween(String value1, String value2) {
-      addCriterion("link_type_code between", value1, value2, "linkTypeCode");
+    public Criteria andLinkTypeBetween(String value1, String value2) {
+      addCriterion("link_type between", value1, value2, "linkType");
       return (Criteria) this;
     }
 
-    public Criteria andLinkTypeCodeNotBetween(String value1, String value2) {
-      addCriterion("link_type_code not between", value1, value2, "linkTypeCode");
+    public Criteria andLinkTypeNotBetween(String value1, String value2) {
+      addCriterion("link_type not between", value1, value2, "linkType");
       return (Criteria) this;
     }
 

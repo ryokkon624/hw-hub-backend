@@ -11,15 +11,11 @@ public interface TNotificationEventMapper {
 
   int insertSelective(TNotificationEvent row);
 
-  List<TNotificationEvent> selectByExampleWithBLOBs(TNotificationEventExample example);
-
   List<TNotificationEvent> selectByExample(TNotificationEventExample example);
 
   TNotificationEvent selectByPrimaryKey(Long notificationEventId);
 
   int updateByPrimaryKeySelective(TNotificationEvent row);
-
-  int updateByPrimaryKeyWithBLOBs(TNotificationEvent row);
 
   int updateByPrimaryKey(TNotificationEvent row);
 }

@@ -7,21 +7,25 @@ public class TNotificationEvent {
 
   private Long householdId;
 
-  private String eventTypeCode;
+  private String notificationType;
 
   private Long actorUserId;
 
   private Long targetUserId;
 
-  private String entityTypeCode;
-
   private Long entityId;
+
+  private Date aggregationDate;
 
   private Date occurredAt;
 
-  private Date processedAt;
+  private String eventStatus;
 
-  private String dedupeKey;
+  private String processingKey;
+
+  private Date processingStartedAt;
+
+  private Date processedAt;
 
   private Long createUserId;
 
@@ -34,8 +38,6 @@ public class TNotificationEvent {
   private String updateProgram;
 
   private Date updatedAt;
-
-  private String paramsJson;
 
   public Long getNotificationEventId() {
     return notificationEventId;
@@ -53,12 +55,12 @@ public class TNotificationEvent {
     this.householdId = householdId;
   }
 
-  public String getEventTypeCode() {
-    return eventTypeCode;
+  public String getNotificationType() {
+    return notificationType;
   }
 
-  public void setEventTypeCode(String eventTypeCode) {
-    this.eventTypeCode = eventTypeCode == null ? null : eventTypeCode.trim();
+  public void setNotificationType(String notificationType) {
+    this.notificationType = notificationType == null ? null : notificationType.trim();
   }
 
   public Long getActorUserId() {
@@ -77,20 +79,20 @@ public class TNotificationEvent {
     this.targetUserId = targetUserId;
   }
 
-  public String getEntityTypeCode() {
-    return entityTypeCode;
-  }
-
-  public void setEntityTypeCode(String entityTypeCode) {
-    this.entityTypeCode = entityTypeCode == null ? null : entityTypeCode.trim();
-  }
-
   public Long getEntityId() {
     return entityId;
   }
 
   public void setEntityId(Long entityId) {
     this.entityId = entityId;
+  }
+
+  public Date getAggregationDate() {
+    return aggregationDate;
+  }
+
+  public void setAggregationDate(Date aggregationDate) {
+    this.aggregationDate = aggregationDate;
   }
 
   public Date getOccurredAt() {
@@ -101,20 +103,36 @@ public class TNotificationEvent {
     this.occurredAt = occurredAt;
   }
 
+  public String getEventStatus() {
+    return eventStatus;
+  }
+
+  public void setEventStatus(String eventStatus) {
+    this.eventStatus = eventStatus == null ? null : eventStatus.trim();
+  }
+
+  public String getProcessingKey() {
+    return processingKey;
+  }
+
+  public void setProcessingKey(String processingKey) {
+    this.processingKey = processingKey == null ? null : processingKey.trim();
+  }
+
+  public Date getProcessingStartedAt() {
+    return processingStartedAt;
+  }
+
+  public void setProcessingStartedAt(Date processingStartedAt) {
+    this.processingStartedAt = processingStartedAt;
+  }
+
   public Date getProcessedAt() {
     return processedAt;
   }
 
   public void setProcessedAt(Date processedAt) {
     this.processedAt = processedAt;
-  }
-
-  public String getDedupeKey() {
-    return dedupeKey;
-  }
-
-  public void setDedupeKey(String dedupeKey) {
-    this.dedupeKey = dedupeKey == null ? null : dedupeKey.trim();
   }
 
   public Long getCreateUserId() {
@@ -163,13 +181,5 @@ public class TNotificationEvent {
 
   public void setUpdatedAt(Date updatedAt) {
     this.updatedAt = updatedAt;
-  }
-
-  public String getParamsJson() {
-    return paramsJson;
-  }
-
-  public void setParamsJson(String paramsJson) {
-    this.paramsJson = paramsJson == null ? null : paramsJson.trim();
   }
 }

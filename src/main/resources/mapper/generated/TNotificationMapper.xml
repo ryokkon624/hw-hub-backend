@@ -4,14 +4,14 @@
   <resultMap id="BaseResultMap" type="com.hwhub.backend.infrastructure.mybatis.generated.entity.TNotification">
     <id column="notification_id" jdbcType="BIGINT" property="notificationId" />
     <result column="household_id" jdbcType="BIGINT" property="householdId" />
-    <result column="notification_type_code" jdbcType="VARCHAR" property="notificationTypeCode" />
+    <result column="notification_type" jdbcType="VARCHAR" property="notificationType" />
     <result column="actor_user_id" jdbcType="BIGINT" property="actorUserId" />
     <result column="target_user_id" jdbcType="BIGINT" property="targetUserId" />
     <result column="is_read" jdbcType="BIT" property="isRead" />
     <result column="read_at" jdbcType="TIMESTAMP" property="readAt" />
     <result column="title_key" jdbcType="VARCHAR" property="titleKey" />
     <result column="body_key" jdbcType="VARCHAR" property="bodyKey" />
-    <result column="link_type_code" jdbcType="VARCHAR" property="linkTypeCode" />
+    <result column="link_type" jdbcType="VARCHAR" property="linkType" />
     <result column="link_id" jdbcType="BIGINT" property="linkId" />
     <result column="occurred_at" jdbcType="TIMESTAMP" property="occurredAt" />
     <result column="aggregated_key" jdbcType="VARCHAR" property="aggregatedKey" />
@@ -56,8 +56,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    notification_id, household_id, notification_type_code, actor_user_id, target_user_id, 
-    is_read, read_at, title_key, body_key, link_type_code, link_id, occurred_at, aggregated_key, 
+    notification_id, household_id, notification_type, actor_user_id, target_user_id, 
+    is_read, read_at, title_key, body_key, link_type, link_id, occurred_at, aggregated_key, 
     aggregated_count, create_user_id, create_program, created_at, update_user_id, update_program, 
     updated_at
   </sql>
@@ -109,22 +109,20 @@
     where notification_id = #{notificationId,jdbcType=BIGINT}
   </delete>
   <insert id="insert" keyColumn="notification_id" keyProperty="notificationId" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.TNotification" useGeneratedKeys="true">
-    insert into t_notification (household_id, notification_type_code, 
-      actor_user_id, target_user_id, is_read, 
-      read_at, title_key, body_key, 
-      link_type_code, link_id, occurred_at, 
-      aggregated_key, aggregated_count, create_user_id, 
-      create_program, created_at, update_user_id, 
-      update_program, updated_at, params_json
-      )
-    values (#{householdId,jdbcType=BIGINT}, #{notificationTypeCode,jdbcType=VARCHAR}, 
-      #{actorUserId,jdbcType=BIGINT}, #{targetUserId,jdbcType=BIGINT}, #{isRead,jdbcType=BIT}, 
-      #{readAt,jdbcType=TIMESTAMP}, #{titleKey,jdbcType=VARCHAR}, #{bodyKey,jdbcType=VARCHAR}, 
-      #{linkTypeCode,jdbcType=VARCHAR}, #{linkId,jdbcType=BIGINT}, #{occurredAt,jdbcType=TIMESTAMP}, 
-      #{aggregatedKey,jdbcType=VARCHAR}, #{aggregatedCount,jdbcType=INTEGER}, #{createUserId,jdbcType=BIGINT}, 
-      #{createProgram,jdbcType=VARCHAR}, #{createdAt,jdbcType=TIMESTAMP}, #{updateUserId,jdbcType=BIGINT}, 
-      #{updateProgram,jdbcType=VARCHAR}, #{updatedAt,jdbcType=TIMESTAMP}, #{paramsJson,jdbcType=LONGVARCHAR}
-      )
+    insert into t_notification (household_id, notification_type, actor_user_id, 
+      target_user_id, is_read, read_at, 
+      title_key, body_key, link_type, 
+      link_id, occurred_at, aggregated_key, 
+      aggregated_count, create_user_id, create_program, 
+      created_at, update_user_id, update_program, 
+      updated_at, params_json)
+    values (#{householdId,jdbcType=BIGINT}, #{notificationType,jdbcType=VARCHAR}, #{actorUserId,jdbcType=BIGINT}, 
+      #{targetUserId,jdbcType=BIGINT}, #{isRead,jdbcType=BIT}, #{readAt,jdbcType=TIMESTAMP}, 
+      #{titleKey,jdbcType=VARCHAR}, #{bodyKey,jdbcType=VARCHAR}, #{linkType,jdbcType=VARCHAR}, 
+      #{linkId,jdbcType=BIGINT}, #{occurredAt,jdbcType=TIMESTAMP}, #{aggregatedKey,jdbcType=VARCHAR}, 
+      #{aggregatedCount,jdbcType=INTEGER}, #{createUserId,jdbcType=BIGINT}, #{createProgram,jdbcType=VARCHAR}, 
+      #{createdAt,jdbcType=TIMESTAMP}, #{updateUserId,jdbcType=BIGINT}, #{updateProgram,jdbcType=VARCHAR}, 
+      #{updatedAt,jdbcType=TIMESTAMP}, #{paramsJson,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" keyColumn="notification_id" keyProperty="notificationId" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.TNotification" useGeneratedKeys="true">
     insert into t_notification
@@ -132,8 +130,8 @@
       <if test="householdId != null">
         household_id,
       </if>
-      <if test="notificationTypeCode != null">
-        notification_type_code,
+      <if test="notificationType != null">
+        notification_type,
       </if>
       <if test="actorUserId != null">
         actor_user_id,
@@ -153,8 +151,8 @@
       <if test="bodyKey != null">
         body_key,
       </if>
-      <if test="linkTypeCode != null">
-        link_type_code,
+      <if test="linkType != null">
+        link_type,
       </if>
       <if test="linkId != null">
         link_id,
@@ -194,8 +192,8 @@
       <if test="householdId != null">
         #{householdId,jdbcType=BIGINT},
       </if>
-      <if test="notificationTypeCode != null">
-        #{notificationTypeCode,jdbcType=VARCHAR},
+      <if test="notificationType != null">
+        #{notificationType,jdbcType=VARCHAR},
       </if>
       <if test="actorUserId != null">
         #{actorUserId,jdbcType=BIGINT},
@@ -215,8 +213,8 @@
       <if test="bodyKey != null">
         #{bodyKey,jdbcType=VARCHAR},
       </if>
-      <if test="linkTypeCode != null">
-        #{linkTypeCode,jdbcType=VARCHAR},
+      <if test="linkType != null">
+        #{linkType,jdbcType=VARCHAR},
       </if>
       <if test="linkId != null">
         #{linkId,jdbcType=BIGINT},
@@ -259,8 +257,8 @@
       <if test="householdId != null">
         household_id = #{householdId,jdbcType=BIGINT},
       </if>
-      <if test="notificationTypeCode != null">
-        notification_type_code = #{notificationTypeCode,jdbcType=VARCHAR},
+      <if test="notificationType != null">
+        notification_type = #{notificationType,jdbcType=VARCHAR},
       </if>
       <if test="actorUserId != null">
         actor_user_id = #{actorUserId,jdbcType=BIGINT},
@@ -280,8 +278,8 @@
       <if test="bodyKey != null">
         body_key = #{bodyKey,jdbcType=VARCHAR},
       </if>
-      <if test="linkTypeCode != null">
-        link_type_code = #{linkTypeCode,jdbcType=VARCHAR},
+      <if test="linkType != null">
+        link_type = #{linkType,jdbcType=VARCHAR},
       </if>
       <if test="linkId != null">
         link_id = #{linkId,jdbcType=BIGINT},
@@ -322,14 +320,14 @@
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.TNotification">
     update t_notification
     set household_id = #{householdId,jdbcType=BIGINT},
-      notification_type_code = #{notificationTypeCode,jdbcType=VARCHAR},
+      notification_type = #{notificationType,jdbcType=VARCHAR},
       actor_user_id = #{actorUserId,jdbcType=BIGINT},
       target_user_id = #{targetUserId,jdbcType=BIGINT},
       is_read = #{isRead,jdbcType=BIT},
       read_at = #{readAt,jdbcType=TIMESTAMP},
       title_key = #{titleKey,jdbcType=VARCHAR},
       body_key = #{bodyKey,jdbcType=VARCHAR},
-      link_type_code = #{linkTypeCode,jdbcType=VARCHAR},
+      link_type = #{linkType,jdbcType=VARCHAR},
       link_id = #{linkId,jdbcType=BIGINT},
       occurred_at = #{occurredAt,jdbcType=TIMESTAMP},
       aggregated_key = #{aggregatedKey,jdbcType=VARCHAR},
@@ -346,14 +344,14 @@
   <update id="updateByPrimaryKey" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.TNotification">
     update t_notification
     set household_id = #{householdId,jdbcType=BIGINT},
-      notification_type_code = #{notificationTypeCode,jdbcType=VARCHAR},
+      notification_type = #{notificationType,jdbcType=VARCHAR},
       actor_user_id = #{actorUserId,jdbcType=BIGINT},
       target_user_id = #{targetUserId,jdbcType=BIGINT},
       is_read = #{isRead,jdbcType=BIT},
       read_at = #{readAt,jdbcType=TIMESTAMP},
       title_key = #{titleKey,jdbcType=VARCHAR},
       body_key = #{bodyKey,jdbcType=VARCHAR},
-      link_type_code = #{linkTypeCode,jdbcType=VARCHAR},
+      link_type = #{linkType,jdbcType=VARCHAR},
       link_id = #{linkId,jdbcType=BIGINT},
       occurred_at = #{occurredAt,jdbcType=TIMESTAMP},
       aggregated_key = #{aggregatedKey,jdbcType=VARCHAR},

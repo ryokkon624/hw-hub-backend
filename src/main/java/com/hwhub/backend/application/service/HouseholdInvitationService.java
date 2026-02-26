@@ -1,5 +1,6 @@
 package com.hwhub.backend.application.service;
 
+import com.hwhub.backend.application.service.notification.NotificationPublisher;
 import com.hwhub.backend.domain.enums.HouseholdMemberStatus;
 import com.hwhub.backend.domain.enums.InvitationStatus;
 import com.hwhub.backend.domain.enums.ProgramType;
@@ -27,6 +28,7 @@ public class HouseholdInvitationService {
   private final HouseholdMemberRepository memberRepository;
   private final HouseholdMemberService memberService;
   private final HouseholdAuthorizationService authorizationService;
+  private final NotificationPublisher notificationPublisher;
 
   @Transactional(readOnly = true)
   public HouseholdInvitationModel getInvitation(String token) {
@@ -84,6 +86,10 @@ public class HouseholdInvitationService {
     inv.setStatus(InvitationStatus.ACCEPTED.getCode());
     inv.setAcceptedUserId(userId);
     invRepository.update(inv, userId, ProgramType.ONL_HLDINVI.getCode());
+
+    // 通知
+    notificationPublisher.publishAcceptInvitation(
+        inv.getHouseholdId(), userId, inv.getInviterUserId(), ProgramType.ONL_HLDINVI.getCode());
   }
 
   @Transactional
@@ -105,6 +111,10 @@ public class HouseholdInvitationService {
     }
     inv.setAcceptedUserId(userId);
     invRepository.update(inv, userId, ProgramType.ONL_HLDINVI.getCode());
+
+    // 通知
+    notificationPublisher.publishDeclineInvitation(
+        inv.getHouseholdId(), userId, inv.getInviterUserId(), ProgramType.ONL_HLDINVI.getCode());
   }
 
   @Transactional

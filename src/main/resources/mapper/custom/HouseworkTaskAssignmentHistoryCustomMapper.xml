@@ -24,7 +24,7 @@
              , household_id
              , assignee_user_id
              , NULL
-             , #{householdId}
+             , #{userId}
              , '9'
              , 'メンバーが世帯から離脱したため'
              , #{userId}

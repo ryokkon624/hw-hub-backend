@@ -7,7 +7,7 @@ public class TNotification {
 
   private Long householdId;
 
-  private String notificationTypeCode;
+  private String notificationType;
 
   private Long actorUserId;
 
@@ -21,7 +21,7 @@ public class TNotification {
 
   private String bodyKey;
 
-  private String linkTypeCode;
+  private String linkType;
 
   private Long linkId;
 
@@ -61,12 +61,12 @@ public class TNotification {
     this.householdId = householdId;
   }
 
-  public String getNotificationTypeCode() {
-    return notificationTypeCode;
+  public String getNotificationType() {
+    return notificationType;
   }
 
-  public void setNotificationTypeCode(String notificationTypeCode) {
-    this.notificationTypeCode = notificationTypeCode == null ? null : notificationTypeCode.trim();
+  public void setNotificationType(String notificationType) {
+    this.notificationType = notificationType == null ? null : notificationType.trim();
   }
 
   public Long getActorUserId() {
@@ -117,12 +117,12 @@ public class TNotification {
     this.bodyKey = bodyKey == null ? null : bodyKey.trim();
   }
 
-  public String getLinkTypeCode() {
-    return linkTypeCode;
+  public String getLinkType() {
+    return linkType;
   }
 
-  public void setLinkTypeCode(String linkTypeCode) {
-    this.linkTypeCode = linkTypeCode == null ? null : linkTypeCode.trim();
+  public void setLinkType(String linkType) {
+    this.linkType = linkType == null ? null : linkType.trim();
   }
 
   public Long getLinkId() {

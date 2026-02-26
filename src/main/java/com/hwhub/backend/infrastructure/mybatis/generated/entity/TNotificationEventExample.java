@@ -2,6 +2,7 @@ package com.hwhub.backend.infrastructure.mybatis.generated.entity;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 public class TNotificationEventExample {
@@ -103,6 +104,37 @@ public class TNotificationEventExample {
         throw new RuntimeException("Between values for " + property + " cannot be null");
       }
       criteria.add(new Criterion(condition, value1, value2));
+    }
+
+    protected void addCriterionForJDBCDate(String condition, Date value, String property) {
+      if (value == null) {
+        throw new RuntimeException("Value for " + property + " cannot be null");
+      }
+      addCriterion(condition, new java.sql.Date(value.getTime()), property);
+    }
+
+    protected void addCriterionForJDBCDate(String condition, List<Date> values, String property) {
+      if (values == null || values.size() == 0) {
+        throw new RuntimeException("Value list for " + property + " cannot be null or empty");
+      }
+      List<java.sql.Date> dateList = new ArrayList<>();
+      Iterator<Date> iter = values.iterator();
+      while (iter.hasNext()) {
+        dateList.add(new java.sql.Date(iter.next().getTime()));
+      }
+      addCriterion(condition, dateList, property);
+    }
+
+    protected void addCriterionForJDBCDate(
+        String condition, Date value1, Date value2, String property) {
+      if (value1 == null || value2 == null) {
+        throw new RuntimeException("Between values for " + property + " cannot be null");
+      }
+      addCriterion(
+          condition,
+          new java.sql.Date(value1.getTime()),
+          new java.sql.Date(value2.getTime()),
+          property);
     }
 
     public Criteria andNotificationEventIdIsNull() {
@@ -225,73 +257,73 @@ public class TNotificationEventExample {
       return (Criteria) this;
     }
 
-    public Criteria andEventTypeCodeIsNull() {
-      addCriterion("event_type_code is null");
+    public Criteria andNotificationTypeIsNull() {
+      addCriterion("notification_type is null");
       return (Criteria) this;
     }
 
-    public Criteria andEventTypeCodeIsNotNull() {
-      addCriterion("event_type_code is not null");
+    public Criteria andNotificationTypeIsNotNull() {
+      addCriterion("notification_type is not null");
       return (Criteria) this;
     }
 
-    public Criteria andEventTypeCodeEqualTo(String value) {
-      addCriterion("event_type_code =", value, "eventTypeCode");
+    public Criteria andNotificationTypeEqualTo(String value) {
+      addCriterion("notification_type =", value, "notificationType");
       return (Criteria) this;
     }
 
-    public Criteria andEventTypeCodeNotEqualTo(String value) {
-      addCriterion("event_type_code <>", value, "eventTypeCode");
+    public Criteria andNotificationTypeNotEqualTo(String value) {
+      addCriterion("notification_type <>", value, "notificationType");
       return (Criteria) this;
     }
 
-    public Criteria andEventTypeCodeGreaterThan(String value) {
-      addCriterion("event_type_code >", value, "eventTypeCode");
+    public Criteria andNotificationTypeGreaterThan(String value) {
+      addCriterion("notification_type >", value, "notificationType");
       return (Criteria) this;
     }
 
-    public Criteria andEventTypeCodeGreaterThanOrEqualTo(String value) {
-      addCriterion("event_type_code >=", value, "eventTypeCode");
+    public Criteria andNotificationTypeGreaterThanOrEqualTo(String value) {
+      addCriterion("notification_type >=", value, "notificationType");
       return (Criteria) this;
     }
 
-    public Criteria andEventTypeCodeLessThan(String value) {
-      addCriterion("event_type_code <", value, "eventTypeCode");
+    public Criteria andNotificationTypeLessThan(String value) {
+      addCriterion("notification_type <", value, "notificationType");
       return (Criteria) this;
     }
 
-    public Criteria andEventTypeCodeLessThanOrEqualTo(String value) {
-      addCriterion("event_type_code <=", value, "eventTypeCode");
+    public Criteria andNotificationTypeLessThanOrEqualTo(String value) {
+      addCriterion("notification_type <=", value, "notificationType");
       return (Criteria) this;
     }
 
-    public Criteria andEventTypeCodeLike(String value) {
-      addCriterion("event_type_code like", value, "eventTypeCode");
+    public Criteria andNotificationTypeLike(String value) {
+      addCriterion("notification_type like", value, "notificationType");
       return (Criteria) this;
     }
 
-    public Criteria andEventTypeCodeNotLike(String value) {
-      addCriterion("event_type_code not like", value, "eventTypeCode");
+    public Criteria andNotificationTypeNotLike(String value) {
+      addCriterion("notification_type not like", value, "notificationType");
       return (Criteria) this;
     }
 
-    public Criteria andEventTypeCodeIn(List<String> values) {
-      addCriterion("event_type_code in", values, "eventTypeCode");
+    public Criteria andNotificationTypeIn(List<String> values) {
+      addCriterion("notification_type in", values, "notificationType");
       return (Criteria) this;
     }
 
-    public Criteria andEventTypeCodeNotIn(List<String> values) {
-      addCriterion("event_type_code not in", values, "eventTypeCode");
+    public Criteria andNotificationTypeNotIn(List<String> values) {
+      addCriterion("notification_type not in", values, "notificationType");
       return (Criteria) this;
     }
 
-    public Criteria andEventTypeCodeBetween(String value1, String value2) {
-      addCriterion("event_type_code between", value1, value2, "eventTypeCode");
+    public Criteria andNotificationTypeBetween(String value1, String value2) {
+      addCriterion("notification_type between", value1, value2, "notificationType");
       return (Criteria) this;
     }
 
-    public Criteria andEventTypeCodeNotBetween(String value1, String value2) {
-      addCriterion("event_type_code not between", value1, value2, "eventTypeCode");
+    public Criteria andNotificationTypeNotBetween(String value1, String value2) {
+      addCriterion("notification_type not between", value1, value2, "notificationType");
       return (Criteria) this;
     }
 
@@ -415,76 +447,6 @@ public class TNotificationEventExample {
       return (Criteria) this;
     }
 
-    public Criteria andEntityTypeCodeIsNull() {
-      addCriterion("entity_type_code is null");
-      return (Criteria) this;
-    }
-
-    public Criteria andEntityTypeCodeIsNotNull() {
-      addCriterion("entity_type_code is not null");
-      return (Criteria) this;
-    }
-
-    public Criteria andEntityTypeCodeEqualTo(String value) {
-      addCriterion("entity_type_code =", value, "entityTypeCode");
-      return (Criteria) this;
-    }
-
-    public Criteria andEntityTypeCodeNotEqualTo(String value) {
-      addCriterion("entity_type_code <>", value, "entityTypeCode");
-      return (Criteria) this;
-    }
-
-    public Criteria andEntityTypeCodeGreaterThan(String value) {
-      addCriterion("entity_type_code >", value, "entityTypeCode");
-      return (Criteria) this;
-    }
-
-    public Criteria andEntityTypeCodeGreaterThanOrEqualTo(String value) {
-      addCriterion("entity_type_code >=", value, "entityTypeCode");
-      return (Criteria) this;
-    }
-
-    public Criteria andEntityTypeCodeLessThan(String value) {
-      addCriterion("entity_type_code <", value, "entityTypeCode");
-      return (Criteria) this;
-    }
-
-    public Criteria andEntityTypeCodeLessThanOrEqualTo(String value) {
-      addCriterion("entity_type_code <=", value, "entityTypeCode");
-      return (Criteria) this;
-    }
-
-    public Criteria andEntityTypeCodeLike(String value) {
-      addCriterion("entity_type_code like", value, "entityTypeCode");
-      return (Criteria) this;
-    }
-
-    public Criteria andEntityTypeCodeNotLike(String value) {
-      addCriterion("entity_type_code not like", value, "entityTypeCode");
-      return (Criteria) this;
-    }
-
-    public Criteria andEntityTypeCodeIn(List<String> values) {
-      addCriterion("entity_type_code in", values, "entityTypeCode");
-      return (Criteria) this;
-    }
-
-    public Criteria andEntityTypeCodeNotIn(List<String> values) {
-      addCriterion("entity_type_code not in", values, "entityTypeCode");
-      return (Criteria) this;
-    }
-
-    public Criteria andEntityTypeCodeBetween(String value1, String value2) {
-      addCriterion("entity_type_code between", value1, value2, "entityTypeCode");
-      return (Criteria) this;
-    }
-
-    public Criteria andEntityTypeCodeNotBetween(String value1, String value2) {
-      addCriterion("entity_type_code not between", value1, value2, "entityTypeCode");
-      return (Criteria) this;
-    }
-
     public Criteria andEntityIdIsNull() {
       addCriterion("entity_id is null");
       return (Criteria) this;
@@ -542,6 +504,66 @@ public class TNotificationEventExample {
 
     public Criteria andEntityIdNotBetween(Long value1, Long value2) {
       addCriterion("entity_id not between", value1, value2, "entityId");
+      return (Criteria) this;
+    }
+
+    public Criteria andAggregationDateIsNull() {
+      addCriterion("aggregation_date is null");
+      return (Criteria) this;
+    }
+
+    public Criteria andAggregationDateIsNotNull() {
+      addCriterion("aggregation_date is not null");
+      return (Criteria) this;
+    }
+
+    public Criteria andAggregationDateEqualTo(Date value) {
+      addCriterionForJDBCDate("aggregation_date =", value, "aggregationDate");
+      return (Criteria) this;
+    }
+
+    public Criteria andAggregationDateNotEqualTo(Date value) {
+      addCriterionForJDBCDate("aggregation_date <>", value, "aggregationDate");
+      return (Criteria) this;
+    }
+
+    public Criteria andAggregationDateGreaterThan(Date value) {
+      addCriterionForJDBCDate("aggregation_date >", value, "aggregationDate");
+      return (Criteria) this;
+    }
+
+    public Criteria andAggregationDateGreaterThanOrEqualTo(Date value) {
+      addCriterionForJDBCDate("aggregation_date >=", value, "aggregationDate");
+      return (Criteria) this;
+    }
+
+    public Criteria andAggregationDateLessThan(Date value) {
+      addCriterionForJDBCDate("aggregation_date <", value, "aggregationDate");
+      return (Criteria) this;
+    }
+
+    public Criteria andAggregationDateLessThanOrEqualTo(Date value) {
+      addCriterionForJDBCDate("aggregation_date <=", value, "aggregationDate");
+      return (Criteria) this;
+    }
+
+    public Criteria andAggregationDateIn(List<Date> values) {
+      addCriterionForJDBCDate("aggregation_date in", values, "aggregationDate");
+      return (Criteria) this;
+    }
+
+    public Criteria andAggregationDateNotIn(List<Date> values) {
+      addCriterionForJDBCDate("aggregation_date not in", values, "aggregationDate");
+      return (Criteria) this;
+    }
+
+    public Criteria andAggregationDateBetween(Date value1, Date value2) {
+      addCriterionForJDBCDate("aggregation_date between", value1, value2, "aggregationDate");
+      return (Criteria) this;
+    }
+
+    public Criteria andAggregationDateNotBetween(Date value1, Date value2) {
+      addCriterionForJDBCDate("aggregation_date not between", value1, value2, "aggregationDate");
       return (Criteria) this;
     }
 
@@ -605,6 +627,206 @@ public class TNotificationEventExample {
       return (Criteria) this;
     }
 
+    public Criteria andEventStatusIsNull() {
+      addCriterion("event_status is null");
+      return (Criteria) this;
+    }
+
+    public Criteria andEventStatusIsNotNull() {
+      addCriterion("event_status is not null");
+      return (Criteria) this;
+    }
+
+    public Criteria andEventStatusEqualTo(String value) {
+      addCriterion("event_status =", value, "eventStatus");
+      return (Criteria) this;
+    }
+
+    public Criteria andEventStatusNotEqualTo(String value) {
+      addCriterion("event_status <>", value, "eventStatus");
+      return (Criteria) this;
+    }
+
+    public Criteria andEventStatusGreaterThan(String value) {
+      addCriterion("event_status >", value, "eventStatus");
+      return (Criteria) this;
+    }
+
+    public Criteria andEventStatusGreaterThanOrEqualTo(String value) {
+      addCriterion("event_status >=", value, "eventStatus");
+      return (Criteria) this;
+    }
+
+    public Criteria andEventStatusLessThan(String value) {
+      addCriterion("event_status <", value, "eventStatus");
+      return (Criteria) this;
+    }
+
+    public Criteria andEventStatusLessThanOrEqualTo(String value) {
+      addCriterion("event_status <=", value, "eventStatus");
+      return (Criteria) this;
+    }
+
+    public Criteria andEventStatusLike(String value) {
+      addCriterion("event_status like", value, "eventStatus");
+      return (Criteria) this;
+    }
+
+    public Criteria andEventStatusNotLike(String value) {
+      addCriterion("event_status not like", value, "eventStatus");
+      return (Criteria) this;
+    }
+
+    public Criteria andEventStatusIn(List<String> values) {
+      addCriterion("event_status in", values, "eventStatus");
+      return (Criteria) this;
+    }
+
+    public Criteria andEventStatusNotIn(List<String> values) {
+      addCriterion("event_status not in", values, "eventStatus");
+      return (Criteria) this;
+    }
+
+    public Criteria andEventStatusBetween(String value1, String value2) {
+      addCriterion("event_status between", value1, value2, "eventStatus");
+      return (Criteria) this;
+    }
+
+    public Criteria andEventStatusNotBetween(String value1, String value2) {
+      addCriterion("event_status not between", value1, value2, "eventStatus");
+      return (Criteria) this;
+    }
+
+    public Criteria andProcessingKeyIsNull() {
+      addCriterion("processing_key is null");
+      return (Criteria) this;
+    }
+
+    public Criteria andProcessingKeyIsNotNull() {
+      addCriterion("processing_key is not null");
+      return (Criteria) this;
+    }
+
+    public Criteria andProcessingKeyEqualTo(String value) {
+      addCriterion("processing_key =", value, "processingKey");
+      return (Criteria) this;
+    }
+
+    public Criteria andProcessingKeyNotEqualTo(String value) {
+      addCriterion("processing_key <>", value, "processingKey");
+      return (Criteria) this;
+    }
+
+    public Criteria andProcessingKeyGreaterThan(String value) {
+      addCriterion("processing_key >", value, "processingKey");
+      return (Criteria) this;
+    }
+
+    public Criteria andProcessingKeyGreaterThanOrEqualTo(String value) {
+      addCriterion("processing_key >=", value, "processingKey");
+      return (Criteria) this;
+    }
+
+    public Criteria andProcessingKeyLessThan(String value) {
+      addCriterion("processing_key <", value, "processingKey");
+      return (Criteria) this;
+    }
+
+    public Criteria andProcessingKeyLessThanOrEqualTo(String value) {
+      addCriterion("processing_key <=", value, "processingKey");
+      return (Criteria) this;
+    }
+
+    public Criteria andProcessingKeyLike(String value) {
+      addCriterion("processing_key like", value, "processingKey");
+      return (Criteria) this;
+    }
+
+    public Criteria andProcessingKeyNotLike(String value) {
+      addCriterion("processing_key not like", value, "processingKey");
+      return (Criteria) this;
+    }
+
+    public Criteria andProcessingKeyIn(List<String> values) {
+      addCriterion("processing_key in", values, "processingKey");
+      return (Criteria) this;
+    }
+
+    public Criteria andProcessingKeyNotIn(List<String> values) {
+      addCriterion("processing_key not in", values, "processingKey");
+      return (Criteria) this;
+    }
+
+    public Criteria andProcessingKeyBetween(String value1, String value2) {
+      addCriterion("processing_key between", value1, value2, "processingKey");
+      return (Criteria) this;
+    }
+
+    public Criteria andProcessingKeyNotBetween(String value1, String value2) {
+      addCriterion("processing_key not between", value1, value2, "processingKey");
+      return (Criteria) this;
+    }
+
+    public Criteria andProcessingStartedAtIsNull() {
+      addCriterion("processing_started_at is null");
+      return (Criteria) this;
+    }
+
+    public Criteria andProcessingStartedAtIsNotNull() {
+      addCriterion("processing_started_at is not null");
+      return (Criteria) this;
+    }
+
+    public Criteria andProcessingStartedAtEqualTo(Date value) {
+      addCriterion("processing_started_at =", value, "processingStartedAt");
+      return (Criteria) this;
+    }
+
+    public Criteria andProcessingStartedAtNotEqualTo(Date value) {
+      addCriterion("processing_started_at <>", value, "processingStartedAt");
+      return (Criteria) this;
+    }
+
+    public Criteria andProcessingStartedAtGreaterThan(Date value) {
+      addCriterion("processing_started_at >", value, "processingStartedAt");
+      return (Criteria) this;
+    }
+
+    public Criteria andProcessingStartedAtGreaterThanOrEqualTo(Date value) {
+      addCriterion("processing_started_at >=", value, "processingStartedAt");
+      return (Criteria) this;
+    }
+
+    public Criteria andProcessingStartedAtLessThan(Date value) {
+      addCriterion("processing_started_at <", value, "processingStartedAt");
+      return (Criteria) this;
+    }
+
+    public Criteria andProcessingStartedAtLessThanOrEqualTo(Date value) {
+      addCriterion("processing_started_at <=", value, "processingStartedAt");
+      return (Criteria) this;
+    }
+
+    public Criteria andProcessingStartedAtIn(List<Date> values) {
+      addCriterion("processing_started_at in", values, "processingStartedAt");
+      return (Criteria) this;
+    }
+
+    public Criteria andProcessingStartedAtNotIn(List<Date> values) {
+      addCriterion("processing_started_at not in", values, "processingStartedAt");
+      return (Criteria) this;
+    }
+
+    public Criteria andProcessingStartedAtBetween(Date value1, Date value2) {
+      addCriterion("processing_started_at between", value1, value2, "processingStartedAt");
+      return (Criteria) this;
+    }
+
+    public Criteria andProcessingStartedAtNotBetween(Date value1, Date value2) {
+      addCriterion("processing_started_at not between", value1, value2, "processingStartedAt");
+      return (Criteria) this;
+    }
+
     public Criteria andProcessedAtIsNull() {
       addCriterion("processed_at is null");
       return (Criteria) this;
@@ -662,76 +884,6 @@ public class TNotificationEventExample {
 
     public Criteria andProcessedAtNotBetween(Date value1, Date value2) {
       addCriterion("processed_at not between", value1, value2, "processedAt");
-      return (Criteria) this;
-    }
-
-    public Criteria andDedupeKeyIsNull() {
-      addCriterion("dedupe_key is null");
-      return (Criteria) this;
-    }
-
-    public Criteria andDedupeKeyIsNotNull() {
-      addCriterion("dedupe_key is not null");
-      return (Criteria) this;
-    }
-
-    public Criteria andDedupeKeyEqualTo(String value) {
-      addCriterion("dedupe_key =", value, "dedupeKey");
-      return (Criteria) this;
-    }
-
-    public Criteria andDedupeKeyNotEqualTo(String value) {
-      addCriterion("dedupe_key <>", value, "dedupeKey");
-      return (Criteria) this;
-    }
-
-    public Criteria andDedupeKeyGreaterThan(String value) {
-      addCriterion("dedupe_key >", value, "dedupeKey");
-      return (Criteria) this;
-    }
-
-    public Criteria andDedupeKeyGreaterThanOrEqualTo(String value) {
-      addCriterion("dedupe_key >=", value, "dedupeKey");
-      return (Criteria) this;
-    }
-
-    public Criteria andDedupeKeyLessThan(String value) {
-      addCriterion("dedupe_key <", value, "dedupeKey");
-      return (Criteria) this;
-    }
-
-    public Criteria andDedupeKeyLessThanOrEqualTo(String value) {
-      addCriterion("dedupe_key <=", value, "dedupeKey");
-      return (Criteria) this;
-    }
-
-    public Criteria andDedupeKeyLike(String value) {
-      addCriterion("dedupe_key like", value, "dedupeKey");
-      return (Criteria) this;
-    }
-
-    public Criteria andDedupeKeyNotLike(String value) {
-      addCriterion("dedupe_key not like", value, "dedupeKey");
-      return (Criteria) this;
-    }
-
-    public Criteria andDedupeKeyIn(List<String> values) {
-      addCriterion("dedupe_key in", values, "dedupeKey");
-      return (Criteria) this;
-    }
-
-    public Criteria andDedupeKeyNotIn(List<String> values) {
-      addCriterion("dedupe_key not in", values, "dedupeKey");
-      return (Criteria) this;
-    }
-
-    public Criteria andDedupeKeyBetween(String value1, String value2) {
-      addCriterion("dedupe_key between", value1, value2, "dedupeKey");
-      return (Criteria) this;
-    }
-
-    public Criteria andDedupeKeyNotBetween(String value1, String value2) {
-      addCriterion("dedupe_key not between", value1, value2, "dedupeKey");
       return (Criteria) this;
     }
 

@@ -6,14 +6,16 @@ import com.hwhub.backend.domain.model.HouseworkTask4AssignModel
 import com.hwhub.backend.domain.model.HouseworkTaskModel
 import com.hwhub.backend.domain.repository.HouseworkTaskRepository
 import org.springframework.security.access.AccessDeniedException
+import com.hwhub.backend.application.service.notification.NotificationPublisher
 import spock.lang.Specification
 
 class HouseworkTaskServiceSpec extends Specification{
 
     HouseworkTaskRepository taskRepository = Mock()
     HouseholdAuthorizationService authService = Mock()
+    NotificationPublisher notificationPublisher = Mock()
 
-    HouseworkTaskService service = new HouseworkTaskService(taskRepository, authService)
+    HouseworkTaskService service = new HouseworkTaskService(taskRepository, authService, notificationPublisher)
 
     // ==================================
     // findForAssign
@@ -136,6 +138,7 @@ class HouseworkTaskServiceSpec extends Specification{
 
         1 * model.changeAssignee(null, reasonType, loginUserId)
         1 * taskRepository.update(model, loginUserId, ProgramType.ONL_HWRTSK.code)
+        1 * notificationPublisher.publishTaskAssignedEvent(model, _, loginUserId, ProgramType.ONL_HWRTSK.code)
     }
 
     def "updateAssigneeは担当者が世帯メンバーのとき担当変更して更新する"() {
@@ -160,6 +163,7 @@ class HouseworkTaskServiceSpec extends Specification{
 
         1 * model.changeAssignee(assigneeUserId, reasonType, loginUserId)
         1 * taskRepository.update(model, loginUserId, ProgramType.ONL_HWRTSK.code)
+        1 * notificationPublisher.publishTaskAssignedEvent(model, _, loginUserId, ProgramType.ONL_HWRTSK.code)
     }
 
     // ==================================
