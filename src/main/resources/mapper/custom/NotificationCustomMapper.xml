@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hwhub.backend.infrastructure.mybatis.custom.mapper.NotificationCustomMapper">
+
+  <select id="findLatestByTargetUser" resultMap="com.hwhub.backend.infrastructure.mybatis.generated.mapper.TNotificationMapper.ResultMapWithBLOBs">
+    SELECT
+        notification_id
+        , household_id
+        , notification_type
+        , actor_user_id
+        , target_user_id
+        , is_read
+        , read_at
+        , title_key
+        , body_key
+        , params_json
+        , link_type
+        , link_id
+        , occurred_at
+        , aggregated_key
+        , aggregated_count
+        , create_user_id
+        , create_program
+        , created_at
+        , update_user_id
+        , update_program
+        , updated_at 
+    FROM
+        t_notification 
+    WHERE
+        target_user_id = #{targetUserId} 
+    ORDER BY
+        occurred_at DESC
+        , notification_id DESC 
+    LIMIT
+        #{limit}
+  </select>
+
+  <select id="findUnreadByTargetUser" resultMap="com.hwhub.backend.infrastructure.mybatis.generated.mapper.TNotificationMapper.ResultMapWithBLOBs">
+    SELECT
+        notification_id
+        , household_id
+        , notification_type
+        , actor_user_id
+        , target_user_id
+        , is_read
+        , read_at
+        , title_key
+        , body_key
+        , params_json
+        , link_type
+        , link_id
+        , occurred_at
+        , aggregated_key
+        , aggregated_count
+        , create_user_id
+        , create_program
+        , created_at
+        , update_user_id
+        , update_program
+        , updated_at 
+    FROM
+        t_notification 
+    WHERE
+        target_user_id = #{targetUserId} 
+        AND is_read = 0 
+    ORDER BY
+        occurred_at DESC
+        , notification_id DESC 
+    LIMIT
+        #{limit}
+  </select>
+
+  <update id="markAllAsRead">
+    UPDATE t_notification 
+    SET
+        is_read = 1
+        , read_at = #{readAt}
+        , update_user_id = #{updateUserId}
+        , update_program = #{updateProgram}
+    WHERE
+        target_user_id = #{targetUserId} 
+        AND is_read = 0
+  </update>
+
+  <update id="markAsReadUpTo">
+    UPDATE t_notification 
+    SET
+        is_read = 1
+        , read_at = #{readAt}
+        , update_user_id = #{updateUserId}
+        , update_program = #{updateProgram}
+    WHERE
+        target_user_id = #{targetUserId} 
+        AND is_read = 0 
+        AND occurred_at &lt;= #{occurredAt}
+  </update>
+
+  <select id="countUnreadByTargetUser" resultType="long">
+    SELECT
+        count(*) 
+    FROM
+        t_notification 
+    WHERE
+        target_user_id = #{targetUserId} 
+        AND is_read = 0
+  </select>
+
+  <insert id="bulkInsert">
+    INSERT INTO t_notification (
+        household_id
+        , notification_type
+        , actor_user_id
+        , target_user_id
+        , is_read
+        , read_at
+        , title_key
+        , body_key
+        , params_json
+        , link_type
+        , link_id
+        , occurred_at
+        , aggregated_key
+        , aggregated_count
+        , create_user_id
+        , create_program
+        , update_user_id
+        , update_program
+    )
+    VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+                #{item.householdId},
+                #{item.notificationType},
+                #{item.actorUserId},
+                #{item.targetUserId},
+                #{item.isRead},
+                #{item.readAt},
+                #{item.titleKey},
+                #{item.bodyKey},
+                #{item.paramsJson},
+                #{item.linkType},
+                #{item.linkId},
+                #{item.occurredAt},
+                #{item.aggregatedKey},
+                #{item.aggregatedCount},
+                #{item.createUserId},
+                #{item.createProgram},
+                #{item.updateUserId},
+                #{item.updateProgram}
+            )
+        </foreach>
+  </insert>
+
+</mapper>

@@ -7,6 +7,7 @@ import com.hwhub.backend.domain.oauth.google.GoogleUserInfo;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -57,8 +58,8 @@ public class RestClientGoogleOAuthClient implements GoogleOAuthClient {
     return restClient
         .post()
         .uri("https://oauth2.googleapis.com/token")
-        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-        .body(toFormBody(form))
+        .contentType(Objects.requireNonNull(MediaType.APPLICATION_FORM_URLENCODED))
+        .body(Objects.requireNonNull(toFormBody(form)))
         .retrieve()
         .body(GoogleTokenResponse.class);
   }

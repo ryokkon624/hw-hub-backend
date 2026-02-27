@@ -1,5 +1,6 @@
 package com.hwhub.backend.application.service;
 
+import com.hwhub.backend.application.service.notification.NotificationPublisher;
 import com.hwhub.backend.domain.enums.ProgramType;
 import com.hwhub.backend.domain.enums.TaskStatus;
 import com.hwhub.backend.domain.model.HouseworkTask4AssignModel;
@@ -17,6 +18,7 @@ public class HouseworkTaskService {
 
   private final HouseworkTaskRepository taskRepository;
   private final HouseholdAuthorizationService authService;
+  private final NotificationPublisher notificationPublisher;
 
   @Transactional(readOnly = true)
   public List<HouseworkTask4AssignModel> findForAssign(
@@ -57,8 +59,13 @@ public class HouseworkTaskService {
               + model.getHouseholdId());
     }
 
+    Long beforeAssigneeUserId = model.getAssigneeUserId();
     model.changeAssignee(assigneeUserId, assignResonType, loginUserId);
     taskRepository.update(model, loginUserId, ProgramType.ONL_HWRTSK.getCode());
+
+    // 通知
+    notificationPublisher.publishTaskAssignedEvent(
+        model, beforeAssigneeUserId, loginUserId, ProgramType.ONL_HWRTSK.getCode());
   }
 
   @Transactional

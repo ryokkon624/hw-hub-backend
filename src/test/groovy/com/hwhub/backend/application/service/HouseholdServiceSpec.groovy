@@ -8,6 +8,7 @@ import com.hwhub.backend.domain.repository.HouseholdMemberRepository
 import com.hwhub.backend.domain.repository.HouseholdRepository
 import com.hwhub.backend.presentation.rest.common.ResourceNotFoundException
 import org.springframework.security.access.AccessDeniedException
+import com.hwhub.backend.application.service.notification.NotificationPublisher
 import spock.lang.Specification
 
 class HouseholdServiceSpec extends Specification {
@@ -18,6 +19,7 @@ class HouseholdServiceSpec extends Specification {
     HouseholdMemberService householdMemberService = Mock(HouseholdMemberService)
     UserService userService = Mock(UserService)
     HouseholdMemberRepository householdMemberRepository = Mock(HouseholdMemberRepository)
+    NotificationPublisher notificationPublisher = Mock(NotificationPublisher)
 
     def setup() {
         householdService = new HouseholdService(
@@ -25,7 +27,8 @@ class HouseholdServiceSpec extends Specification {
             householdAuthorizationService,
             householdMemberService,
             userService,
-            householdMemberRepository
+            householdMemberRepository,
+            notificationPublisher
         )
     }
 
@@ -185,6 +188,7 @@ class HouseholdServiceSpec extends Specification {
         1 * householdRepository.findById(householdId) >> householdModel
         1 * householdMemberRepository.findActiveByHouseholdId(householdId) >> members
         1 * householdRepository.update(householdModel, currentOwnerId, ProgramType.ONL_HLD.code)
+        1 * notificationPublisher.publishAssigned2Owner(householdId, currentOwnerId, newOwnerId, ProgramType.ONL_HLD.code)
 
         and:
         householdModel.ownerUserId == newOwnerId
@@ -235,5 +239,6 @@ class HouseholdServiceSpec extends Specification {
         1 * householdRepository.findById(householdId) >> householdModel
         1 * householdMemberRepository.findActiveByHouseholdId(householdId) >> members
         thrown(IllegalArgumentException)
+        0 * notificationPublisher.publishAssigned2Owner(_, _, _, _)
     }
 }

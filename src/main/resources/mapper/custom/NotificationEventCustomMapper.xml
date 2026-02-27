@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hwhub.backend.infrastructure.mybatis.custom.mapper.NotificationEventCustomMapper">
+
+  <select id="findUnprocessedByType"
+          resultMap="com.hwhub.backend.infrastructure.mybatis.generated.mapper.TNotificationEventMapper.BaseResultMap">
+    SELECT
+        notification_event_id
+        , household_id
+        , notification_type
+        , actor_user_id
+        , target_user_id
+        , entity_id
+        , occurred_at
+        , processed_at
+        , processing_key
+        , create_user_id
+        , create_program
+        , created_at
+        , update_user_id
+        , update_program
+        , updated_at 
+    FROM
+        t_notification_event 
+    WHERE
+        processed_at IS NULL 
+        AND notification_type = #{eventType} 
+    ORDER BY
+        occurred_at ASC
+        , notification_event_id ASC 
+    LIMIT
+        #{limit}
+  </select>
+
+  <select id="findAllUnprocessed"
+          resultMap="com.hwhub.backend.infrastructure.mybatis.generated.mapper.TNotificationEventMapper.BaseResultMap">
+    SELECT
+        notification_event_id
+        , household_id
+        , notification_type
+        , actor_user_id
+        , target_user_id
+        , entity_id
+        , occurred_at
+        , processed_at
+        , processing_key
+        , create_user_id
+        , create_program
+        , created_at
+        , update_user_id
+        , update_program
+        , updated_at 
+    FROM
+        t_notification_event 
+    WHERE
+        processed_at IS NULL 
+    ORDER BY
+        occurred_at ASC
+        , notification_event_id ASC 
+    LIMIT
+        #{limit}
+  </select>
+
+  <update id="markProcessed">
+    UPDATE t_notification_event 
+    SET
+        processed_at = #{processedAt}
+        , update_user_id = #{updateUserId}
+        , update_program = #{updateProgram} 
+    WHERE
+        notification_event_id IN
+    <foreach item="id" collection="notificationEventIds" open="(" separator="," close=")">
+      #{id}
+    </foreach>
+  </update>
+
+</mapper>

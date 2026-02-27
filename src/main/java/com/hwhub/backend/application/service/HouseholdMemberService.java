@@ -1,5 +1,6 @@
 package com.hwhub.backend.application.service;
 
+import com.hwhub.backend.application.service.notification.NotificationPublisher;
 import com.hwhub.backend.domain.enums.ProgramType;
 import com.hwhub.backend.domain.model.HouseholdMemberModel;
 import com.hwhub.backend.domain.model.HouseholdModel;
@@ -24,6 +25,7 @@ public class HouseholdMemberService {
   private final HouseworkTaskRepository houseworkTaskRepository;
   private final HouseholdAuthorizationService authorizationService;
   private final UserIconService iconService;
+  private final NotificationPublisher notificationPublisher;
 
   /**
    * 指定された世帯IDのメンバーを取得する。
@@ -93,6 +95,7 @@ public class HouseholdMemberService {
    * @param householdId 世帯ID
    * @param userId ユーザID
    */
+  @Transactional
   public void deleteMyself(Long householdId, Long userId) {
     // 認可チェック
     authorizationService.assertUserBelongsToHousehold(householdId, userId);
@@ -103,6 +106,10 @@ public class HouseholdMemberService {
 
     // 世帯ID内の担当となっている家事、タスクから担当解除
     clearAssignee(householdId, userId, userId, ProgramType.ONL_HLDMEM.getCode());
+
+    // 通知を送る
+    notificationPublisher.publishMemberRemoved(
+        householdId, userId, model.getDisplayName(), ProgramType.ONL_HLDMEM.getCode());
   }
 
   /**
@@ -110,8 +117,9 @@ public class HouseholdMemberService {
    *
    * @param householdId 世帯ID
    * @param userId ユーザID
-   * @param loginUserId　ログインユーザのユーザID
+   * @param loginUserId ログインユーザのユーザID
    */
+  @Transactional
   public void deleteMember(Long householdId, Long userId, Long loginUserId) {
 
     // 認可チェック
@@ -139,6 +147,10 @@ public class HouseholdMemberService {
 
     // 世帯ID内の担当となっている家事、タスクから担当解除
     clearAssignee(householdId, userId, loginUserId, ProgramType.ONL_HLDMEM.getCode());
+
+    // 通知を送る
+    notificationPublisher.publishRemoveMemberByOwner(
+        householdId, loginUserId, userId, ProgramType.ONL_HLDMEM.getCode());
   }
 
   /**

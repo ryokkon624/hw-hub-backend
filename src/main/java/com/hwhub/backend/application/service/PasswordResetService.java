@@ -15,6 +15,7 @@ import com.hwhub.backend.presentation.rest.common.PasswordResetTokenInvalidExcep
 import com.hwhub.backend.tool.VerificationTokenGenerator;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -68,7 +69,10 @@ public class PasswordResetService {
     if (properties.sendMail()) {
       String url = buildResetUrl(token);
       mailerSender.sendPasswordResetMail(
-          user.getEmail(), user.getDisplayName(), url, user.getLocale());
+          Objects.requireNonNull(user.getEmail()),
+          user.getDisplayName(),
+          Objects.requireNonNull(url),
+          user.getLocale());
     }
   }
 

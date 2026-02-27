@@ -10,6 +10,7 @@ import com.hwhub.backend.domain.repository.HouseworkRepository
 import com.hwhub.backend.domain.repository.HouseworkTaskRepository
 import com.hwhub.backend.presentation.rest.common.ResourceNotFoundException
 import org.springframework.security.access.AccessDeniedException
+import com.hwhub.backend.application.service.notification.NotificationPublisher
 import spock.lang.Specification
 
 class HouseholdMemberServiceSpec extends  Specification{
@@ -20,6 +21,7 @@ class HouseholdMemberServiceSpec extends  Specification{
     HouseworkTaskRepository houseworkTaskRepository = Mock()
     HouseholdAuthorizationService authorizationService = Mock()
     UserIconService iconService = Mock()
+    NotificationPublisher notificationPublisher = Mock()
 
     HouseholdMemberService service = new HouseholdMemberService(
             memberRepository,
@@ -27,7 +29,8 @@ class HouseholdMemberServiceSpec extends  Specification{
             houseworkRepository,
             houseworkTaskRepository,
             authorizationService,
-            iconService
+            iconService,
+            notificationPublisher
     )
 
     // ==================================
@@ -193,6 +196,7 @@ class HouseholdMemberServiceSpec extends  Specification{
         1 * memberRepository.update(member, userId, ProgramType.ONL_HLDMEM.code)
         1 * houseworkRepository.clearAssignee(householdId, userId, userId, ProgramType.ONL_HLDMEM.code)
         1 * houseworkTaskRepository.clearAssignee(householdId, userId, userId, ProgramType.ONL_HLDMEM.code)
+        1 * notificationPublisher.publishMemberRemoved(householdId, userId, _, ProgramType.ONL_HLDMEM.code)
 
         and: "ステータスはLEFTになっている"
         member.status == HouseholdMemberStatus.LEFT.code
@@ -265,6 +269,7 @@ class HouseholdMemberServiceSpec extends  Specification{
         1 * memberRepository.update(member, loginUserId, ProgramType.ONL_HLDMEM.code)
         1 * houseworkRepository.clearAssignee(householdId, targetUserId, loginUserId, ProgramType.ONL_HLDMEM.code)
         1 * houseworkTaskRepository.clearAssignee(householdId, targetUserId, loginUserId, ProgramType.ONL_HLDMEM.code)
+        1 * notificationPublisher.publishRemoveMemberByOwner(householdId, loginUserId, targetUserId, ProgramType.ONL_HLDMEM.code)
 
         and:
         member.status == HouseholdMemberStatus.LEFT.code

@@ -3,18 +3,18 @@ package com.hwhub.backend.infrastructure.notification;
 import com.hwhub.backend.domain.notification.VerificationMailSender;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.lang.NonNull;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 
 @Slf4j
-@ConditionalOnProperty(
-    prefix = "hwhub.auth.email-verification",
-    name = "send-mail",
+@ConditionalOnProperty(prefix = "hwhub.auth.email-verification", name = "send-mail",
     havingValue = "true")
 @Component
 @RequiredArgsConstructor
@@ -26,8 +26,8 @@ public class SmtpVerificationMailSender implements VerificationMailSender {
   private String from;
 
   @Override
-  public void sendVerificationMail(
-      String toEmail, String displayName, String verifyUrl, String locale) {
+  public void sendVerificationMail(@NonNull String toEmail, String displayName,
+      @NonNull String verifyUrl, String locale) {
 
     String subject = "[Housework Hub] Please verify your email";
     String htmlContent = buildHtmlContent(displayName, verifyUrl);
@@ -35,10 +35,10 @@ public class SmtpVerificationMailSender implements VerificationMailSender {
     MimeMessage message = mailSender.createMimeMessage();
     try {
       MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-      helper.setFrom(from);
+      helper.setFrom(Objects.requireNonNull(from));
       helper.setTo(toEmail);
       helper.setSubject(subject);
-      helper.setText(htmlContent, true); // true = isHtml
+      helper.setText(Objects.requireNonNull(htmlContent), true); // true = isHtml
 
       mailSender.send(message);
     } catch (MessagingException e) {

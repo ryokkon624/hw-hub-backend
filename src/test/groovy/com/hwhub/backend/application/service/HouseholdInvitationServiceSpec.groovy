@@ -13,6 +13,7 @@ import com.hwhub.backend.domain.repository.UserRepository
 import com.hwhub.backend.presentation.rest.common.ResourceNotFoundException
 import org.apache.commons.lang3.StringUtils
 import org.springframework.security.access.AccessDeniedException
+import com.hwhub.backend.application.service.notification.NotificationPublisher
 import spock.lang.Specification
 
 class HouseholdInvitationServiceSpec extends Specification {
@@ -24,13 +25,15 @@ class HouseholdInvitationServiceSpec extends Specification {
     HouseholdMemberRepository memberRepository = Mock()
     HouseholdMemberService memberService = Mock()
     HouseholdAuthorizationService authorizationService = Mock()
+    NotificationPublisher notificationPublisher = Mock()
 
     HouseholdInvitationService service = new HouseholdInvitationService(
             userRepository,
             invRepository,
             memberRepository,
             memberService,
-            authorizationService
+            authorizationService,
+            notificationPublisher
     )
 
     // ===========================
@@ -244,6 +247,7 @@ class HouseholdInvitationServiceSpec extends Specification {
         thrown(IllegalStateException)
         0 * memberService.createMember(_, _, _, _)
         0 * invRepository.update(_, _, _)
+        0 * notificationPublisher.publishAcceptInvitation(_, _, _, _)
     }
 
     def "acceptInvitationはACTIVE以外の場合メンバーを追加し招待をACCEPTEDに更新する"() {

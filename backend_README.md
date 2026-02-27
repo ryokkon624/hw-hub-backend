@@ -36,6 +36,7 @@ src/main/java/com/hwhub/backend
 │   ├── enums/             # コードマスタ由来の Enum（※編集禁止）
 │   ├── model/             # ドメインモデル
 │   ├── notification/      # 通知
+│   ├── oauth/             # OAuth
 │   ├── repository/        # リポジトリIF
 │   └── storage/           # ストレージ操作IF
 ├── infrastructure/        # 外部接続実装（DB, S3等）
@@ -49,6 +50,7 @@ src/main/java/com/hwhub/backend
 │   │   │   └── mapper/    
 │   │   └── repository/    # リポジトリ実装
 │   ├── notification/      # 通知
+│   ├── oauth/             # OAuth
 │   └── s3/                # AWS S3操作実装
 ├── presentation/          # 外部接点（API）
 │   └── rest/              # Controller + DTO

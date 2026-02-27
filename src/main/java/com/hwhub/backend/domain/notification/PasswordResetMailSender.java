@@ -1,5 +1,8 @@
 package com.hwhub.backend.domain.notification;
 
+import org.springframework.lang.NonNull;
+
 public interface PasswordResetMailSender {
-  void sendPasswordResetMail(String toEmail, String displayName, String resetUrl, String locale);
+  void sendPasswordResetMail(
+      @NonNull String toEmail, String displayName, @NonNull String resetUrl, String locale);
 }

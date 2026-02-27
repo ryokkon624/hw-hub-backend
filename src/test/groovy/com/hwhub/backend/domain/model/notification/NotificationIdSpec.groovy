@@ -1,0 +1,30 @@
+package com.hwhub.backend.domain.model.notification
+
+import spock.lang.Specification
+
+class NotificationIdSpec extends Specification {
+
+    def "正の値を指定した場合、インスタンスが生成できること"() {
+        when:
+        def id = new NotificationId(1L)
+
+        then:
+        id.value() == 1L
+    }
+
+    def "0以下の値を指定した場合、IllegalArgumentExceptionがスローされること"() {
+        when:
+        new NotificationId(0L)
+
+        then:
+        def e1 = thrown(IllegalArgumentException)
+        e1.message == "notificationId must be positive"
+
+        when:
+        new NotificationId(-1L)
+
+        then:
+        def e2 = thrown(IllegalArgumentException)
+        e2.message == "notificationId must be positive"
+    }
+}

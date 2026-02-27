@@ -1,5 +1,6 @@
 package com.hwhub.backend.application.service;
 
+import com.hwhub.backend.application.service.notification.NotificationPublisher;
 import com.hwhub.backend.domain.enums.ProgramType;
 import com.hwhub.backend.domain.model.HouseholdMemberModel;
 import com.hwhub.backend.domain.model.HouseholdModel;
@@ -22,6 +23,7 @@ public class HouseholdService {
   private final HouseholdMemberService householdMemberService;
   private final UserService userService;
   private final HouseholdMemberRepository householdMemberRepository;
+  private final NotificationPublisher notificationPublisher;
 
   @Transactional
   public void updateHouseholdName(Long householdId, Long userId, String name) {
@@ -103,5 +105,9 @@ public class HouseholdService {
 
     household.changeOwner(newOwnerUserId);
     householdRepository.update(household, currentUserId, ProgramType.ONL_HLD.getCode());
+
+    // 通知
+    notificationPublisher.publishAssigned2Owner(
+        householdId, currentUserId, newOwnerUserId, ProgramType.ONL_HLD.getCode());
   }
 }

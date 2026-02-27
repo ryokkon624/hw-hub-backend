@@ -2,6 +2,7 @@ package com.hwhub.backend.infrastructure.notification;
 
 import com.hwhub.backend.domain.notification.VerificationMailSender;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
 @ConditionalOnProperty(
@@ -14,7 +15,7 @@ public class NoopVerificationMailSender implements VerificationMailSender {
 
   @Override
   public void sendVerificationMail(
-      String toEmail, String displayName, String verifyUrl, String locale) {
+      @NonNull String toEmail, String displayName, @NonNull String verifyUrl, String locale) {
     /* do nothing */
   }
 }
