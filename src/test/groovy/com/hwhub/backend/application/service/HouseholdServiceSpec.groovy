@@ -39,7 +39,7 @@ class HouseholdServiceSpec extends Specification {
         given:
         Long userId = 100L
         String name = "My Home"
-        def userProfile = UserModel.reconstruct(userId, "user@example.com", "pass", null, com.hwhub.backend.domain.enums.AuthProvider.LOCAL.code, null, "Taro", "ja", null, null, true)
+        def userProfile = UserModel.reconstruct(userId, "user@example.com", "pass", null, com.hwhub.backend.domain.enums.AuthProvider.LOCAL.code, null, "Taro", "ja", true, null, null, true)
         def insertedHousehold = HouseholdModel.reconstruct(1L, name, userId)
 
         when:

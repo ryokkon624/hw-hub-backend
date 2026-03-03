@@ -26,6 +26,7 @@ class UserModelSpec extends Specification {
                 null,
                 displayName,
                 locale,
+                true,
                 profileImageKey,
                 null,
                 isActive
@@ -86,7 +87,7 @@ class UserModelSpec extends Specification {
     def "changePasswordHash updates passwordHash and passwordChangedAt"() {
         given:
         def model = UserModel.reconstruct(
-                1L, "test@example.com", "old", null, AuthProvider.LOCAL.code, null, "User", "en", null, null, true
+                1L, "test@example.com", "old", null, AuthProvider.LOCAL.code, null, "User", "en", true, null, null, true
         )
         def newHash = "new-hash"
         def changedAt = LocalDateTime.now()
@@ -110,6 +111,7 @@ class UserModelSpec extends Specification {
                 null,
                 "テストユーザ",
                 "ja",
+                true,
                 "icon/key.png",
                 null,
                 true
@@ -133,6 +135,7 @@ class UserModelSpec extends Specification {
                 null,
                 "旧表示名",
                 "ja",
+                true,
                 null,
                 null,
                 true
@@ -157,6 +160,7 @@ class UserModelSpec extends Specification {
                 null,
                 "テストユーザ",
                 "ja",
+                true,
                 "old/key.png",
                 null,
                 true
@@ -180,6 +184,7 @@ class UserModelSpec extends Specification {
                 null,
                 "退会ユーザ",
                 "ja",
+                true,
                 null,
                 null,
                 false

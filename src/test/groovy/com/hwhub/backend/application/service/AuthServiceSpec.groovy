@@ -55,6 +55,7 @@ class AuthServiceSpec extends Specification{
                 null,
                 "テストユーザ",
                 "ja",
+                true,
                 "icon/key/001",
                 null, 
                 true // Active
@@ -120,6 +121,7 @@ class AuthServiceSpec extends Specification{
                 null,
                 "退会済みユーザ",
                 "ja",
+                true,
                 null,
                 null,
                 false // Inactive
@@ -188,6 +190,7 @@ class AuthServiceSpec extends Specification{
                 null,
                 "テストユーザ",
                 "ja",
+                true,
                 null,
                 null,
                 true
@@ -220,6 +223,7 @@ class AuthServiceSpec extends Specification{
                 null,
                 "新規ユーザ",
                 "ja",
+                true,
                  "icon/key/999",
                  null,
                  true
@@ -251,7 +255,7 @@ class AuthServiceSpec extends Specification{
                 "ja"
         )
         def existingUser = UserModel.reconstruct(
-                20L, "dup@example.com", "hash", null, AuthProvider.LOCAL.code, null, "Exist", "en", null, null, true
+                20L, "dup@example.com", "hash", null, AuthProvider.LOCAL.code, null, "Exist", "en", true, null, null, true
         )
 
         when:
@@ -266,7 +270,7 @@ class AuthServiceSpec extends Specification{
     def "registerはメール認証有効時にVerificationRequiredを返す"() {
         given:
         def model = UserModel.create("verify@example.com", "pw", "VerifyMe", "ja")
-        def inserted = UserModel.reconstruct(100L, "verify@example.com", "hash", null, AuthProvider.LOCAL.code, null, "VerifyMe", "ja", null, null, true)
+        def inserted = UserModel.reconstruct(100L, "verify@example.com", "hash", null, AuthProvider.LOCAL.code, null, "VerifyMe", "ja", true, null, null, true)
 
         // Re-init with enabled=true, sendMail=true
         def props = new EmailVerificationProperties(true, true, 30, 60, 5, "http://front", "/verify")
