@@ -21,6 +21,7 @@ public final class UserConverter {
         entity.getAuthProviderId(),
         entity.getDisplayName(),
         entity.getLocale(),
+        entity.getNotificationEnabled(),
         entity.getProfileImageKey(),
         DateConverter.toLocalDateTime(entity.getEmailVerifiedAt()),
         entity.getIsActive());
@@ -40,6 +41,7 @@ public final class UserConverter {
     entity.setAuthProviderId(model.getAuthProviderId());
     entity.setDisplayName(model.getDisplayName());
     entity.setLocale(model.getLocale());
+    entity.setNotificationEnabled(model.isNotificationEnabled());
     entity.setProfileImageKey(model.getProfileImageKey());
     entity.setEmailVerifiedAt(DateConverter.toDate(model.getEmailVerifiedAt()));
     entity.setIsActive(model.isActive());

@@ -2,19 +2,25 @@ package com.hwhub.backend.presentation.rest.user;
 
 import com.hwhub.backend.application.service.UserIconService;
 import com.hwhub.backend.application.service.UserService;
+import com.hwhub.backend.application.service.UserService.NotificationSettingsResult;
+import com.hwhub.backend.domain.enums.NotificationGroup;
 import com.hwhub.backend.domain.model.UserModel;
 import com.hwhub.backend.presentation.rest.auth.GoogleOAuthLinkHelper;
 import com.hwhub.backend.presentation.rest.user.dto.ChangePasswordRequest;
 import com.hwhub.backend.presentation.rest.user.dto.CreateIconUploadUrlRequest;
 import com.hwhub.backend.presentation.rest.user.dto.CreateIconUploadUrlResponse;
+import com.hwhub.backend.presentation.rest.user.dto.NotificationSettingsResponse;
 import com.hwhub.backend.presentation.rest.user.dto.OAuthStartResponse;
 import com.hwhub.backend.presentation.rest.user.dto.UpdateIconRequest;
+import com.hwhub.backend.presentation.rest.user.dto.UpdateNotificationSettingsRequest;
 import com.hwhub.backend.presentation.rest.user.dto.UpdateUserProfileRequest;
 import com.hwhub.backend.presentation.rest.user.dto.UserHouseholdDto;
 import com.hwhub.backend.presentation.rest.user.dto.UserProfileResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -134,6 +140,52 @@ public class UserController {
 
     String url = linkHelper.buildAuthorizationUrl(state);
     return ResponseEntity.ok(new OAuthStartResponse(url));
+  }
+
+  @GetMapping("/me/notification-settings")
+  public NotificationSettingsResponse getNotificationSettings(Authentication authentication) {
+
+    Long userId = requireUserId(authentication);
+    NotificationSettingsResult result = userService.getSettings(userId);
+
+    return toNotificationSettingsResponse(result);
+  }
+
+  @PutMapping("/me/notification-settings")
+  public NotificationSettingsResponse updateNotificationSettings(
+      @RequestBody UpdateNotificationSettingsRequest req, Authentication authentication) {
+    Long userId = requireUserId(authentication);
+
+    // Mapの詰め替え(Request -> Service)
+    Map<NotificationGroup, Boolean> groupSettings = new LinkedHashMap<>();
+    if (req.groupSettings() != null) {
+      for (var e : req.groupSettings().entrySet()) {
+        if (e.getKey() == null || e.getValue() == null) continue;
+        groupSettings.put(NotificationGroup.fromCode(e.getKey()), e.getValue());
+      }
+    }
+
+    NotificationSettingsResult result =
+        userService.updateNotificationEnabled(userId, req.notificationEnabled(), groupSettings);
+
+    return toNotificationSettingsResponse(result);
+  }
+
+  /**
+   * NotificationSettingsResultをNotificationSettingsResponseに変換する。
+   *
+   * @param result NotificationSettingsResult
+   * @return NotificationSettingsResponse
+   */
+  private NotificationSettingsResponse toNotificationSettingsResponse(
+      NotificationSettingsResult result) {
+
+    Map<String, Boolean> responseGroupSettings = new LinkedHashMap<>();
+    for (var e : result.groupSettings().entrySet()) {
+      responseGroupSettings.put(e.getKey().getCode(), e.getValue());
+    }
+
+    return new NotificationSettingsResponse(result.notificationEnabled(), responseGroupSettings);
   }
 
   private Long requireUserId(Authentication authentication) {

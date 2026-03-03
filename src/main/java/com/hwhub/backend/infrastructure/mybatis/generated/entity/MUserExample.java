@@ -715,6 +715,66 @@ public class MUserExample {
       return (Criteria) this;
     }
 
+    public Criteria andNotificationEnabledIsNull() {
+      addCriterion("notification_enabled is null");
+      return (Criteria) this;
+    }
+
+    public Criteria andNotificationEnabledIsNotNull() {
+      addCriterion("notification_enabled is not null");
+      return (Criteria) this;
+    }
+
+    public Criteria andNotificationEnabledEqualTo(Boolean value) {
+      addCriterion("notification_enabled =", value, "notificationEnabled");
+      return (Criteria) this;
+    }
+
+    public Criteria andNotificationEnabledNotEqualTo(Boolean value) {
+      addCriterion("notification_enabled <>", value, "notificationEnabled");
+      return (Criteria) this;
+    }
+
+    public Criteria andNotificationEnabledGreaterThan(Boolean value) {
+      addCriterion("notification_enabled >", value, "notificationEnabled");
+      return (Criteria) this;
+    }
+
+    public Criteria andNotificationEnabledGreaterThanOrEqualTo(Boolean value) {
+      addCriterion("notification_enabled >=", value, "notificationEnabled");
+      return (Criteria) this;
+    }
+
+    public Criteria andNotificationEnabledLessThan(Boolean value) {
+      addCriterion("notification_enabled <", value, "notificationEnabled");
+      return (Criteria) this;
+    }
+
+    public Criteria andNotificationEnabledLessThanOrEqualTo(Boolean value) {
+      addCriterion("notification_enabled <=", value, "notificationEnabled");
+      return (Criteria) this;
+    }
+
+    public Criteria andNotificationEnabledIn(List<Boolean> values) {
+      addCriterion("notification_enabled in", values, "notificationEnabled");
+      return (Criteria) this;
+    }
+
+    public Criteria andNotificationEnabledNotIn(List<Boolean> values) {
+      addCriterion("notification_enabled not in", values, "notificationEnabled");
+      return (Criteria) this;
+    }
+
+    public Criteria andNotificationEnabledBetween(Boolean value1, Boolean value2) {
+      addCriterion("notification_enabled between", value1, value2, "notificationEnabled");
+      return (Criteria) this;
+    }
+
+    public Criteria andNotificationEnabledNotBetween(Boolean value1, Boolean value2) {
+      addCriterion("notification_enabled not between", value1, value2, "notificationEnabled");
+      return (Criteria) this;
+    }
+
     public Criteria andEmailVerifiedAtIsNull() {
       addCriterion("email_verified_at is null");
       return (Criteria) this;

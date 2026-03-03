@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class NotificationPublisher {
 
+  private final NotificationPermissionService permissionService;
   private final NotificationRepository notificationRepository;
   private final NotificationEventRepository notificationEventRepository;
   private final HouseholdRepository householdRepository;
@@ -51,6 +52,10 @@ public class NotificationPublisher {
   @Transactional
   public void publishRemoveMemberByOwner(
       Long householdId, Long operatorUserId, Long targetUserId, String program) {
+
+    if (!permissionService.canReceive(targetUserId, NotificationType.HAVE_BEEN_REMOVED)) {
+      return;
+    }
 
     // i18n key + params
     HouseholdModel household = householdRepository.findById(householdId);
@@ -99,6 +104,16 @@ public class NotificationPublisher {
     // 世帯メンバーの取得
     List<HouseholdMemberModel> members =
         householdMemberRepository.findActiveByHouseholdId(householdId);
+    List<HouseholdMemberModel> allowedMembers =
+        members.stream()
+            .filter(
+                member ->
+                    permissionService.canReceive(
+                        member.getUserId(), NotificationType.LEFT_THE_HOUSEHOLD))
+            .toList();
+    if (allowedMembers.isEmpty()) {
+      return;
+    }
 
     // i18n key + params
     HouseholdModel household = householdRepository.findById(householdId);
@@ -123,7 +138,7 @@ public class NotificationPublisher {
     LocalDateTime now = LocalDateTime.now();
 
     List<NotificationModel> notifications =
-        members.stream()
+        allowedMembers.stream()
             .map(
                 member ->
                     NotificationModel.newUnread(
@@ -156,6 +171,10 @@ public class NotificationPublisher {
   @Transactional
   public void publishAcceptInvitation(
       Long householdId, Long acceptedUserId, Long inviterUserId, String program) {
+
+    if (!permissionService.canReceive(inviterUserId, NotificationType.INVITATION_ACCEPTED)) {
+      return;
+    }
 
     // i18n key + params
     HouseholdModel household = householdRepository.findById(householdId);
@@ -207,6 +226,10 @@ public class NotificationPublisher {
   public void publishDeclineInvitation(
       Long householdId, Long declinedUserId, Long inviterUserId, String program) {
 
+    if (!permissionService.canReceive(inviterUserId, NotificationType.INVITATION_DECLINED)) {
+      return;
+    }
+
     // i18n key + params
     HouseholdModel household = householdRepository.findById(householdId);
     Map<String, Object> params = new HashMap<>();
@@ -256,6 +279,10 @@ public class NotificationPublisher {
   @Transactional
   public void publishAssigned2Owner(
       Long householdId, Long formerOwnerUserId, Long newOwnerUserId, String program) {
+
+    if (!permissionService.canReceive(newOwnerUserId, NotificationType.ASSIGNED_TO_THE_OWNER)) {
+      return;
+    }
 
     // i18n key + params
     HouseholdModel household = householdRepository.findById(householdId);
@@ -420,6 +447,11 @@ public class NotificationPublisher {
       Long targetUserId,
       Long operatorUserId,
       String program) {
+
+    if (!permissionService.canReceive(targetUserId, type)) {
+      return;
+    }
+
     NotificationEventModel event =
         NotificationEventModel.newUnprocessed(
             task.getHouseholdId(),

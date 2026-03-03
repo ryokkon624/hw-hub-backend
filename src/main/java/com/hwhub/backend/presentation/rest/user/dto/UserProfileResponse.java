@@ -12,6 +12,7 @@ public class UserProfileResponse {
   private String authProvider;
   private String displayName;
   private String locale;
+  private boolean notificationEnabled;
   private String iconUrl;
 
   public static UserProfileResponse fromModel(UserModel model) {
@@ -22,6 +23,7 @@ public class UserProfileResponse {
     dto.setAuthProvider(model.getAuthProvider());
     dto.setDisplayName(model.getDisplayName());
     dto.setLocale(model.getLocale());
+    dto.setNotificationEnabled(model.isNotificationEnabled());
     dto.setIconUrl(model.getIconUrl());
 
     return dto;

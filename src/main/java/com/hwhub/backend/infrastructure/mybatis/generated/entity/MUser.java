@@ -21,6 +21,8 @@ public class MUser {
 
   private String locale;
 
+  private Boolean notificationEnabled;
+
   private Date emailVerifiedAt;
 
   private Boolean isActive;
@@ -107,6 +109,14 @@ public class MUser {
 
   public void setLocale(String locale) {
     this.locale = locale == null ? null : locale.trim();
+  }
+
+  public Boolean getNotificationEnabled() {
+    return notificationEnabled;
+  }
+
+  public void setNotificationEnabled(Boolean notificationEnabled) {
+    this.notificationEnabled = notificationEnabled;
   }
 
   public Date getEmailVerifiedAt() {

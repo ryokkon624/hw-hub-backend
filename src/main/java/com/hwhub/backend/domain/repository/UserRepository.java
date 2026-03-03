@@ -40,4 +40,8 @@ public interface UserRepository {
 
   void linkGoogleAccount(
       Long userId, String googleSub, String email, String displayName, String programTypeCode);
+
+  boolean isNotificationEnabled(Long userId);
+
+  boolean updateNotificationEnabled(Long userId, boolean enabled, Long userId2, String code);
 }
