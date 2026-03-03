@@ -14,7 +14,9 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 
 @Slf4j
-@ConditionalOnProperty(prefix = "hwhub.auth.password-reset", name = "send-mail",
+@ConditionalOnProperty(
+    prefix = "hwhub.auth.password-reset",
+    name = "send-mail",
     havingValue = "true")
 @Component
 @RequiredArgsConstructor
@@ -26,8 +28,8 @@ public class SmtpPasswordResetMailSender implements PasswordResetMailSender {
   private String from;
 
   @Override
-  public void sendPasswordResetMail(@NonNull String toEmail, String displayName,
-      @NonNull String resetUrl, String locale) {
+  public void sendPasswordResetMail(
+      @NonNull String toEmail, String displayName, @NonNull String resetUrl, String locale) {
 
     String subject = "[Housework Hub] Reset your password";
     String htmlContent = buildHtmlContent(displayName, resetUrl);
