@@ -186,4 +186,22 @@ public class MyBatisUserRepository implements UserRepository {
     customMapper.linkGoogleAccount(
         userId, AuthProvider.GOOGLE.getCode(), googleSub, email, displayName, programTypeCode);
   }
+
+  @Override
+  public boolean isNotificationEnabled(Long userId) {
+    return this.findById(userId).map(UserModel::isNotificationEnabled).orElse(false);
+  }
+
+  @Override
+  public boolean updateNotificationEnabled(
+      Long userId, boolean enabled, Long operatorUserId, String program) {
+    MUser update = new MUser();
+    update.setUserId(userId);
+    update.setNotificationEnabled(enabled);
+    update.setUpdateUserId(operatorUserId);
+    update.setUpdateProgram(program);
+
+    mapper.updateByPrimaryKeySelective(update);
+    return enabled;
+  }
 }

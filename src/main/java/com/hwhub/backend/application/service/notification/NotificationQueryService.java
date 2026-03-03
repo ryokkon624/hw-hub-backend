@@ -3,6 +3,7 @@ package com.hwhub.backend.application.service.notification;
 import com.hwhub.backend.domain.enums.ProgramType;
 import com.hwhub.backend.domain.model.notification.NotificationModel;
 import com.hwhub.backend.domain.repository.NotificationRepository;
+import com.hwhub.backend.domain.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class NotificationQueryService {
 
   private final NotificationRepository notificationRepository;
+  private final UserRepository userRepository;
 
   /**
    * 通知一覧取得
@@ -24,6 +26,9 @@ public class NotificationQueryService {
    */
   @Transactional
   public List<NotificationModel> getNotifications(Long targetUserId, int limit, boolean markRead) {
+    if (!userRepository.isNotificationEnabled(targetUserId)) {
+      return List.of();
+    }
 
     List<NotificationModel> list =
         notificationRepository.findLatestByTargetUser(targetUserId, limit);
@@ -38,6 +43,9 @@ public class NotificationQueryService {
 
   @Transactional(readOnly = true)
   public long getUnreadCount(Long userId) {
+    if (!userRepository.isNotificationEnabled(userId)) {
+      return 0;
+    }
     return notificationRepository.countUnreadByTargetUser(userId);
   }
 }

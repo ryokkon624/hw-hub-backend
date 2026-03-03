@@ -14,6 +14,7 @@ import java.util.Optional
 class UserServiceSpec extends Specification {
 
     UserRepository userRepository = Mock()
+    com.hwhub.backend.domain.repository.UserNotificationSettingRepository settingRepository = Mock()
     UserIconService userIconService = Mock()
     com.hwhub.backend.domain.repository.HouseholdMemberRepository householdMemberRepository = Mock()
     org.springframework.security.crypto.password.PasswordEncoder passwordEncoder = Mock()
@@ -22,6 +23,7 @@ class UserServiceSpec extends Specification {
 
     UserService service = new UserService(
             userRepository,
+            settingRepository,
             userIconService,
             householdMemberRepository,
             passwordEncoder,
@@ -392,5 +394,125 @@ class UserServiceSpec extends Specification {
         1 * userRepository.findByAuthProviderAndAuthProviderId("GOOGLE", sub) >> Optional.of(otherUser)
 
         thrown(com.hwhub.backend.presentation.rest.common.GoogleSubAlreadyUsedException)
+    }
+
+    // ==================================
+    // getSettings
+    // ==================================
+
+    def "getSettingsは通知設定を含むNotificationSettingsResultを返す"() {
+        given:
+        Long userId = 70L
+
+        when:
+        def result = service.getSettings(userId)
+
+        then:
+        1 * userRepository.isNotificationEnabled(userId) >> true
+        1 * settingRepository.findEnabled(userId, com.hwhub.backend.domain.enums.NotificationGroup.HOUSEHOLD) >> Optional.empty()
+        1 * settingRepository.findEnabled(userId, com.hwhub.backend.domain.enums.NotificationGroup.TASK_ASSIGNMENT) >> Optional.of(false)
+
+        and:
+        result.notificationEnabled() == true
+        result.groupSettings().get(com.hwhub.backend.domain.enums.NotificationGroup.HOUSEHOLD) == true
+        result.groupSettings().get(com.hwhub.backend.domain.enums.NotificationGroup.TASK_ASSIGNMENT) == false
+    }
+
+    def "getSettingsは通知無効の場合、全グループがfalseのNotificationSettingsResultを返す"() {
+        given:
+        Long userId = 71L
+
+        when:
+        def result = service.getSettings(userId)
+
+        then:
+        1 * userRepository.isNotificationEnabled(userId) >> false
+        // buildNotificationGroupMapでnotificationEnabled=falseの場合、全グループfalse
+        0 * settingRepository.findEnabled(_, _)
+
+        and:
+        result.notificationEnabled() == false
+        result.groupSettings().get(com.hwhub.backend.domain.enums.NotificationGroup.HOUSEHOLD) == false
+        result.groupSettings().get(com.hwhub.backend.domain.enums.NotificationGroup.TASK_ASSIGNMENT) == false
+    }
+
+    // ==================================
+    // updateNotificationEnabled
+    // ==================================
+
+    def "updateNotificationEnabledは通知有効でグループ設定を更新する"() {
+        given:
+        Long userId = 80L
+        def groupSettings = [
+            (com.hwhub.backend.domain.enums.NotificationGroup.HOUSEHOLD): true,
+            (com.hwhub.backend.domain.enums.NotificationGroup.TASK_ASSIGNMENT): false
+        ]
+        // buildNotificationGroupMap用のスタブ
+        userRepository.isNotificationEnabled(userId) >> true
+        settingRepository.findEnabled(userId, com.hwhub.backend.domain.enums.NotificationGroup.HOUSEHOLD) >> Optional.empty()
+        settingRepository.findEnabled(userId, com.hwhub.backend.domain.enums.NotificationGroup.TASK_ASSIGNMENT) >> Optional.of(false)
+
+        when:
+        def result = service.updateNotificationEnabled(userId, true, groupSettings)
+
+        then:
+        // グローバル設定の更新
+        1 * userRepository.updateNotificationEnabled(userId, true, userId, com.hwhub.backend.domain.enums.ProgramType.ONL_USR.getCode())
+
+        // enabled=trueのグループは差分削除
+        1 * settingRepository.delete(userId, com.hwhub.backend.domain.enums.NotificationGroup.HOUSEHOLD)
+
+        // enabled=falseのグループは差分登録
+        1 * settingRepository.upsert(userId, com.hwhub.backend.domain.enums.NotificationGroup.TASK_ASSIGNMENT, false, userId, com.hwhub.backend.domain.enums.ProgramType.ONL_USR.getCode())
+
+        and:
+        result.notificationEnabled() == true
+    }
+
+    def "updateNotificationEnabledは通知無効の場合、グループ設定を更新しない"() {
+        given:
+        Long userId = 81L
+        def groupSettings = [
+            (com.hwhub.backend.domain.enums.NotificationGroup.HOUSEHOLD): true
+        ]
+
+        when:
+        def result = service.updateNotificationEnabled(userId, false, groupSettings)
+
+        then:
+        // グローバル設定の更新
+        1 * userRepository.updateNotificationEnabled(userId, false, userId, com.hwhub.backend.domain.enums.ProgramType.ONL_USR.getCode())
+
+        // 通知無効の場合、グループ設定は変更されない
+        0 * settingRepository.delete(_, _)
+        0 * settingRepository.upsert(_, _, _, _, _)
+
+        and:
+        result.notificationEnabled() == false
+    }
+
+    def "updateNotificationEnabledはenabled=nullのグループ設定をスキップする"() {
+        given:
+        Long userId = 82L
+        def groupSettings = new LinkedHashMap()
+        groupSettings.put(com.hwhub.backend.domain.enums.NotificationGroup.HOUSEHOLD, null)
+        groupSettings.put(com.hwhub.backend.domain.enums.NotificationGroup.TASK_ASSIGNMENT, true)
+
+        when:
+        def result = service.updateNotificationEnabled(userId, true, groupSettings)
+
+        then:
+        1 * userRepository.updateNotificationEnabled(userId, true, userId, com.hwhub.backend.domain.enums.ProgramType.ONL_USR.getCode())
+
+        // null値のグループはスキップ
+        0 * settingRepository.delete(userId, com.hwhub.backend.domain.enums.NotificationGroup.HOUSEHOLD)
+        0 * settingRepository.upsert(userId, com.hwhub.backend.domain.enums.NotificationGroup.HOUSEHOLD, _, _, _)
+
+        // true値のグループは差分削除
+        1 * settingRepository.delete(userId, com.hwhub.backend.domain.enums.NotificationGroup.TASK_ASSIGNMENT)
+
+        // buildNotificationGroupMapの呼び出し
+        _ * userRepository.isNotificationEnabled(userId) >> true
+        _ * settingRepository.findEnabled(userId, _) >> Optional.empty()
     }
 }

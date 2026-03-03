@@ -2,11 +2,13 @@ package com.hwhub.backend.application.service;
 
 import com.hwhub.backend.application.service.oauth.GoogleOAuthService;
 import com.hwhub.backend.domain.enums.AuthProvider;
+import com.hwhub.backend.domain.enums.NotificationGroup;
 import com.hwhub.backend.domain.enums.ProgramType;
 import com.hwhub.backend.domain.model.HouseholdModel;
 import com.hwhub.backend.domain.model.UserModel;
 import com.hwhub.backend.domain.oauth.google.GoogleUserInfo;
 import com.hwhub.backend.domain.repository.HouseholdMemberRepository;
+import com.hwhub.backend.domain.repository.UserNotificationSettingRepository;
 import com.hwhub.backend.domain.repository.UserRepository;
 import com.hwhub.backend.presentation.rest.common.CurrentPasswordInvalidException;
 import com.hwhub.backend.presentation.rest.common.GoogleAccountAlreadyLinkedException;
@@ -14,7 +16,9 @@ import com.hwhub.backend.presentation.rest.common.GoogleSubAlreadyUsedException;
 import com.hwhub.backend.presentation.rest.common.PasswordSameAsOldException;
 import com.hwhub.backend.presentation.rest.common.ResourceNotFoundException;
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
   private final UserRepository userRepository;
+  private final UserNotificationSettingRepository settingRepository;
   private final UserIconService userIconService;
   private final HouseholdMemberRepository householdMemberRepository;
   private final PasswordEncoder passwordEncoder;
@@ -151,4 +156,64 @@ public class UserService {
     userRepository.linkGoogleAccount(
         loginUserId, info.getSub(), info.getEmail(), displayName, ProgramType.ONL_USR.getCode());
   }
+
+  @Transactional(readOnly = true)
+  public NotificationSettingsResult getSettings(Long userId) {
+
+    boolean notificationEnabled = userRepository.isNotificationEnabled(userId);
+
+    Map<NotificationGroup, Boolean> merged = buildNotificationGroupMap(userId, notificationEnabled);
+
+    return new NotificationSettingsResult(notificationEnabled, merged);
+  }
+
+  @Transactional
+  public NotificationSettingsResult updateNotificationEnabled(
+      Long userId, boolean notificationEnabled, Map<NotificationGroup, Boolean> groupSettings) {
+
+    userRepository.updateNotificationEnabled(
+        userId, notificationEnabled, userId, ProgramType.ONL_USR.getCode());
+
+    if (notificationEnabled) {
+      for (var e : groupSettings.entrySet()) {
+        NotificationGroup group = e.getKey();
+        Boolean enabled = e.getValue();
+
+        if (enabled == null) continue;
+
+        if (enabled) {
+          // 差分を削除
+          settingRepository.delete(userId, group);
+        } else {
+          // 差分を登録
+          settingRepository.upsert(userId, group, false, userId, ProgramType.ONL_USR.getCode());
+        }
+      }
+    }
+
+    Map<NotificationGroup, Boolean> merged = buildNotificationGroupMap(userId, notificationEnabled);
+
+    return new NotificationSettingsResult(notificationEnabled, merged);
+  }
+
+  /**
+   * NotificationGroupを全列挙し、指定されたユーザの設定値を含めて返却する。
+   *
+   * @param userId ユーザID
+   * @param notificationEnabled 通知有効フラグ
+   * @return NotificationGroupと設定値のマップ
+   */
+  private Map<NotificationGroup, Boolean> buildNotificationGroupMap(
+      Long userId, boolean notificationEnabled) {
+    Map<NotificationGroup, Boolean> map = new LinkedHashMap<>();
+    for (NotificationGroup g : NotificationGroup.values()) {
+      boolean gEnabled =
+          notificationEnabled && settingRepository.findEnabled(userId, g).orElse(true);
+      map.put(g, gEnabled);
+    }
+    return map;
+  }
+
+  public record NotificationSettingsResult(
+      boolean notificationEnabled, Map<NotificationGroup, Boolean> groupSettings) {}
 }

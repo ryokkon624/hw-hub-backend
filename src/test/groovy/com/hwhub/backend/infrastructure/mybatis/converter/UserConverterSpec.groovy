@@ -20,6 +20,7 @@ class UserConverterSpec extends Specification{
         entity.setPasswordHash("hashed-password")
         entity.setDisplayName("テストユーザ")
         entity.setLocale("ja")
+        entity.setNotificationEnabled(true)
         entity.setProfileImageKey("profile/key/001")
         entity.setIsActive(true)
         entity.setEmailVerifiedAt(java.sql.Timestamp.valueOf(java.time.LocalDateTime.of(2025, 1, 1, 10, 0, 0)))
@@ -35,6 +36,7 @@ class UserConverterSpec extends Specification{
             passwordHash == "hashed-password"
             displayName == "テストユーザ"
             locale == "ja"
+            notificationEnabled == true
             profileImageKey == "profile/key/001"
             isActive == true
             emailVerifiedAt == java.time.LocalDateTime.of(2025, 1, 1, 10, 0, 0)
@@ -62,6 +64,7 @@ class UserConverterSpec extends Specification{
                 null,                    // authProviderId
                 "別ユーザ",               // displayName
                 "en",                    // locale
+                true,                    // notificationEnabled
                 "profile/key/002",       // profileImageKey
                 now,                     // emailVerifiedAt
                 true                     // isActive

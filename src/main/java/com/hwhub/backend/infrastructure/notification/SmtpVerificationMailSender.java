@@ -14,7 +14,9 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 
 @Slf4j
-@ConditionalOnProperty(prefix = "hwhub.auth.email-verification", name = "send-mail",
+@ConditionalOnProperty(
+    prefix = "hwhub.auth.email-verification",
+    name = "send-mail",
     havingValue = "true")
 @Component
 @RequiredArgsConstructor
@@ -26,8 +28,8 @@ public class SmtpVerificationMailSender implements VerificationMailSender {
   private String from;
 
   @Override
-  public void sendVerificationMail(@NonNull String toEmail, String displayName,
-      @NonNull String verifyUrl, String locale) {
+  public void sendVerificationMail(
+      @NonNull String toEmail, String displayName, @NonNull String verifyUrl, String locale) {
 
     String subject = "[Housework Hub] Please verify your email";
     String htmlContent = buildHtmlContent(displayName, verifyUrl);

@@ -15,6 +15,7 @@ public class UserModel {
   private String authProviderId;
   private String displayName;
   private String locale;
+  private boolean notificationEnabled;
   private String profileImageKey;
   private String iconUrl;
   private LocalDateTime emailVerifiedAt;
@@ -32,6 +33,7 @@ public class UserModel {
    * @param authProviderId 認証提供者ID
    * @param displayName 表示名
    * @param locale 利用言語
+   * @param notificationEnabled 通知有効フラグ
    * @param profileImageKey プロフィール画像ストレージキー
    * @param iconUrl アイコンのURL
    * @param emailVerifiedAt 認証完了日時
@@ -47,6 +49,7 @@ public class UserModel {
       String authProviderId,
       String displayName,
       String locale,
+      boolean notificationEnabled,
       String profileImageKey,
       String iconUrl,
       LocalDateTime emailVerifiedAt,
@@ -60,6 +63,7 @@ public class UserModel {
     this.authProviderId = authProviderId;
     this.displayName = displayName;
     this.locale = locale;
+    this.notificationEnabled = notificationEnabled;
     this.profileImageKey = profileImageKey;
     this.iconUrl = iconUrl;
     this.emailVerifiedAt = emailVerifiedAt;
@@ -77,6 +81,7 @@ public class UserModel {
    * @param authProviderId 認証提供者ID
    * @param displayName 表示名
    * @param locale 利用言語
+   * @param notificationEnabled 通知有効フラグ
    * @param profileImageKey プロフィール画像ストレージキー
    * @param emailVerifiedAt 認証完了日時
    * @param isActive 活性フラグ
@@ -91,6 +96,7 @@ public class UserModel {
       String authProviderId,
       String displayName,
       String locale,
+      boolean notificationEnabled,
       String profileImageKey,
       LocalDateTime emailVerifiedAt,
       boolean isActive) {
@@ -104,6 +110,7 @@ public class UserModel {
         authProviderId,
         displayName,
         locale,
+        notificationEnabled,
         profileImageKey,
         null,
         emailVerifiedAt,
@@ -130,6 +137,7 @@ public class UserModel {
         null,
         displayName,
         locale,
+        true,
         null,
         null,
         null,
@@ -157,6 +165,7 @@ public class UserModel {
         googleSub,
         displayName,
         "ja",
+        true,
         null,
         null,
         now,

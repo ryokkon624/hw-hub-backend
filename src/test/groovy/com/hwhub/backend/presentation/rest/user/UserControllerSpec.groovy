@@ -80,6 +80,7 @@ class UserControllerSpec extends Specification {
                 null,
                 "Taro",
                 "ja",
+                true,
                 "icon-key",
                 null,
                 true
@@ -117,6 +118,7 @@ class UserControllerSpec extends Specification {
                 null,
                 "Hanako",
                 "en",
+                true,
                 "icon-key",
                 null,
                 true
@@ -248,5 +250,87 @@ class UserControllerSpec extends Specification {
         then:
         def ex = thrown(ResponseStatusException)
         ex.statusCode == HttpStatus.UNAUTHORIZED
+    }
+
+    // ==================================
+    // getNotificationSettings
+    // ==================================
+
+    def "getNotificationSettingsは通知設定を返す"() {
+        given:
+        def auth = Mock(Authentication)
+        auth.getName() >> "1"
+        def groupMap = new LinkedHashMap()
+        groupMap.put(com.hwhub.backend.domain.enums.NotificationGroup.HOUSEHOLD, true)
+        groupMap.put(com.hwhub.backend.domain.enums.NotificationGroup.TASK_ASSIGNMENT, false)
+        def settingsResult = new com.hwhub.backend.application.service.UserService.NotificationSettingsResult(true, groupMap)
+
+        when:
+        def result = controller.getNotificationSettings(auth)
+
+        then:
+        1 * userService.getSettings(1L) >> settingsResult
+
+        and:
+        result.notificationEnabled() == true
+        result.groupSettings().get("100") == true
+        result.groupSettings().get("200") == false
+    }
+
+    // ==================================
+    // updateNotificationSettings
+    // ==================================
+
+    def "updateNotificationSettingsは通知設定を更新して返す"() {
+        given:
+        def auth = Mock(Authentication)
+        auth.getName() >> "1"
+
+        def reqGroupSettings = new LinkedHashMap()
+        reqGroupSettings.put("100", true)
+        reqGroupSettings.put("200", false)
+        def req = new com.hwhub.backend.presentation.rest.user.dto.UpdateNotificationSettingsRequest(true, reqGroupSettings)
+
+        def resultGroupMap = new LinkedHashMap()
+        resultGroupMap.put(com.hwhub.backend.domain.enums.NotificationGroup.HOUSEHOLD, true)
+        resultGroupMap.put(com.hwhub.backend.domain.enums.NotificationGroup.TASK_ASSIGNMENT, false)
+        def settingsResult = new com.hwhub.backend.application.service.UserService.NotificationSettingsResult(true, resultGroupMap)
+
+        when:
+        def result = controller.updateNotificationSettings(req, auth)
+
+        then:
+        1 * userService.updateNotificationEnabled(1L, true, _) >> settingsResult
+
+        and:
+        result.notificationEnabled() == true
+        result.groupSettings().get("100") == true
+        result.groupSettings().get("200") == false
+    }
+
+    def "updateNotificationSettingsはgroupSettingsがnullの場合も正常に動作する"() {
+        given:
+        def auth = Mock(Authentication)
+        auth.getName() >> "1"
+        def req = new com.hwhub.backend.presentation.rest.user.dto.UpdateNotificationSettingsRequest(false, null)
+
+        def resultGroupMap = new LinkedHashMap()
+        resultGroupMap.put(com.hwhub.backend.domain.enums.NotificationGroup.HOUSEHOLD, false)
+        resultGroupMap.put(com.hwhub.backend.domain.enums.NotificationGroup.TASK_ASSIGNMENT, false)
+        def settingsResult = new com.hwhub.backend.application.service.UserService.NotificationSettingsResult(false, resultGroupMap)
+
+        when:
+        def result = controller.updateNotificationSettings(req, auth)
+
+        then:
+        1 * userService.updateNotificationEnabled(1L, false, _) >> { args ->
+            // 引数のgroupSettingsが空マップであること
+            assert args[2] instanceof Map
+            assert args[2].isEmpty()
+            return settingsResult
+        }
+
+        and:
+        result.notificationEnabled() == false
     }
 }

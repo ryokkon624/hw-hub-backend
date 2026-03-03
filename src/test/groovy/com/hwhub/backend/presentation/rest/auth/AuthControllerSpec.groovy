@@ -34,6 +34,7 @@ class AuthControllerSpec extends Specification {
                 null,
                 "Taro",
                 "ja",
+                true,
                 "profile-key",
                 null, // emailVerifiedAt
                 true
@@ -79,6 +80,7 @@ class AuthControllerSpec extends Specification {
                 null,
                 "Hanako",
                 "ja",
+                true,
                 null,
                 null, // verification
                 true
@@ -115,7 +117,7 @@ class AuthControllerSpec extends Specification {
     def "registerは認証が必要な場合、認証情報を返す"() {
         given:
         def request = new RegisterRequest("verify@example.com", "pw", "Verify", "ja", null)
-        def user = UserModel.reconstruct(100L, "verify@example.com", "hash", null, AuthProvider.LOCAL.code, null, "Verify", "ja", null, null, true)
+        def user = UserModel.reconstruct(100L, "verify@example.com", "hash", null, AuthProvider.LOCAL.code, null, "Verify", "ja", true, null, null, true)
 
         when:
         def response = controller.register(request)

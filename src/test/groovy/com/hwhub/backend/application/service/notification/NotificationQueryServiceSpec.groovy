@@ -9,7 +9,8 @@ import java.time.LocalDateTime
 class NotificationQueryServiceSpec extends Specification {
 
     def notificationRepository = Mock(NotificationRepository)
-    def service = new NotificationQueryService(notificationRepository)
+    def userRepository = Mock(com.hwhub.backend.domain.repository.UserRepository)
+    def service = new NotificationQueryService(notificationRepository, userRepository)
 
     def "getNotificationsで通知一覧が取得でき、markReadがtrueでリストが空でない場合は既読化処理が呼ばれること"() {
         setup:
@@ -17,6 +18,7 @@ class NotificationQueryServiceSpec extends Specification {
         def limit = 20
         def markRead = true
         def notification = Mock(NotificationModel)
+        userRepository.isNotificationEnabled(targetUserId) >> true
 
         when:
         def result = service.getNotifications(targetUserId, limit, markRead)
@@ -30,6 +32,7 @@ class NotificationQueryServiceSpec extends Specification {
     def "getNotificationsでmarkReadがfalseの場合は既読化処理が呼ばれないこと"() {
         setup:
         def notification = Mock(NotificationModel)
+        userRepository.isNotificationEnabled(1L) >> true
 
         when:
         def result = service.getNotifications(1L, 20, false)
@@ -41,6 +44,9 @@ class NotificationQueryServiceSpec extends Specification {
     }
 
     def "getNotificationsで取得結果が空の場合は既読化処理が呼ばれないこと"() {
+        setup:
+        userRepository.isNotificationEnabled(1L) >> true
+
         when:
         def result = service.getNotifications(1L, 20, true)
 
@@ -51,11 +57,39 @@ class NotificationQueryServiceSpec extends Specification {
     }
 
     def "getUnreadCountで未読件数が取得できること"() {
+        setup:
+        userRepository.isNotificationEnabled(1L) >> true
+
         when:
         def result = service.getUnreadCount(1L)
 
         then:
         1 * notificationRepository.countUnreadByTargetUser(1L) >> 5L
         result == 5L
+    }
+
+    def "getNotificationsで通知が無効の場合は空リストを返し、通知取得処理が呼ばれないこと"() {
+        setup:
+        userRepository.isNotificationEnabled(1L) >> false
+
+        when:
+        def result = service.getNotifications(1L, 20, true)
+
+        then:
+        0 * notificationRepository.findLatestByTargetUser(_, _)
+        0 * notificationRepository.markAllAsRead(*_)
+        result == []
+    }
+
+    def "getUnreadCountで通知が無効の場合は0を返し、カウント処理が呼ばれないこと"() {
+        setup:
+        userRepository.isNotificationEnabled(1L) >> false
+
+        when:
+        def result = service.getUnreadCount(1L)
+
+        then:
+        0 * notificationRepository.countUnreadByTargetUser(_)
+        result == 0L
     }
 }

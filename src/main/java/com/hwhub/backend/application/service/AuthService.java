@@ -42,8 +42,10 @@ public class AuthService {
   private static final long USER_ID_ADMIN = 1;
 
   public LoginInfo login(LoginRequest request) {
-    UserModel user = userRepository.findByEmail(request.getEmail())
-        .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
+    UserModel user =
+        userRepository
+            .findByEmail(request.getEmail())
+            .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
 
     if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
       throw new BadCredentialsException("Invalid password");
@@ -90,8 +92,8 @@ public class AuthService {
       found.changeProfile(model.getDisplayName(), model.getLocale());
       found.activate();
 
-      userRepository.updateForReactivation(found, found.getUserId(),
-          ProgramType.ONL_AUTH.getCode());
+      userRepository.updateForReactivation(
+          found, found.getUserId(), ProgramType.ONL_AUTH.getCode());
       targetUser = found;
 
     } else {
@@ -107,7 +109,10 @@ public class AuthService {
     targetUser.setIconUrl(userIconService.getIconUrl(targetUser.getProfileImageKey()));
 
     if (!emailVerificationProperties.enabled()) {
-      userRepository.markEmailVerified(targetUser.getUserId(), LocalDateTime.now(), USER_ID_ADMIN,
+      userRepository.markEmailVerified(
+          targetUser.getUserId(),
+          LocalDateTime.now(),
+          USER_ID_ADMIN,
           ProgramType.ONL_AUTH.getCode());
 
       String token = jwtProvider.generateToken(targetUser.getUserId(), targetUser.getDisplayName());
@@ -126,15 +131,17 @@ public class AuthService {
     byte[] tokenHash = UserEmailVerificationModel.hashToken(token);
 
     // token_hash で「未使用＆期限内」を検索
-    var model = userEmailVerificationRepository.findUsableByTokenHash(tokenHash, now)
-        .orElseThrow(EmailVerificationTokenInvalidException::new);
+    var model =
+        userEmailVerificationRepository
+            .findUsableByTokenHash(tokenHash, now)
+            .orElseThrow(EmailVerificationTokenInvalidException::new);
 
-    userEmailVerificationRepository.markUsed(model.getUserEmailVerificationId(), now, USER_ID_ADMIN,
-        ProgramType.ONL_AUTH.getCode());
+    userEmailVerificationRepository.markUsed(
+        model.getUserEmailVerificationId(), now, USER_ID_ADMIN, ProgramType.ONL_AUTH.getCode());
 
     // ユーザを認証済みに更新
-    userRepository.markEmailVerified(model.getUserId(), now, USER_ID_ADMIN,
-        ProgramType.ONL_AUTH.getCode());
+    userRepository.markEmailVerified(
+        model.getUserId(), now, USER_ID_ADMIN, ProgramType.ONL_AUTH.getCode());
   }
 
   @Transactional
@@ -166,15 +173,19 @@ public class AuthService {
 
     String token = VerificationTokenGenerator.generateToken();
 
-    UserEmailVerificationModel model = UserEmailVerificationModel.create(user.getUserId(), token,
-        now, emailVerificationProperties.tokenTtlMinutes());
+    UserEmailVerificationModel model =
+        UserEmailVerificationModel.create(
+            user.getUserId(), token, now, emailVerificationProperties.tokenTtlMinutes());
     userEmailVerificationRepository.insert(model, USER_ID_ADMIN, ProgramType.ONL_AUTH.getCode());
 
     // メール送信は設定で制御
     if (emailVerificationProperties.sendMail()) {
       String verifyUrl = buildVerifyUrl(token);
-      verificationMailSender.sendVerificationMail(Objects.requireNonNull(user.getEmail()),
-          user.getDisplayName(), Objects.requireNonNull(verifyUrl), user.getLocale());
+      verificationMailSender.sendVerificationMail(
+          Objects.requireNonNull(user.getEmail()),
+          user.getDisplayName(),
+          Objects.requireNonNull(verifyUrl),
+          user.getLocale());
     }
 
     return model.getExpiresAt();
@@ -182,11 +193,15 @@ public class AuthService {
 
   private void enforceResendPolicy(long userId, LocalDateTime now) {
 
-    userEmailVerificationRepository.findLatestRequestedAt(userId).ifPresent(latest -> {
-      if (latest.isAfter(now.minusSeconds(emailVerificationProperties.resendCooldownSeconds()))) {
-        throw new EmailVerificationCooldownException();
-      }
-    });
+    userEmailVerificationRepository
+        .findLatestRequestedAt(userId)
+        .ifPresent(
+            latest -> {
+              if (latest.isAfter(
+                  now.minusSeconds(emailVerificationProperties.resendCooldownSeconds()))) {
+                throw new EmailVerificationCooldownException();
+              }
+            });
 
     int count = userEmailVerificationRepository.countRequestedSince(userId, now.minusDays(1));
     if (count >= emailVerificationProperties.maxRequestsPerDay()) {
@@ -195,14 +210,18 @@ public class AuthService {
   }
 
   private String buildVerifyUrl(String token) {
-    return emailVerificationProperties.frontBaseUrl() + emailVerificationProperties.verifyPath()
-        + "?token=" + token;
+    return emailVerificationProperties.frontBaseUrl()
+        + emailVerificationProperties.verifyPath()
+        + "?token="
+        + token;
   }
 
-  public record LoginInfo(String token, UserModel user) {
-  }
+  public record LoginInfo(String token, UserModel user) {}
 
-  public record RegisterInfo(boolean emailVerificationRequired, String token, UserModel user,
+  public record RegisterInfo(
+      boolean emailVerificationRequired,
+      String token,
+      UserModel user,
       LocalDateTime verificationExpiresAt) {
 
     public static RegisterInfo loggedIn(String token, UserModel user) {

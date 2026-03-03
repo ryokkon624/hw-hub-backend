@@ -174,6 +174,7 @@ class HouseholdInvitationServiceSpec extends Specification {
                 null,
                 "テスト太郎",
                 "ja",
+                true,
                 "ja",
                 null, 
                 true
@@ -219,6 +220,7 @@ class HouseholdInvitationServiceSpec extends Specification {
                 null,
                 "既存ユーザ",
                 "ja",
+                true,
                 null,
                 null, 
                 true
@@ -268,6 +270,7 @@ class HouseholdInvitationServiceSpec extends Specification {
                 null,
                 "既存ユーザ",
                 "ja",
+                true,
                 null,
                 null, 
                 true

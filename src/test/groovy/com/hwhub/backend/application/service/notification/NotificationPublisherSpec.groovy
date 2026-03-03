@@ -17,6 +17,7 @@ import java.time.LocalDateTime
 
 class NotificationPublisherSpec extends Specification {
 
+    def permissionService = Mock(NotificationPermissionService)
     def notificationRepository = Mock(NotificationRepository)
     def notificationEventRepository = Mock(NotificationEventRepository)
     def householdRepository = Mock(HouseholdRepository)
@@ -24,12 +25,18 @@ class NotificationPublisherSpec extends Specification {
     def userRepository = Mock(UserRepository)
 
     def publisher = new NotificationPublisher(
+            permissionService,
             notificationRepository,
             notificationEventRepository,
             householdRepository,
             householdMemberRepository,
             userRepository
     )
+
+    def setup() {
+        // デフォルトで通知許可
+        permissionService.canReceive(_, _) >> true
+    }
 
     def "publishRemoveMemberByOwnerが正しくNotificationRepositoryを呼び出すこと"() {
         setup:
