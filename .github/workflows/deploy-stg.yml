@@ -11,13 +11,12 @@ permissions:
 
 env:
   AWS_REGION: ap-northeast-1
-  ECS_CLUSTER: hwhub-stg
-  ECS_SERVICE: hwhub-backend-stg
-  TASK_FAMILY: hwhub-backend
-  BASE_REVISION: "37"
+  AWS_ACCOUNT_ID: "564323392873"
+  ECS_CLUSTER: hwhub-stg-ephem
+  ECS_SERVICE: hwhub-backend-stg-ephem
+  TASK_FAMILY: hwhub-backend-ephem
   CONTAINER_NAME: hwhub-backend
   ECR_REPOSITORY: hwhub-backend
-  AWS_ACCOUNT_ID: "564323392873"
 
 jobs:
   deploy:
@@ -39,28 +38,32 @@ jobs:
       - name: Build & Push image
         id: build
         run: |
-          IMAGE_URI="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:stg-${GITHUB_SHA}"
+          IMAGE_URI_SHA="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:stg-${GITHUB_SHA}"
           IMAGE_URI_LATEST="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:stg-latest"
 
-          docker build -t "$IMAGE_URI" -t "$IMAGE_URI_LATEST" .
-          docker push "$IMAGE_URI"
+          docker build -t "$IMAGE_URI_SHA" -t "$IMAGE_URI_LATEST" .
+          docker push "$IMAGE_URI_SHA"
           docker push "$IMAGE_URI_LATEST"
 
-          echo "image_uri=$IMAGE_URI" >> "$GITHUB_OUTPUT"
-          echo "image_uri_latest=$IMAGE_URI_LATEST" >> "$GITHUB_OUTPUT"
+          echo "image_uri=$IMAGE_URI_SHA" >> "$GITHUB_OUTPUT"
 
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
 
-      # 既存のtaskdefを取得して「register可能な形」に整形する
-      - name: Fetch base task definition and sanitize
+      # Fetch current service task definition as base (avoid fixed revision)
+      - name: Fetch base task definition from running service and sanitize
         run: |
+          TD_ARN=$(aws ecs describe-services \
+            --cluster "${ECS_CLUSTER}" \
+            --services "${ECS_SERVICE}" \
+            --query "services[0].taskDefinition" \
+            --output text)
+
           aws ecs describe-task-definition \
-            --task-definition "${TASK_FAMILY}:${BASE_REVISION}" \
+            --task-definition "${TD_ARN}" \
             --query taskDefinition \
             > taskdef_raw.json
 
-          # register-task-definition が受け付ける形にサニタイズ
           jq '{
             family: .family,
             taskRoleArn: .taskRoleArn,
@@ -83,13 +86,13 @@ jobs:
 
           echo "Sanitized task definition generated: taskdef_base.json"
 
-      - name: Override SPRING_PROFILES_ACTIVE=stg
+      - name: Ensure SPRING_PROFILES_ACTIVE=stg
         run: |
-          jq '(.containerDefinitions[] | select(.name=="${{ env.CONTAINER_NAME }}") | .environment)
+          jq '(.containerDefinitions[] | select(.name=="'${{ env.CONTAINER_NAME }}'") | .environment)
               |= (map(select(.name!="SPRING_PROFILES_ACTIVE"))
                   + [{"name":"SPRING_PROFILES_ACTIVE","value":"stg"}])' \
-              taskdef_base.json > taskdef_base_tmp.json
-          mv taskdef_base_tmp.json taskdef_base.json
+              taskdef_base.json > taskdef_tmp.json
+          mv taskdef_tmp.json taskdef_base.json
 
       - name: Render new task definition (replace image)
         id: render
