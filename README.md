@@ -1,21 +1,28 @@
 # Housework Hub (HwHub)
 
-## 概要
+![Java](https://img.shields.io/badge/Java-21-orange)
+![SpringBoot](https://img.shields.io/badge/SpringBoot-3.x-brightgreen)
+![Vue](https://img.shields.io/badge/Vue-3-42b883)
+![Terraform](https://img.shields.io/badge/Terraform-managed-blue)
+![Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)
+---
 
-Housework
-Hub（HwHub）は、家庭内の家事・買い物・メンバー管理を協調的に行うためのアプリケーションです。  
+## Overview
+
+Housework Hub（HwHub）は、家庭内の家事・買い物・メンバー管理を協調的に行うためのアプリケーションです。  
 複数のおうち（Household）をサポートし、家事タスクのテンプレート化、定期実行、担当者割当、履歴管理などを提供します。
 
-本リポジトリ群は以下の構成で成り立っています：
+本リポジトリ群は以下の構成で成り立っています。
 
 - **hw-hub-backend** : メインAPI（Spring Boot / MyBatis / MySQL）
 - **hw-hub-batch** : 定期バッチ処理（Spring Batch / ECS Fargate）
 - **hw-hub-frontend** : フロントエンド（Vue 3 + Vite + TypeScript）
 - **hw-hub-database** : DBスキーマ・Flywayマイグレーション管理
+- **hw-hub-infra** : AWSインフラ（Terraform）
 
 ---
 
-## 全体アーキテクチャ
+## Architecture
 
 - Backend / Batch は AWS ECS Fargate 上で稼働
 - DB は Amazon RDS (MySQL)
@@ -23,10 +30,11 @@ Hub（HwHub）は、家庭内の家事・買い物・メンバー管理を協調
 - 認証は JWT
 - フロントエンドは S3 + CloudFront によりホスティング
 - バッチは EventBridge Scheduler により起動
+- インフラは Terraform により管理
 
 ### High-level Flow
 
-Online(frontend + backend)
+Online (Frontend + Backend)
 
 ```mermaid
 flowchart LR
@@ -56,89 +64,135 @@ flowchart LR
 
 ---
 
-## リポジトリ一覧と役割
-
-| リポジトリ                                                            | 役割                          |
-|------------------------------------------------------------------|-----------------------------|
-| [hw-hub-backend](https://github.com/ryokkon624/hw-hub-backend)   | REST API / 認証 / 業務ロジック      |
-| [hw-hub-batch](https://github.com/ryokkon624/hw-hub-batch)       | 定期実行ジョブ（タスク生成、再計算、期限切れ処理など） |
-| [hw-hub-frontend](https://github.com/ryokkon624/hw-hub-frontend) | Web UI                      |
-| [hw-hub-database](https://github.com/ryokkon624/hw-hub-database) | Flyway によるスキーマ管理            |
-
----
-
-## 開発方針・ポリシー
+## Tech stack
 
 ### Backend
-
-- Java 21 / Spring Boot 3.x
+- Java 21
+- Spring Boot 3.x
 - MyBatis + MyBatis Generator
-- Flyway によるマイグレーション管理
-- DDD 風レイヤード構成
-- WHO カラム（create_user_id / created_at / update_user_id / updated_at / etc）を全テーブルに保持
-- コードマスタ（m_code）から Enum を自動生成
+- Flyway
+- MySQL
 
 ### Frontend
-
-- Vue 3 + Composition API + TypeScript
-- Pinia（すべての API コールは Store Action からaxiosを薄くラップしたclientを呼び出す）
+- Vue 3 + Composition API
+- TypeScript
+- Pinia
 - Tailwind CSS
-- vue-i18n による多言語対応
+- vue-i18n
 
-### テスト
-
-- Backend / Batch: Spock + JUnit Platform + JaCoCo
-- Frontend: Vitest
-- GitHub Actions により Coverage レポートを GitHub Pages に公開
+### Infrastructure
+- AWS ECS Fargate
+- Application Load Balancer
+- Amazon RDS (MySQL)
+- Amazon S3
+- CloudFront
+- EventBridge Scheduler
+- CloudWatch / SNS
+- **Terraform**
 
 ---
+## Repository Structure
+
+| Repository | Role |
+|------------------------------------------------------------------|-----------------------------|
+| [hw-hub-backend](https://github.com/ryokkon624/hw-hub-backend)   | REST API / authentication / business logic |
+| [hw-hub-batch](https://github.com/ryokkon624/hw-hub-batch)       | scheduled batch processing |
+| [hw-hub-frontend](https://github.com/ryokkon624/hw-hub-frontend) | Web UI |
+| [hw-hub-database](https://github.com/ryokkon624/hw-hub-database) | Flyway database schema |
+| [hw-hub-infra](https://github.com/ryokkon624/hw-hub-infra) | Terraform infrastructure |
+
+---
+
+## Repository Relationship
+
+```mermaid
+flowchart LR
+
+Frontend["hw-hub-frontend"]
+Backend["hw-hub-backend"]
+Batch["hw-hub-batch"]
+DB["hw-hub-database"]
+Infra["hw-hub-infra"]
+
+Frontend --> Backend
+Backend --> DB
+Batch --> DB
+Infra --> Backend
+Infra --> Batch
+```
+
+---
+
 
 ## CI / CD 概要
 
-- push to main で以下を自動実行
-    - テスト
-    - カバレッジ生成
-    - Docker build & push (ECR)
-    - ECS TaskDefinition 更新
-    - Scheduler / Service への反映
-- カバレッジレポートは GitHub Pages に公開
+GitHub Actions により CI/CD を構築しています。
+
+main への push で以下を実行：
+
+- テスト
+- カバレッジ生成
+- Docker build & push (ECR)
+- ECS TaskDefinition 更新
+- ECS Service / Scheduler 反映
 
 ---
 
-## カバレッジレポート
-
-- Backend: GitHub Pages (backend coverage workflow)
-- Batch: GitHub Pages (batch coverage workflow)
-- Frontend: GitHub Pages (frontend coverage workflow)
-
----
-
-## ドキュメント構成
-
-- 本 README: プロジェクト全体概要
-- 各リポジトリ配下の README: xxxx_README.md
-    - セットアップ方法
-    - 開発手順
-    - テスト実行方法
-    - デプロイ方法
-    - 運用時の注意点
+## Coverage Report
+- Backend: [GitHub Pages](https://ryokkon624.github.io/hw-hub-backend/)
+- Batch: [GitHub Pages](https://ryokkon624.github.io/hw-hub-batch/)
+- Frontend: [GitHub Pages](https://ryokkon624.github.io/hw-hub-frontend/)
 
 ---
 
-## 次に読むべきドキュメント
+## Infrastructure as Code
+
+**Terraform**を使用しています。
+
+Managed resources include:
+
+- ECS services
+- ECS batch tasks
+- networking configuration
+- monitoring and alerts
+- scheduled jobs
+
+Some existing AWS resources are referenced rather than managed:
+
+- ALB
+- RDS
+- CloudFront
+- S3
+- SNS
+
+---
+
+## Development
+
+各リポジトリにそれぞれの詳細を記載したREADMEファイルがあります。
 
 - [backend_README.md](https://github.com/ryokkon624/hw-hub-backend/blob/main/backend_README.md)
 - [batch_README.md](https://github.com/ryokkon624/hw-hub-batch/blob/main/batch_README.md)
 - [frontend_README.md](https://github.com/ryokkon624/hw-hub-frontend/blob/main/frontend_README.md)
 - [database_README.md](https://github.com/ryokkon624/hw-hub-database/blob/main/database_README.md)
+- [infra_README.md](https://github.com/ryokkon624/hw-hub-infra/blob/main/infra_README.md)
 
 ---
 
-## ステータス
+## Future Roadmap
 
-このプロジェクトは以下の状態に到達しています：
+Planned improvements:
 
-- アーキテクチャ確定
-- CI/CD パイプライン構築済み
-- 高カバレッジなテスト整備済み
-- 本番運用を想定した構成・監視・デプロイフロー整備済み
+- mobile application (Capacitor)
+- push notifications
+- analytics dashboard
+- expanded multi-language support
+
+---
+
+## Project Status
+
+- architecture established
+- CI/CD pipeline implemented
+- high test coverage achieved
+- infrastructure managed via Terraform
