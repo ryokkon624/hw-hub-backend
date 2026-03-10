@@ -18,15 +18,15 @@ public class NotificationPermissionService {
 
   /**
    * 通知を受け取れるかどうかを返す。
-   * <p>
-   * 差分運用のため、m_notification_settingsにレコードがない場合はデフォルトONであると判断する。
-   * </p>
+   *
+   * <p>差分運用のため、m_notification_settingsにレコードがない場合はデフォルトONであると判断する。
+   *
    * <ul>
-   * <li>m_user.notification_enabled=false => false</li>
-   * <li>m_user.notification_enabled=true かつ m_notification_settingsにレコードがない => true</li>
-   * <li>m_user.notification_enabled=true かつ m_notification_settingsにレコードがある => その値</li>
+   *   <li>m_user.notification_enabled=false => false
+   *   <li>m_user.notification_enabled=true かつ m_notification_settingsにレコードがない => true
+   *   <li>m_user.notification_enabled=true かつ m_notification_settingsにレコードがある => その値
    * </ul>
-   * 
+   *
    * @param userId ユーザーID
    * @param type 通知タイプ
    * @return 通知を受け取れるかどうか

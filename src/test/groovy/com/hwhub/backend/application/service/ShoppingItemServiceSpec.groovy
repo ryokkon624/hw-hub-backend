@@ -63,6 +63,42 @@ class ShoppingItemServiceSpec extends Specification {
     }
 
     // ==================================
+    // getFavoriteShoppingItems
+    // ==================================
+
+    def "getFavoriteShoppingItemsは認可OKなら世帯のお気に入りアイテム一覧を返す"() {
+        given:
+        long householdId = 1L
+        long userId = 10L
+        def items = [Mock(ShoppingItemModel), Mock(ShoppingItemModel)]
+
+        when:
+        def result = service.getFavoriteShoppingItems(householdId, userId)
+
+        then:
+        1 * householdAuthorizationService.canAccessHousehold(householdId, userId) >> true
+        1 * shoppingItemRepository.findFavoritesByHouseholdId(householdId) >> items
+
+        and:
+        result == items
+    }
+
+    def "getFavoriteShoppingItemsは世帯アクセス不可の場合AccessDeniedExceptionを投げる"() {
+        given:
+        long householdId = 1L
+        long userId = 10L
+
+        when:
+        service.getFavoriteShoppingItems(householdId, userId)
+
+        then:
+        1 * householdAuthorizationService.canAccessHousehold(householdId, userId) >> false
+        0 * shoppingItemRepository.findFavoritesByHouseholdId(_)
+
+        thrown(AccessDeniedException)
+    }
+
+    // ==================================
     // updateFavorite
     // ==================================
 

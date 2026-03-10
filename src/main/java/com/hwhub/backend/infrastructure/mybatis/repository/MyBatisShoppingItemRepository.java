@@ -30,6 +30,13 @@ public class MyBatisShoppingItemRepository implements ShoppingItemRepository {
   }
 
   @Override
+  public List<ShoppingItemModel> findFavoritesByHouseholdId(long householdId) {
+    List<ShoppingItemWithImageEntity> list = customMapper.selectFavoritesByHouseholdId(householdId);
+
+    return list.stream().map(ShoppingItemConverter::toModel).toList();
+  }
+
+  @Override
   public Optional<ShoppingItemModel> findById(long shoppingItemId) {
     TShoppingItem entity = mapper.selectByPrimaryKey(shoppingItemId);
     if (entity == null) {

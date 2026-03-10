@@ -45,6 +45,27 @@ public class ShoppingItemController {
   }
 
   /**
+   * 指定された世帯IDに紐づくお気に入り買い物アイテムを取得します。<br>
+   * GET /api/households/{householdId}/shopping-items/favorites
+   *
+   * @param householdId 世帯ID。パス変数として指定します。
+   * @param authentication Spring Securityによる認証情報（ユーザーID取得用）
+   * @return 指定された世帯IDのお気に入り買い物アイテムリスト
+   * @throws com.hwhub.backend.domain.exception.ResourceNotFoundException
+   *     指定された世帯IDが存在しない、またはユーザーが所属していない場合（404/403）
+   */
+  @GetMapping("/households/{householdId}/shopping-items/favorites")
+  public ShoppingItemListResponse getFavorites(
+      @PathVariable("householdId") Long householdId, Authentication authentication) {
+    Long userId = Long.parseLong(authentication.getName());
+
+    List<ShoppingItemModel> models =
+        shoppingItemService.getFavoriteShoppingItems(householdId, userId);
+
+    return ShoppingItemListResponse.fromModelList(models);
+  }
+
+  /**
    * 買い物アイテムのお気に入り状態（お気に入り/お気に入り解除）を更新します。<br>
    * PATCH /api/shopping-items/{shoppingItemId}/favorite
    *

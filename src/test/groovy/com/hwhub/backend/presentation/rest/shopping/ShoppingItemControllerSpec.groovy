@@ -65,6 +65,39 @@ class ShoppingItemControllerSpec extends Specification {
     }
 
     // ------------------------------------------------------------------
+    // GET /api/households/{householdId}/shopping-items/favorites
+    // ------------------------------------------------------------------
+    def "getFavoriteShoppingItems は householdId と認証ユーザIDで service.getFavoriteShoppingItems を呼びレスポンスを返す"() {
+        given:
+        Long householdId = 10L
+        Long userId = 20L
+
+        Authentication auth = Mock()
+        auth.getName() >> userId.toString()
+
+        def model1 = ShoppingItemModel.reconstruct(
+                1L, householdId, "牛乳", "メモ1", "1",
+                ShoppingItemStatus.NOT_PURCHASED.code,
+                FavoriteFlag.FAVORITE.code,
+                null,
+                LocalDateTime.now(),
+                false
+        )
+
+        when:
+        ShoppingItemListResponse response = controller.getFavorites(householdId, auth)
+
+        then:
+        1 * shoppingItemService.getFavoriteShoppingItems(householdId, userId) >> [model1]
+
+        and:
+        response != null
+        response.items.size() == 1
+        response.items.get(0).shoppingItemId == 1L
+        response.items.get(0).name == "牛乳"
+    }
+
+    // ------------------------------------------------------------------
     // PATCH /api/shopping-items/{shoppingItemId}/favorite
     // ------------------------------------------------------------------
     def "updateFavorite は ログインユーザIDとリクエストのfavoriteを使って service.updateFavorite を呼び 204 を返す"() {
