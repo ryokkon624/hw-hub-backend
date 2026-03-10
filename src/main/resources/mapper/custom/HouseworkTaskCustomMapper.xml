@@ -81,4 +81,19 @@
           AND status = '0'
           AND assignee_user_id = #{assigneeUserId}
     </update>
+
+    <update id="bulkUpdateStatus">
+        UPDATE t_housework_task
+        SET
+            status = #{status}
+          , skipped_reason = #{skippedReason}
+          , done_at = #{doneAt}
+          , update_user_id = #{updateUserId}
+          , update_program = #{updateProgram}
+        WHERE
+            housework_task_id IN
+            <foreach collection="taskIds" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+    </update>
 </mapper>

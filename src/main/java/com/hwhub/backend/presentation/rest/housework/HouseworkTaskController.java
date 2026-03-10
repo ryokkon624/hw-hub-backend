@@ -3,6 +3,7 @@ package com.hwhub.backend.presentation.rest.housework;
 import com.hwhub.backend.application.service.HouseworkTaskService;
 import com.hwhub.backend.domain.enums.TaskStatus;
 import com.hwhub.backend.domain.model.HouseworkTask4AssignModel;
+import com.hwhub.backend.presentation.rest.housework.dto.BulkUpdateStatusRequest;
 import com.hwhub.backend.presentation.rest.housework.dto.HouseworkTaskResponse;
 import com.hwhub.backend.presentation.rest.housework.dto.UpdateAssigneeRequest;
 import com.hwhub.backend.presentation.rest.housework.dto.UpdateStatusRequest;
@@ -78,5 +79,20 @@ public class HouseworkTaskController {
     Long loginUserId = Long.valueOf(authentication.getName());
     houseworkTaskService.updateStatus(
         taskId, request.status(), request.skippedReason(), loginUserId);
+  }
+
+  /**
+   * 指定された家事タスクIDリストのタスクのステータスを一括で更新します。
+   *
+   * @param request タスクIDリスト、変更するステータス、スキップ理由を含むリクエストボディ
+   * @param authentication 認証情報。操作を実行したログインユーザーのIDを取得するために使用。
+   */
+  @PatchMapping("/bulk-status")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void bulkUpdateStatus(
+      @Valid @RequestBody BulkUpdateStatusRequest request, Authentication authentication) {
+    Long loginUserId = Long.valueOf(authentication.getName());
+    houseworkTaskService.bulkUpdateStatus(
+        request.taskIds(), request.status(), request.skippedReason(), loginUserId);
   }
 }

@@ -2,6 +2,7 @@ package com.hwhub.backend.domain.repository;
 
 import com.hwhub.backend.domain.model.HouseworkTask4AssignModel;
 import com.hwhub.backend.domain.model.HouseworkTaskModel;
+import java.time.LocalDate;
 import java.util.List;
 
 public interface HouseworkTaskRepository {
@@ -13,4 +14,12 @@ public interface HouseworkTaskRepository {
   HouseworkTaskModel update(HouseworkTaskModel houseworkTaskModel, Long userId, String program);
 
   void clearAssignee(Long householdId, Long userId, Long loginUserId, String program);
+
+  void bulkUpdateStatus(
+      List<Long> taskIds,
+      String status,
+      String skippedReason,
+      LocalDate doneAt,
+      Long userId,
+      String program);
 }

@@ -2,6 +2,7 @@ package com.hwhub.backend.infrastructure.mybatis.custom.mapper;
 
 import com.hwhub.backend.domain.model.HouseworkTask4AssignModel;
 import com.hwhub.backend.domain.model.HouseworkTaskModel;
+import java.time.LocalDate;
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -22,4 +23,12 @@ public interface HouseworkTaskCustomMapper {
       @Param("assigneeUserId") Long assigneeUserId,
       @Param("loginUserId") Long loginUserId,
       @Param("program") String program);
+
+  void bulkUpdateStatus(
+      @Param("taskIds") List<Long> taskIds,
+      @Param("status") String status,
+      @Param("skippedReason") String skippedReason,
+      @Param("doneAt") LocalDate doneAt,
+      @Param("updateUserId") Long updateUserId,
+      @Param("updateProgram") String updateProgram);
 }
