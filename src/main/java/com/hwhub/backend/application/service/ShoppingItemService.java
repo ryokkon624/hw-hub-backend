@@ -35,6 +35,18 @@ public class ShoppingItemService {
     return shoppingItemRepository.findByHouseholdId(householdId);
   }
 
+  /** 世帯のお気に入り買い物アイテム一覧を取得する */
+  @Transactional(readOnly = true)
+  public List<ShoppingItemModel> getFavoriteShoppingItems(long householdId, long userId) {
+
+    if (!householdAuthorizationService.canAccessHousehold(householdId, userId)) {
+      throw new AccessDeniedException(
+          "User does not belong to household: userId=" + userId + ", householdId=" + householdId);
+    }
+
+    return shoppingItemRepository.findFavoritesByHouseholdId(householdId);
+  }
+
   public void updateFavorite(long shoppingItemId, String favorite, long userId) {
 
     var opt = shoppingItemRepository.findById(shoppingItemId);

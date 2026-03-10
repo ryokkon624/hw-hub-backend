@@ -63,6 +63,52 @@
             si.shopping_item_id DESC;
     </select>
 
+    <!-- 世帯内のお気に入り買い物アイテム一覧（name, store_typeで最新に集約） -->
+    <select id="selectFavoritesByHouseholdId"
+            parameterType="long"
+            resultMap="ShoppingItemWithImageResultMap">
+        SELECT
+            x.shopping_item_id
+             , x.household_id
+             , x.name
+             , x.memo
+             , x.store_type
+             , x.status
+             , x.favorite
+             , x.purchased_at
+             , x.created_at
+             , CASE
+                   WHEN att.shopping_item_id IS NOT NULL
+                       THEN TRUE
+                   ELSE FALSE
+            END AS has_image
+        FROM (
+            SELECT
+                si.*,
+                row_number() OVER (
+                    PARTITION BY si.name, si.store_type
+                    ORDER BY si.shopping_item_id DESC
+                ) AS rn
+            FROM
+                t_shopping_item si
+            WHERE
+                si.household_id = #{householdId}
+                AND si.favorite = '1'
+        ) x
+        LEFT JOIN (
+            SELECT
+                shopping_item_id
+            FROM
+                t_shopping_item_attachment
+            GROUP BY
+                shopping_item_id
+        ) att ON x.shopping_item_id = att.shopping_item_id
+        WHERE
+            x.rn = 1
+        ORDER BY
+            x.shopping_item_id DESC;
+    </select>
+
     <update id="update">
         UPDATE t_shopping_item
         SET

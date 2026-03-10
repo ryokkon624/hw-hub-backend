@@ -10,6 +10,9 @@ public interface ShoppingItemRepository {
   /** Household 内の全アイテムを取得 */
   List<ShoppingItemModel> findByHouseholdId(long householdId);
 
+  /** Household 内のお気に入りアイテムを取得 */
+  List<ShoppingItemModel> findFavoritesByHouseholdId(long householdId);
+
   Optional<ShoppingItemModel> findById(long shoppingItemId);
 
   ShoppingItemModel insert(ShoppingItemModel model, long userId, String program);
