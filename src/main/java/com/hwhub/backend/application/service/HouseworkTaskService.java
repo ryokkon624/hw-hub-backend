@@ -6,6 +6,7 @@ import com.hwhub.backend.domain.enums.TaskStatus;
 import com.hwhub.backend.domain.model.HouseworkTask4AssignModel;
 import com.hwhub.backend.domain.model.HouseworkTaskModel;
 import com.hwhub.backend.domain.repository.HouseworkTaskRepository;
+import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
@@ -93,5 +94,36 @@ public class HouseworkTaskService {
       default -> throw new IllegalArgumentException("Unprocessable status: " + status);
     }
     taskRepository.update(model, loginUserId, ProgramType.ONL_HWRTSK.getCode());
+  }
+
+  @Transactional
+  public void bulkUpdateStatus(
+      List<Long> taskIds, String status, String skippedReason, Long loginUserId) {
+
+    if (taskIds.isEmpty()) {
+      return;
+    }
+
+    // 先頭タスクの世帯IDで認可チェック
+    HouseworkTaskModel first = taskRepository.findById(taskIds.get(0));
+    if (first == null) {
+      throw new IllegalArgumentException("HouseworkTask not found. id=" + taskIds.get(0));
+    }
+    if (!authService.canAccessHousehold(first.getHouseholdId(), loginUserId)) {
+      throw new AccessDeniedException(
+          "User does not belong to household: userId="
+              + loginUserId
+              + ", householdId="
+              + first.getHouseholdId());
+    }
+
+    TaskStatus taskStatus = TaskStatus.fromCode(status);
+    LocalDate doneAt =
+        (taskStatus == TaskStatus.DONE || taskStatus == TaskStatus.SKIPPED)
+            ? LocalDate.now()
+            : null;
+
+    taskRepository.bulkUpdateStatus(
+        taskIds, status, skippedReason, doneAt, loginUserId, ProgramType.ONL_HWRTSK.getCode());
   }
 }

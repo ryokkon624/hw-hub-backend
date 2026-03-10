@@ -2,6 +2,7 @@ package com.hwhub.backend.presentation.rest.housework
 
 import com.hwhub.backend.application.service.HouseworkTaskService
 import com.hwhub.backend.domain.model.HouseworkTask4AssignModel
+import com.hwhub.backend.presentation.rest.housework.dto.BulkUpdateStatusRequest
 import com.hwhub.backend.presentation.rest.housework.dto.HouseworkTaskResponse
 import com.hwhub.backend.presentation.rest.housework.dto.UpdateAssigneeRequest
 import com.hwhub.backend.presentation.rest.housework.dto.UpdateStatusRequest
@@ -93,5 +94,22 @@ class HouseworkTaskControllerSpec extends Specification {
 
         then:
         1 * houseworkTaskService.updateStatus(taskId, "1", "体調不良", 10L)
+    }
+
+    // -------------------------------------------------
+    // bulkUpdateStatus
+    // -------------------------------------------------
+    def "bulkUpdateStatus はログインユーザIDを使って HouseworkTaskService.bulkUpdateStatus を呼ぶ"() {
+        given:
+        Authentication auth = Mock()
+        auth.getName() >> "10"
+
+        def request = new BulkUpdateStatusRequest([100L, 101L, 102L], "2", "bulk update")
+
+        when:
+        controller.bulkUpdateStatus(request, auth)
+
+        then:
+        1 * houseworkTaskService.bulkUpdateStatus([100L, 101L, 102L], "2", "bulk update", 10L)
     }
 }

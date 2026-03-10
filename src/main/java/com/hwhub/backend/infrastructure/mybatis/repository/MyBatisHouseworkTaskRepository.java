@@ -12,6 +12,7 @@ import com.hwhub.backend.infrastructure.mybatis.generated.entity.THouseworkTaskA
 import com.hwhub.backend.infrastructure.mybatis.generated.entity.THouseworkTaskAssignmentHistoryExample;
 import com.hwhub.backend.infrastructure.mybatis.generated.mapper.THouseworkTaskAssignmentHistoryMapper;
 import com.hwhub.backend.infrastructure.mybatis.generated.mapper.THouseworkTaskMapper;
+import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -69,5 +70,16 @@ public class MyBatisHouseworkTaskRepository implements HouseworkTaskRepository {
   public void clearAssignee(Long householdId, Long userId, Long loginUserId, String program) {
     historyCustomMapper.insertClearedAssigneeHistory(householdId, userId, loginUserId, program);
     customMapper.clearAssignee(householdId, userId, loginUserId, program);
+  }
+
+  @Override
+  public void bulkUpdateStatus(
+      List<Long> taskIds,
+      String status,
+      String skippedReason,
+      LocalDate doneAt,
+      Long userId,
+      String program) {
+    customMapper.bulkUpdateStatus(taskIds, status, skippedReason, doneAt, userId, program);
   }
 }

@@ -275,5 +275,89 @@ class HouseworkTaskServiceSpec extends Specification{
         def ex = thrown(IllegalArgumentException)
         ex.message.contains("Unprocessable status")
     }
+    // ==================================
+    // bulkUpdateStatus
+    // ==================================
+
+    def "bulkUpdateStatusはtaskIdsが空の場合何もせず即リターンする"() {
+        when:
+        service.bulkUpdateStatus([], TaskStatus.SKIPPED.code, "bulk update", 99L)
+
+        then:
+        0 * taskRepository.findById(_)
+        0 * authService.canAccessHousehold(_, _)
+        0 * taskRepository.bulkUpdateStatus(_, _, _, _, _, _)
+    }
+
+    def "bulkUpdateStatusは先頭タスクが存在しない場合IllegalArgumentExceptionを投げる"() {
+        given:
+        def taskIds = [300L, 301L]
+
+        when:
+        service.bulkUpdateStatus(taskIds, TaskStatus.SKIPPED.code, "bulk update", 99L)
+
+        then:
+        1 * taskRepository.findById(300L) >> null
+        thrown(IllegalArgumentException)
+    }
+
+    def "bulkUpdateStatusはログインユーザが世帯メンバーでない場合AccessDeniedExceptionを投げる"() {
+        given:
+        def taskIds = [300L, 301L]
+        Long householdId = 1L
+        Long loginUserId = 99L
+
+        def model = Mock(HouseworkTaskModel) {
+            getHouseholdId() >> householdId
+        }
+
+        when:
+        service.bulkUpdateStatus(taskIds, TaskStatus.SKIPPED.code, "bulk update", loginUserId)
+
+        then:
+        1 * taskRepository.findById(300L) >> model
+        1 * authService.canAccessHousehold(householdId, loginUserId) >> false
+        0 * taskRepository.bulkUpdateStatus(_, _, _, _, _, _)
+        thrown(AccessDeniedException)
+    }
+
+    def "bulkUpdateStatusはSKIPPEDのとき一括更新を呼び出す（doneAtがnullでない）"() {
+        given:
+        def taskIds = [300L, 301L, 302L]
+        Long householdId = 1L
+        Long loginUserId = 99L
+        String reason = "bulk update"
+
+        def model = Mock(HouseworkTaskModel) {
+            getHouseholdId() >> householdId
+        }
+
+        when:
+        service.bulkUpdateStatus(taskIds, TaskStatus.SKIPPED.code, reason, loginUserId)
+
+        then:
+        1 * taskRepository.findById(300L) >> model
+        1 * authService.canAccessHousehold(householdId, loginUserId) >> true
+        1 * taskRepository.bulkUpdateStatus(taskIds, TaskStatus.SKIPPED.code, reason, { it != null }, loginUserId, ProgramType.ONL_HWRTSK.code)
+    }
+
+    def "bulkUpdateStatusはDONEのとき一括更新を呼び出す（doneAtがnullでない）"() {
+        given:
+        def taskIds = [400L, 401L]
+        Long householdId = 1L
+        Long loginUserId = 99L
+
+        def model = Mock(HouseworkTaskModel) {
+            getHouseholdId() >> householdId
+        }
+
+        when:
+        service.bulkUpdateStatus(taskIds, TaskStatus.DONE.code, null, loginUserId)
+
+        then:
+        1 * taskRepository.findById(400L) >> model
+        1 * authService.canAccessHousehold(householdId, loginUserId) >> true
+        1 * taskRepository.bulkUpdateStatus(taskIds, TaskStatus.DONE.code, null, { it != null }, loginUserId, ProgramType.ONL_HWRTSK.code)
+    }
 
 }
