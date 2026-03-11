@@ -25,6 +25,22 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # git describe がタグ履歴を参照するため fetch-depth: 0 が必須
+          fetch-depth: 0
+
+      - name: Resolve STG version (git describe)
+        id: version
+        run: |
+          # タグが1件もない場合のフォールバック
+          RAW=$(git describe --tags --long 2>/dev/null || echo "v0.0.0-0-g${GITHUB_SHA:0:7}")
+          # v1.0.0-3-gabcdef1  →  v1.0.0-stg.3 に変換
+          # フォーマット: <tag>-<distance>-g<hash>
+          TAG=$(echo "$RAW" | sed 's/-[0-9]*-g[0-9a-f]*$//')
+          DISTANCE=$(echo "$RAW" | grep -oP '(?<=-)\d+(?=-g)')
+          APP_VERSION="${TAG}-stg.${DISTANCE}"
+          echo "app_version=${APP_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "Resolved STG version: ${APP_VERSION}"
 
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
@@ -41,7 +57,11 @@ jobs:
           IMAGE_URI_SHA="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:stg-${GITHUB_SHA}"
           IMAGE_URI_LATEST="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:stg-latest"
 
-          docker build -t "$IMAGE_URI_SHA" -t "$IMAGE_URI_LATEST" .
+          docker build \
+            --build-arg APP_VERSION="${{ steps.version.outputs.app_version }}" \
+            -t "$IMAGE_URI_SHA" \
+            -t "$IMAGE_URI_LATEST" \
+            .
           docker push "$IMAGE_URI_SHA"
           docker push "$IMAGE_URI_LATEST"
 
@@ -86,11 +106,14 @@ jobs:
 
           echo "Sanitized task definition generated: taskdef_base.json"
 
-      - name: Ensure SPRING_PROFILES_ACTIVE=stg
+      - name: Ensure SPRING_PROFILES_ACTIVE=stg and inject APP_VERSION
         run: |
           jq '(.containerDefinitions[] | select(.name=="'${{ env.CONTAINER_NAME }}'") | .environment)
-              |= (map(select(.name!="SPRING_PROFILES_ACTIVE"))
-                  + [{"name":"SPRING_PROFILES_ACTIVE","value":"stg"}])' \
+              |= (map(select(.name | IN("SPRING_PROFILES_ACTIVE","APP_VERSION") | not))
+                  + [
+                      {"name":"SPRING_PROFILES_ACTIVE","value":"stg"},
+                      {"name":"APP_VERSION","value":"${{ steps.version.outputs.app_version }}"}
+                    ])' \
               taskdef_base.json > taskdef_tmp.json
           mv taskdef_tmp.json taskdef_base.json
 

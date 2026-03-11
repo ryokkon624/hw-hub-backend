@@ -1,0 +1,164 @@
+name: deploy-backend-prd
+
+on:
+  push:
+    # v で始まるタグ（例: v1.0.0, v1.2.3）のみトリガー
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Deploy tag (e.g. v1.0.0)'
+        required: true
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: ap-northeast-1
+  AWS_ACCOUNT_ID: "564323392873"
+  CONTAINER_NAME: hwhub-backend
+  ECR_REPOSITORY: hwhub-backend
+
+  # ---- PRD環境構築後に設定 ----
+  # ECS_CLUSTER: hwhub-prd
+  # ECS_SERVICE: hwhub-backend-prd
+  # TASK_FAMILY: hwhub-backend-prd
+
+jobs:
+  # ----------------------------------------
+  # JOB1: Build & Push to ECR
+  # PRD環境未構築のため、現時点はここまで
+  # ----------------------------------------
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve PRD version from tag
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            APP_VERSION="${{ github.event.inputs.tag }}"
+          else
+            APP_VERSION="${{ github.ref_name }}"
+          fi
+          echo "app_version=${APP_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "Resolved PRD version: ${APP_VERSION}"
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          # TODO: PRD環境構築後に PRD用IAMロールに変更
+          #   現在はSTGロールを流用（ECR pushのみのため許容）
+          role-to-assume: arn:aws:iam::564323392873:role/gh-actions-hwhub-backend-stg
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build & Push image
+        run: |
+          APP_VERSION="${{ steps.version.outputs.app_version }}"
+          IMAGE_URI_TAG="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:prd-${APP_VERSION}"
+          IMAGE_URI_LATEST="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:prd-latest"
+
+          docker build \
+            --build-arg APP_VERSION="${APP_VERSION}" \
+            -t "$IMAGE_URI_TAG" \
+            -t "$IMAGE_URI_LATEST" \
+            .
+          docker push "$IMAGE_URI_TAG"
+          docker push "$IMAGE_URI_LATEST"
+
+          echo "Built and pushed: ${IMAGE_URI_TAG}"
+
+  # ----------------------------------------
+  # JOB2: ECS Deploy
+  # TODO: PRD環境（ECSクラスター/サービス/IAMロール）構築後にコメントアウト解除
+  # ----------------------------------------
+
+  # deploy:
+  #   runs-on: ubuntu-latest
+  #   needs: build-and-push
+  #
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
+  #
+  #     - name: Configure AWS credentials (OIDC)
+  #       uses: aws-actions/configure-aws-credentials@v4
+  #       with:
+  #         role-to-assume: arn:aws:iam::564323392873:role/gh-actions-hwhub-backend-prd
+  #         aws-region: ${{ env.AWS_REGION }}
+  #
+  #     - name: Login to Amazon ECR
+  #       uses: aws-actions/amazon-ecr-login@v2
+  #
+  #     - name: Install jq
+  #       run: sudo apt-get update && sudo apt-get install -y jq
+  #
+  #     - name: Fetch base task definition from running service and sanitize
+  #       run: |
+  #         TD_ARN=$(aws ecs describe-services \
+  #           --cluster "${ECS_CLUSTER}" \
+  #           --services "${ECS_SERVICE}" \
+  #           --query "services[0].taskDefinition" \
+  #           --output text)
+  #
+  #         aws ecs describe-task-definition \
+  #           --task-definition "${TD_ARN}" \
+  #           --query taskDefinition \
+  #           > taskdef_raw.json
+  #
+  #         jq '{
+  #           family: .family,
+  #           taskRoleArn: .taskRoleArn,
+  #           executionRoleArn: .executionRoleArn,
+  #           networkMode: .networkMode,
+  #           containerDefinitions: .containerDefinitions,
+  #           volumes: (.volumes // []),
+  #           placementConstraints: (.placementConstraints // []),
+  #           requiresCompatibilities: .requiresCompatibilities,
+  #           cpu: .cpu,
+  #           memory: .memory,
+  #           runtimePlatform: (.runtimePlatform // null),
+  #           ephemeralStorage: (.ephemeralStorage // null),
+  #           proxyConfiguration: (.proxyConfiguration // null),
+  #           inferenceAccelerators: (.inferenceAccelerators // null),
+  #           pidMode: (.pidMode // null),
+  #           ipcMode: (.ipcMode // null)
+  #         }
+  #         | with_entries(select(.value != null))' taskdef_raw.json > taskdef_base.json
+  #
+  #     - name: Ensure SPRING_PROFILES_ACTIVE=prd and inject APP_VERSION
+  #       run: |
+  #         jq '(.containerDefinitions[] | select(.name=="hwhub-backend") | .environment)
+  #             |= (map(select(.name | IN("SPRING_PROFILES_ACTIVE","APP_VERSION") | not))
+  #                 + [
+  #                     {"name":"SPRING_PROFILES_ACTIVE","value":"prd"},
+  #                     {"name":"APP_VERSION","value":"${{ needs.build-and-push.outputs.app_version }}"}
+  #                   ])' \
+  #             taskdef_base.json > taskdef_tmp.json
+  #         mv taskdef_tmp.json taskdef_base.json
+  #
+  #     - name: Render new task definition (replace image)
+  #       id: render
+  #       uses: aws-actions/amazon-ecs-render-task-definition@v1
+  #       with:
+  #         task-definition: taskdef_base.json
+  #         container-name: hwhub-backend
+  #         image: ${{ needs.build-and-push.outputs.image_uri }}
+  #
+  #     - name: Deploy task definition to ECS service
+  #       uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+  #       with:
+  #         task-definition: ${{ steps.render.outputs.task-definition }}
+  #         service: ${{ env.ECS_SERVICE }}
+  #         cluster: ${{ env.ECS_CLUSTER }}
+  #         wait-for-service-stability: true
