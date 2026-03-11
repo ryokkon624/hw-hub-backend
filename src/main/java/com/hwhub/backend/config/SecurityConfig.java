@@ -32,6 +32,9 @@ public class SecurityConfig {
         .authorizeHttpRequests(
             auth ->
                 auth
+                    // CORSプリフライト（OPTIONS）を全許可
+                    .requestMatchers(HttpMethod.OPTIONS, "/**")
+                    .permitAll()
                     // actuator
                     .requestMatchers("/actuator/health", "/actuator/info")
                     .permitAll()
