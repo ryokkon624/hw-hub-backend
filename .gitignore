@@ -42,3 +42,5 @@ localstack/data/
 localstack/logs/
 localstack/tmp/
 
+# AI Skills
+CLAUDE_backend.md

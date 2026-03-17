@@ -10,6 +10,7 @@ import com.hwhub.backend.presentation.rest.auth.dto.RegisterRequest;
 import com.hwhub.backend.presentation.rest.auth.dto.RegisterResponse;
 import com.hwhub.backend.presentation.rest.auth.dto.ResendVerificationRequest;
 import com.hwhub.backend.presentation.rest.auth.dto.VerifyEmailRequest;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,7 @@ public class AuthController {
 
   private final AuthService authService;
 
+  @Operation(security = {})
   @PostMapping("/login")
   public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
     var info = authService.login(request);
@@ -29,6 +31,7 @@ public class AuthController {
     return ResponseEntity.ok(response);
   }
 
+  @Operation(security = {})
   @PostMapping("/register")
   public ResponseEntity<RegisterResponse> register(@Valid @RequestBody RegisterRequest request) {
 
@@ -48,12 +51,14 @@ public class AuthController {
     return ResponseEntity.ok(response);
   }
 
+  @Operation(security = {})
   @PostMapping("/email-verification/verify")
   public ResponseEntity<Void> verifyEmail(@Valid @RequestBody VerifyEmailRequest request) {
     authService.verifyEmail(request.token());
     return ResponseEntity.noContent().build();
   }
 
+  @Operation(security = {})
   @PostMapping("/email-verification/resend")
   public ResponseEntity<Void> resendVerification(
       @Valid @RequestBody ResendVerificationRequest request) {

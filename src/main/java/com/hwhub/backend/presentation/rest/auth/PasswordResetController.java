@@ -3,6 +3,7 @@ package com.hwhub.backend.presentation.rest.auth;
 import com.hwhub.backend.application.service.PasswordResetService;
 import com.hwhub.backend.presentation.rest.auth.dto.ConfirmResetRequest;
 import com.hwhub.backend.presentation.rest.auth.dto.RequestResetRequest;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,7 @@ public class PasswordResetController {
   private final PasswordResetService passwordResetService;
 
   /** パスワードリセットメールを要求する。 情報漏えい防止のため、存在しないメールでも常に 204 を返す。 */
+  @Operation(security = {})
   @PostMapping("/request")
   public ResponseEntity<Void> requestReset(@Valid @RequestBody RequestResetRequest request) {
     passwordResetService.requestReset(request.email());
@@ -26,6 +28,7 @@ public class PasswordResetController {
   }
 
   /** パスワードリセットを確定する。 token が無効/期限切れの場合は適切な errorCode を返す。 */
+  @Operation(security = {})
   @PostMapping("/confirm")
   public ResponseEntity<Void> confirmReset(@Valid @RequestBody ConfirmResetRequest request) {
     passwordResetService.confirmReset(request.token(), request.newPassword());
