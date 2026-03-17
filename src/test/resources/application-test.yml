@@ -1,0 +1,82 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  jpa:
+    hibernate:
+      ddl-auto: none
+  mail:
+    host: localhost
+    port: 1025
+    protocol: smtp
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+
+logging:
+  level:
+    root: INFO
+    org.springframework: INFO
+    org.springframework.security: DEBUG
+    com.zaxxer.hikari: DEBUG        # DB接続のログ
+    org.flywaydb: DEBUG             # Flyway実行のログ
+    com.hwhub: DEBUG
+
+hwhub:
+  jwt:
+    secret: "integration-test-secret-key-must-be-at-least-32-chars"
+
+  object-storage:
+    bucket: dummy-bucket
+
+  aws:
+    s3:
+      region: ap-northeast-1
+      endpoint: http://localhost:4566
+      access-key: dummy
+      secret-key: dummy
+      path-style-access-enabled: true
+
+  cors:
+    allowed-origins:
+      - "http://localhost:5173"
+
+  auth:
+    email-verification:
+      enabled: false
+      send-mail: false
+      token-ttl-minutes: 30
+      resend-cooldown-seconds: 60
+      max-requests-per-day: 5
+      front-base-url: http://localhost:5173
+      verify-path: /email-verify
+    password-reset:
+      enabled: false
+      send-mail: false
+      token-ttl-minutes: 30
+      resend-cooldown-seconds: 60
+      max-requests-per-day: 5
+      front-base-url: http://localhost:5173
+      reset-path: /password/reset
+    google:
+      client-id: dummy-client-id
+      client-secret: dummy-client-secret
+      redirect-uri: http://localhost:8080/oauth/google/callback
+      front-base-url: http://localhost:5173
+      success-redirect-path: /login
+      failure-redirect-path: /login
+      scope: "openid email profile"
+      state-ttl-seconds: 300
+      oauth-state-secret: "dummy-oauth-state-secret-long-enough-for-hmac-signing"
+      state-cookie-name: hwhub_google_oauth_state
+      state-cookie-secure: false
+      google-link-success-redirect-path: /settings/account
+      google-link-failure-redirect-path: /settings/account
+
+  mail:
+    from: no-reply@test.familyapp-hwhub.com

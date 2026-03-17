@@ -3,6 +3,7 @@ package com.hwhub.backend.presentation.rest.invitation;
 import com.hwhub.backend.application.service.HouseholdInvitationService;
 import com.hwhub.backend.domain.model.HouseholdInvitationModel;
 import com.hwhub.backend.presentation.rest.invitation.dto.InvitationResponce;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -15,6 +16,7 @@ public class HouseholdInvitationController {
 
   private final HouseholdInvitationService service;
 
+  @Operation(security = {})
   @GetMapping("/{token}")
   public InvitationResponce getInvitation(@PathVariable("token") String token) {
     HouseholdInvitationModel model = service.getInvitation(token);
