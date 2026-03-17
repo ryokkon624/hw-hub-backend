@@ -1,15 +1,13 @@
 package com.hwhub.backend.integration
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import com.hwhub.backend.security.JwtProvider
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
 import org.springframework.jdbc.core.JdbcTemplate
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.DynamicPropertyRegistry
-import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.web.servlet.MockMvc
 import org.testcontainers.containers.MySQLContainer
 import software.amazon.awssdk.services.s3.S3Client
@@ -41,7 +39,7 @@ abstract class IntegrationTestBase extends Specification {
             }
             
     // S3Client をモックに差し替えて実際の AWS 接続を防ぐ
-    @MockBean
+    @MockitoBean
     S3Client s3Client
 
     @Autowired

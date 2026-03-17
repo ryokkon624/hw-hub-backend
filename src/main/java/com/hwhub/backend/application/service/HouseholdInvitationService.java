@@ -14,7 +14,6 @@ import com.hwhub.backend.presentation.rest.common.ResourceNotFoundException;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -75,7 +74,7 @@ public class HouseholdInvitationService {
     // メンバー追加
     HouseholdMemberModel member = memberRepository.findById(inv.getHouseholdId(), userId);
     if (member == null
-        || !StringUtils.equals(member.getStatus(), HouseholdMemberStatus.ACTIVE.getCode())) {
+        || !Objects.equals(member.getStatus(), HouseholdMemberStatus.ACTIVE.getCode())) {
       memberService.createMember(inv.getHouseholdId(), userId, user.getDisplayName(), userId);
     } else {
       // 既にActiveで存在するため

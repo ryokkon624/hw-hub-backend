@@ -132,8 +132,8 @@ class GoogleOAuthLinkHelperSpec extends Specification {
         def result = helper.redirectToLinkSuccess("linked", "token123")
 
         then:
-        result.statusCodeValue == 302
-        result.headers[HttpHeaders.LOCATION][0] == "http://localhost:3000/oauth/result?notice=linked&token=token123&next=%2Fsettings"
+        result.statusCode.value() == 302
+        result.headers.location?.toString() == "http://localhost:3000/oauth/result?notice=linked&token=token123&next=%2Fsettings"
     }
 
     def "redirectToLinkFailureは正しいURLを構築する"() {
@@ -141,8 +141,8 @@ class GoogleOAuthLinkHelperSpec extends Specification {
         def result = helper.redirectToLinkFailure("reason")
 
         then:
-        result.statusCodeValue == 302
-        result.headers[HttpHeaders.LOCATION][0] == "http://localhost:3000/settings?notice=googleLinkFailed&reason=reason"
+        result.statusCode.value() == 302
+        result.headers.location?.toString() == "http://localhost:3000/settings?notice=googleLinkFailed&reason=reason"
     }
     
     def "redirectToLoginSuccessは正しいURLを構築する"() {
@@ -150,8 +150,8 @@ class GoogleOAuthLinkHelperSpec extends Specification {
         def result = helper.redirectToLoginSuccess("welcome", "tokenABC")
 
         then:
-        result.statusCodeValue == 302
-        result.headers[HttpHeaders.LOCATION][0] == "http://localhost:3000/login?notice=welcome&token=tokenABC"
+        result.statusCode.value() == 302
+        result.headers.location?.toString() == "http://localhost:3000/login?notice=welcome&token=tokenABC"
     }
     
     def "redirectToLoginFailureは正しいURLを構築する"() {
@@ -159,7 +159,7 @@ class GoogleOAuthLinkHelperSpec extends Specification {
         def result = helper.redirectToLoginFailure("error")
 
         then:
-        result.statusCodeValue == 302
-        result.headers[HttpHeaders.LOCATION][0] == "http://localhost:3000/login?notice=googleLoginFailed&reason=error"
+        result.statusCode.value() == 302
+        result.headers.location?.toString() == "http://localhost:3000/login?notice=googleLoginFailed&reason=error"
     }
 }
