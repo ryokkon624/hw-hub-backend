@@ -17,7 +17,7 @@
 ## 2. 技術スタック
 
 - Java 21（Amazon Corretto / Temurin など）
-- Spring Boot 3.5.x
+- Spring Boot 4.0.x
 - MyBatis + MyBatis Generator（MBG）
 - Flyway（DB マイグレーション）
 - MySQL 8
@@ -97,8 +97,26 @@ docker compose up -d
 ### 5.2 テスト
 
 ```bash
+# UT（単体テスト）
 ./gradlew test
 ```
+
+統合テスト（PR時にCIで実行、ローカルでも実行可能）：
+
+```bash
+./gradlew integrationTest
+```
+
+全テスト実行（UT＋統合テスト）：
+
+```bash
+./gradlew clean test integrationTest
+```
+
+**統合テストについて：**
+- Testcontainers を使用してMySQLコンテナを自動起動
+- Flywayマイグレーションが自動適用される
+- PRのCIパイプラインで自動実行される
 
 ### 5.3 フォーマット/静的チェック（プロジェクト設定に合わせて）
 
