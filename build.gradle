@@ -73,16 +73,45 @@ dependencies {
     testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.5'
 
     // Spock（Groovy 4 用）
-    testImplementation platform('org.spockframework:spock-bom:2.3-groovy-4.0')
+    testImplementation platform('org.spockframework:spock-bom:2.4-groovy-4.0')
     testImplementation 'org.spockframework:spock-core'
     testImplementation 'org.spockframework:spock-spring'
+
+    // Testcontainers（統合テスト用）
+    testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+    testImplementation 'org.testcontainers:mysql'
+    testImplementation 'org.testcontainers:spock'
+    testImplementation 'org.testcontainers:testcontainers'
+    testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'org.flywaydb:flyway-core'
+    testImplementation 'org.flywaydb:flyway-mysql'
 
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
+// UT用タスク
 tasks.named('test') {
-    useJUnitPlatform()
+    useJUnitPlatform {
+        excludeTags 'integration'
+    }
     finalizedBy jacocoTestReport
+}
+
+// 統合テスト専用タスク
+tasks.register('integrationTest', Test) {
+    description = 'Runs integration tests'
+    group = 'verification'
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    useJUnitPlatform {
+        includeTags 'integration'
+    }
+    // Spring Bootのテスト設定を引き継ぐ
+    jvmArgs += [
+        '-Dspring.test.context.cache.maxSize=1'
+    ]
+    // 環境変数でSpringプロファイルを指定
+    environment 'SPRING_PROFILES_ACTIVE', 'integration-test'
 }
 
 tasks.register('mybatisGenerator', JavaExec) {
@@ -113,6 +142,13 @@ jacocoTestReport {
                             'com/hwhub/backend/infrastructure/mybatis/repository/**',
                             'com/hwhub/backend/tool/**',
                             'com/hwhub/backend/presentation/rest/**/dto/**',
+                            'com/hwhub/backend/config/**',
+                            // S3配下はS3ObjectStorageClient以外を除外
+                            'com/hwhub/backend/infrastructure/s3/AwsS3Properties.class',
+                            'com/hwhub/backend/infrastructure/s3/ObjectStorageConfig.class',
+                            'com/hwhub/backend/infrastructure/s3/ObjectStorageConfig$*.class',
+                            'com/hwhub/backend/infrastructure/s3/ObjectStorageProperties.class',
+                            'com/hwhub/backend/infrastructure/s3/ObjectStorageProperties$*.class',
                     ])
                 })
         )
