@@ -1,8 +1,8 @@
 package com.hwhub.backend.infrastructure.notification;
 
 import com.hwhub.backend.domain.notification.VerificationMailSender;
+import org.jspecify.annotations.NonNull;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
 @ConditionalOnProperty(

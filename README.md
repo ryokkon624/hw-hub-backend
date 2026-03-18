@@ -1,7 +1,7 @@
 # Housework Hub (HwHub)
 
 ![Java](https://img.shields.io/badge/Java-21-orange)
-![SpringBoot](https://img.shields.io/badge/SpringBoot-3.x-brightgreen)
+![SpringBoot](https://img.shields.io/badge/SpringBoot-4.x-brightgreen)
 ![Vue](https://img.shields.io/badge/Vue-3-42b883)
 ![Terraform](https://img.shields.io/badge/Terraform-managed-blue)
 ![Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)
@@ -68,7 +68,7 @@ flowchart LR
 
 ### Backend
 - Java 21
-- Spring Boot 3.x
+- Spring Boot 4.x
 - MyBatis + MyBatis Generator
 - Flyway
 - MySQL

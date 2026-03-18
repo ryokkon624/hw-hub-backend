@@ -49,7 +49,7 @@ class GoogleOAuthControllerSpec extends Specification {
         1 * googleOAuthService.buildAuthorizationUrl(state) >> url
 
         result.statusCode == HttpStatus.FOUND
-        result.headers[HttpHeaders.LOCATION][0] == url
+        result.headers.getFirst(HttpHeaders.LOCATION) == url
     }
 
     def "callbackはエラーパラメータが存在する場合、失敗URLへリダイレクトする"() {

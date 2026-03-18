@@ -4,9 +4,6 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
-  jpa:
-    hibernate:
-      ddl-auto: none
   mail:
     host: localhost
     port: 1025
@@ -21,11 +18,11 @@ spring:
 logging:
   level:
     root: INFO
-    org.springframework: INFO
-    org.springframework.security: DEBUG
-    com.zaxxer.hikari: DEBUG        # DB接続のログ
-    org.flywaydb: DEBUG             # Flyway実行のログ
-    com.hwhub: DEBUG
+    "[org.springframework]": INFO
+    "[org.springframework.security]": DEBUG
+    "[com.zaxxer.hikari]": DEBUG 
+    "[org.flywaydb]": DEBUG
+    "[com.hwhub]": DEBUG
 
 hwhub:
   jwt:

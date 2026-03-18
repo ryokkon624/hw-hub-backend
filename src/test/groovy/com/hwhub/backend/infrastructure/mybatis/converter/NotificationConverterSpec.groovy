@@ -1,6 +1,6 @@
 package com.hwhub.backend.infrastructure.mybatis.converter
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import tools.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.hwhub.backend.domain.enums.NotificationLinkType
 import com.hwhub.backend.domain.enums.NotificationType
