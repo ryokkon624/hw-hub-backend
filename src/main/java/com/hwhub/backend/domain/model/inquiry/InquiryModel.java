@@ -1,0 +1,100 @@
+package com.hwhub.backend.domain.model.inquiry;
+
+import com.hwhub.backend.domain.enums.InquiryCategory;
+import com.hwhub.backend.domain.enums.InquiryStatus;
+import com.hwhub.backend.domain.enums.SenderType;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import lombok.Getter;
+
+@Getter
+public class InquiryModel {
+  private final InquiryId inquiryId;
+  private final long userId;
+  private final long householdId;
+  private final InquiryCategory category;
+  private InquiryStatus status;
+  private final String title;
+  private final List<InquiryMessageModel> messages;
+  private final LocalDateTime createdAt;
+
+  private InquiryModel(
+      InquiryId inquiryId,
+      long userId,
+      long householdId,
+      InquiryCategory category,
+      InquiryStatus status,
+      String title,
+      List<InquiryMessageModel> messages,
+      LocalDateTime createdAt) {
+    this.inquiryId = inquiryId;
+    this.userId = userId;
+    this.householdId = householdId;
+    this.category = category;
+    this.status = status;
+    this.title = title;
+    this.messages = messages;
+    this.createdAt = createdAt;
+  }
+
+  public static InquiryModel newInquiry(
+      long userId,
+      long householdId,
+      InquiryCategory category,
+      String title,
+      String firstMessageBody) {
+    List<InquiryMessageModel> messages = new ArrayList<>();
+    messages.add(InquiryMessageModel.newMessage(null, 1, SenderType.YOU, firstMessageBody));
+    return new InquiryModel(
+        null, userId, householdId, category, InquiryStatus.OPEN, title, messages, null);
+  }
+
+  public static InquiryModel reconstruct(
+      Long inquiryId,
+      long userId,
+      long householdId,
+      String category,
+      String status,
+      String title,
+      List<InquiryMessageModel> messages,
+      LocalDateTime createdAt) {
+    return new InquiryModel(
+        new InquiryId(inquiryId),
+        userId,
+        householdId,
+        InquiryCategory.fromCode(category),
+        InquiryStatus.fromCode(status),
+        title,
+        new ArrayList<>(messages),
+        createdAt);
+  }
+
+  public InquiryMessageModel addUserMessage(String body) {
+    return InquiryMessageModel.newMessage(
+        this.inquiryId, messages.size() + 1, SenderType.YOU, body);
+  }
+
+  public void close() {
+    if (this.status == InquiryStatus.CLOSED) {
+      throw new IllegalStateException("Inquiry is already closed");
+    }
+    this.status = InquiryStatus.CLOSED;
+  }
+
+  public void escalateToStaff() {
+    if (this.status != InquiryStatus.AI_ANSWERED) {
+      throw new IllegalStateException(
+          "Escalation to staff is only allowed from AI_ANSWERED status");
+    }
+    this.status = InquiryStatus.PENDING_STAFF;
+  }
+
+  public void applyAiAnswer(String body) {
+    this.status = InquiryStatus.AI_ANSWERED;
+    InquiryMessageModel aiMessage =
+        InquiryMessageModel.newMessage(
+            this.inquiryId, messages.size() + 1, SenderType.AI_SUPPORT, body);
+    this.messages.add(aiMessage);
+  }
+}

@@ -30,8 +30,8 @@ class NotificationGroupSpec extends Specification {
         thrown(IllegalArgumentException)
     }
 
-    def "valuesは2つの値を含む"() {
+    def "valuesは3つの値を含む"() {
         expect:
-        NotificationGroup.values().length == 2
+        NotificationGroup.values().length == 3
     }
 }

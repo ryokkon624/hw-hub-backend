@@ -441,6 +441,55 @@ public class NotificationPublisher {
     }
   }
 
+  /**
+   * 問い合わせに返信があった場合の通知。
+   *
+   * <ul>
+   *   <li>同期：通知センターに即表示
+   *   <li>通知先：問い合わせの作成者
+   *   <li>遷移先：問い合わせ詳細
+   * </ul>
+   *
+   * @param inquiryId 問い合わせID
+   * @param inquiryTitle 問い合わせ件名
+   * @param targetUserId 通知対象のユーザーID（問い合わせの作成者）
+   * @param program プログラム名
+   */
+  @Transactional
+  public void publishInquiryReplied(
+      Long inquiryId, String inquiryTitle, Long targetUserId, String program) {
+
+    if (!permissionService.canReceive(
+        targetUserId, NotificationType.YOUR_INQUIRY_HAS_BEEN_REPLIED)) {
+      return;
+    }
+
+    Map<String, Object> params = new HashMap<>();
+    params.put("inquiryId", inquiryId);
+    params.put("title", inquiryTitle);
+    NotificationMessage message =
+        new NotificationMessage(
+            "notifications.messages.inquiryReplied.title",
+            "notifications.messages.inquiryReplied.body",
+            params);
+
+    NotificationLink link = new NotificationLink(NotificationLinkType.INQUIRY_DETAIL, inquiryId);
+
+    LocalDateTime now = LocalDateTime.now();
+
+    NotificationModel model =
+        NotificationModel.newUnread(
+            null,
+            NotificationType.YOUR_INQUIRY_HAS_BEEN_REPLIED,
+            null,
+            targetUserId,
+            message,
+            link,
+            now);
+
+    notificationRepository.insert(model, program);
+  }
+
   private void insertTaskNotificationEvent(
       HouseworkTaskModel task,
       NotificationType type,

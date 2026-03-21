@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hwhub.backend.infrastructure.mybatis.custom.mapper.InquiryCustomMapper">
+
+  <resultMap id="InquiryWithMessagesMap"
+             type="com.hwhub.backend.infrastructure.mybatis.custom.entity.InquiryWithMessagesEntity">
+    <id     property="inquiryId"   column="inquiry_id"/>
+    <result property="userId"      column="user_id"/>
+    <result property="householdId" column="household_id"/>
+    <result property="category"    column="category"/>
+    <result property="status"      column="status"/>
+    <result property="title"       column="title"/>
+    <result property="createdAt"   column="created_at"/>
+    <collection property="messages"
+                ofType="com.hwhub.backend.infrastructure.mybatis.generated.entity.TInquiryMessage"
+                columnPrefix="msg_">
+      <id     property="messageId"  column="message_id"/>
+      <result property="inquiryId"  column="inquiry_id"/>
+      <result property="seq"        column="seq"/>
+      <result property="senderType" column="sender_type"/>
+      <result property="body"       column="body"/>
+      <result property="createdAt"  column="created_at"/>
+    </collection>
+  </resultMap>
+
+  <select id="findInquiryWithMessages" resultMap="InquiryWithMessagesMap">
+    SELECT
+        i.inquiry_id
+        , i.user_id
+        , i.household_id
+        , i.category
+        , i.`status`
+        , i.title
+        , i.created_at
+        , m.message_id  AS msg_message_id
+        , m.inquiry_id  AS msg_inquiry_id
+        , m.seq         AS msg_seq
+        , m.sender_type AS msg_sender_type
+        , m.body        AS msg_body
+        , m.created_at  AS msg_created_at
+    FROM
+        t_inquiry i
+        LEFT JOIN t_inquiry_message m ON i.inquiry_id = m.inquiry_id
+    WHERE
+        i.inquiry_id = #{inquiryId}
+    ORDER BY
+        m.seq ASC
+  </select>
+
+  <select id="findByUserId" resultMap="com.hwhub.backend.infrastructure.mybatis.generated.mapper.TInquiryMapper.BaseResultMap">
+    SELECT
+        inquiry_id
+        , user_id
+        , household_id
+        , category
+        , `status`
+        , title
+        , create_user_id
+        , create_program
+        , created_at
+        , update_user_id
+        , update_program
+        , updated_at
+    FROM
+        t_inquiry
+    WHERE
+        user_id = #{userId}
+    ORDER BY
+        created_at DESC
+  </select>
+
+</mapper>

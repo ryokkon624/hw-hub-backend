@@ -19,6 +19,9 @@ public class NotificationGroupResolver {
 
       // タスク割当系
       case TASK_ASSIGNED, YOUR_TASK_WAS_TAKEN, BE_DUMPED_TASK -> NotificationGroup.TASK_ASSIGNMENT;
+
+      // 問い合わせ系
+      case YOUR_INQUIRY_HAS_BEEN_REPLIED -> NotificationGroup.INQUIRY;
     };
   }
 }

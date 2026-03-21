@@ -2,7 +2,8 @@ package com.hwhub.backend.domain.enums;
 
 public enum NotificationGroup implements CodeEnum {
   HOUSEHOLD("100"),
-  TASK_ASSIGNMENT("200");
+  TASK_ASSIGNMENT("200"),
+  INQUIRY("900");
 
   private final String code;
 

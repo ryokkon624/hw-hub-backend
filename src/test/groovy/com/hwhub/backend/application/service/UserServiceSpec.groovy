@@ -411,11 +411,13 @@ class UserServiceSpec extends Specification {
         1 * userRepository.isNotificationEnabled(userId) >> true
         1 * settingRepository.findEnabled(userId, com.hwhub.backend.domain.enums.NotificationGroup.HOUSEHOLD) >> Optional.empty()
         1 * settingRepository.findEnabled(userId, com.hwhub.backend.domain.enums.NotificationGroup.TASK_ASSIGNMENT) >> Optional.of(false)
+        1 * settingRepository.findEnabled(userId, com.hwhub.backend.domain.enums.NotificationGroup.INQUIRY) >> Optional.empty()
 
         and:
         result.notificationEnabled() == true
         result.groupSettings().get(com.hwhub.backend.domain.enums.NotificationGroup.HOUSEHOLD) == true
         result.groupSettings().get(com.hwhub.backend.domain.enums.NotificationGroup.TASK_ASSIGNMENT) == false
+        result.groupSettings().get(com.hwhub.backend.domain.enums.NotificationGroup.INQUIRY) == true
     }
 
     def "getSettingsは通知無効の場合、全グループがfalseのNotificationSettingsResultを返す"() {
@@ -451,6 +453,7 @@ class UserServiceSpec extends Specification {
         userRepository.isNotificationEnabled(userId) >> true
         settingRepository.findEnabled(userId, com.hwhub.backend.domain.enums.NotificationGroup.HOUSEHOLD) >> Optional.empty()
         settingRepository.findEnabled(userId, com.hwhub.backend.domain.enums.NotificationGroup.TASK_ASSIGNMENT) >> Optional.of(false)
+        settingRepository.findEnabled(userId, com.hwhub.backend.domain.enums.NotificationGroup.INQUIRY) >> Optional.empty()
 
         when:
         def result = service.updateNotificationEnabled(userId, true, groupSettings)

@@ -220,4 +220,98 @@ class NotificationPublisherSpec extends Specification {
         "操作者がnullかつ未割り当て"  | null           | null           | 2L            || true       | 2L        | NotificationType.TASK_ASSIGNED
         "操作者がnullかつ第三者付替"  | 1L             | null           | 2L            || true       | 2L        | NotificationType.TASK_ASSIGNED
     }
+
+    // ==================================
+    // publishInquiryReplied
+    // ==================================
+
+    def "publishInquiryRepliedは通知許可のとき正しい内容でinsertを呼び出す"() {
+        given:
+        permissionService.canReceive(3L, NotificationType.YOUR_INQUIRY_HAS_BEEN_REPLIED) >> true
+
+        when:
+        publisher.publishInquiryReplied(5L, "問い合わせ件名", 3L, "prg")
+
+        then:
+        1 * notificationRepository.insert({
+            it.targetUserId == 3L &&
+            it.actorUserId == null &&
+            it.householdId == null &&
+            it.notificationType == NotificationType.YOUR_INQUIRY_HAS_BEEN_REPLIED &&
+            it.message.params().inquiryId == 5L &&
+            it.message.params().title == "問い合わせ件名"
+        }, "prg")
+    }
+
+    def "publishRemoveMemberByOwnerは通知不許可のときinsertを呼び出さない"() {
+        when:
+        publisher.publishRemoveMemberByOwner(1L, 2L, 3L, "prg")
+
+        then:
+        1 * permissionService.canReceive(3L, NotificationType.HAVE_BEEN_REMOVED) >> false
+        0 * notificationRepository.insert(_, _)
+    }
+
+    def "publishMemberRemovedはアクティブメンバーが0人のときbulkInsertを呼び出さない"() {
+        given:
+        householdMemberRepository.findActiveByHouseholdId(1L) >> []
+
+        when:
+        publisher.publishMemberRemoved(1L, 2L, "名前", "prg")
+
+        then:
+        0 * notificationRepository.bulkInsert(_, _)
+    }
+
+    def "publishAcceptInvitationは通知不許可のときinsertを呼び出さない"() {
+        when:
+        publisher.publishAcceptInvitation(1L, 2L, 3L, "prg")
+
+        then:
+        1 * permissionService.canReceive(3L, NotificationType.INVITATION_ACCEPTED) >> false
+        0 * notificationRepository.insert(_, _)
+    }
+
+    def "publishDeclineInvitationは通知不許可のときinsertを呼び出さない"() {
+        when:
+        publisher.publishDeclineInvitation(1L, 2L, 3L, "prg")
+
+        then:
+        1 * permissionService.canReceive(3L, NotificationType.INVITATION_DECLINED) >> false
+        0 * notificationRepository.insert(_, _)
+    }
+
+    def "publishAssigned2Ownerは通知不許可のときinsertを呼び出さない"() {
+        when:
+        publisher.publishAssigned2Owner(1L, 2L, 3L, "prg")
+
+        then:
+        1 * permissionService.canReceive(3L, NotificationType.ASSIGNED_TO_THE_OWNER) >> false
+        0 * notificationRepository.insert(_, _)
+    }
+
+    def "publishTaskAssignedEventはcanReceiveがfalseの場合notificationEventRepositoryを呼び出さない"() {
+        given:
+        def task = Mock(HouseworkTaskModel)
+        task.getAssigneeUserId() >> 2L
+        task.getHouseholdId() >> 1L
+        task.getHouseworkTaskId() >> 100L
+        task.getTargetDate() >> LocalDate.now()
+
+        when:
+        publisher.publishTaskAssignedEvent(task, null, 1L, "prg")
+
+        then:
+        1 * permissionService.canReceive(2L, NotificationType.TASK_ASSIGNED) >> false
+        0 * notificationEventRepository.insert(_, _, _)
+    }
+
+    def "publishInquiryRepliedは通知不許可のときinsertを呼び出さない"() {
+        when:
+        publisher.publishInquiryReplied(5L, "問い合わせ件名", 3L, "prg")
+
+        then: "thenブロックのinteractionはsetup()のstubより優先されるため、falseで上書きできる"
+        1 * permissionService.canReceive(3L, NotificationType.YOUR_INQUIRY_HAS_BEEN_REPLIED) >> false
+        0 * notificationRepository.insert(_, _)
+    }
 }

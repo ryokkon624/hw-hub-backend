@@ -8,7 +8,8 @@ public enum NotificationType implements CodeEnum {
   ASSIGNED_TO_THE_OWNER("0203"),
   TASK_ASSIGNED("0301"),
   BE_DUMPED_TASK("0302"),
-  YOUR_TASK_WAS_TAKEN("0303");
+  YOUR_TASK_WAS_TAKEN("0303"),
+  YOUR_INQUIRY_HAS_BEEN_REPLIED("0401");
 
   private final String code;
 

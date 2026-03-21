@@ -18,11 +18,13 @@ public enum ProgramType implements CodeEnum {
   ONL_PWDRST("OnlPwdRst"),
   ONL_AUTH_GOOGLE("OnlAuthGgl"),
   ONL_NTF_QRY("OnlNtfQry"),
+  ONL_INQRY("OnlInqry"),
   BTC_INV_EXPR("BtcInvExpr"),
   BTC_TSK_GEN("BtcTskGen"),
   BTC_TSK_RECL("BtcTskRecl"),
   BTC_HLD_CLEN("BtcHldClen"),
-  BTC_NTF_AGGR("BtcNtfAggr");
+  BTC_NTF_AGGR("BtcNtfAggr"),
+  BTC_INQ_AI("BtcInqAI");
 
   private final String code;
 
