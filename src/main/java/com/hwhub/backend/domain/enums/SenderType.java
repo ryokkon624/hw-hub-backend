@@ -1,8 +1,8 @@
 package com.hwhub.backend.domain.enums;
 
 public enum SenderType implements CodeEnum {
-  USER("USER"),
-  AI("AI"),
+  YOU("USER"),
+  AI_SUPPORT("AI"),
   STAFF("STAFF");
 
   private final String code;

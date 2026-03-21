@@ -1,6 +1,18 @@
 {
   "properties": [
     {
+      "name": "mybatis.mapper-locations",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "mybatis.type-aliases-package",
+      "type": "java.lang.String"
+    },
+    {
+      "name": "mybatis.configuration.map-underscore-to-camel-case",
+      "type": "java.lang.Boolean"
+    },
+    {
       "name": "hwhub.jwt.secret",
       "type": "java.lang.String",
       "description": "JWT signing secret"

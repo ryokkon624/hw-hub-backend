@@ -5,7 +5,8 @@ public enum NotificationLinkType implements CodeEnum {
   MY_TASKS("MyTasks"),
   HOUSEHOLD("Household"),
   INVITATION("Invite"),
-  SETTINGS("Settings");
+  SETTINGS("Settings"),
+  INQUIRY_DETAIL("Inquiry");
 
   private final String code;
 
