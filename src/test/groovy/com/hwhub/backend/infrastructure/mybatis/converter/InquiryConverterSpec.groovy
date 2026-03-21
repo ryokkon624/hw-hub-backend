@@ -1,0 +1,273 @@
+package com.hwhub.backend.infrastructure.mybatis.converter
+
+import com.hwhub.backend.domain.enums.InquiryCategory
+import com.hwhub.backend.domain.enums.InquiryStatus
+import com.hwhub.backend.domain.enums.SenderType
+import com.hwhub.backend.domain.model.inquiry.InquiryId
+import com.hwhub.backend.domain.model.inquiry.InquiryMessageModel
+import com.hwhub.backend.domain.model.inquiry.InquiryModel
+import com.hwhub.backend.infrastructure.mybatis.custom.entity.InquiryWithMessagesEntity
+import com.hwhub.backend.infrastructure.mybatis.generated.entity.TInquiry
+import com.hwhub.backend.infrastructure.mybatis.generated.entity.TInquiryMessage
+import spock.lang.Specification
+
+import java.time.LocalDateTime
+
+class InquiryConverterSpec extends Specification {
+
+    // ==================================
+    // コンストラクタ
+    // ==================================
+
+    def "InquiryConverterはインスタンス化できる（@Componentとして利用される）"() {
+        when:
+        def converter = new InquiryConverter()
+
+        then:
+        converter != null
+    }
+
+    // ==================================
+    // toModel
+    // ==================================
+
+    def "toModelはentityがnullのときnullを返す"() {
+        expect:
+        InquiryConverter.toModel(null) == null
+    }
+
+    def "toModelはInquiryWithMessagesEntityをInquiryModelに変換する（messagesあり）"() {
+        given:
+        def msgEntity = new TInquiryMessage()
+        msgEntity.setMessageId(10L)
+        msgEntity.setInquiryId(5L)
+        msgEntity.setSeq(1)
+        msgEntity.setSenderType("USER")
+        msgEntity.setBody("ユーザーメッセージ")
+        msgEntity.setCreatedAt(new Date())
+
+        def entity = new InquiryWithMessagesEntity()
+        entity.inquiryId = 5L
+        entity.userId = 1L
+        entity.householdId = 10L
+        entity.category = "10"
+        entity.status = "00"
+        entity.title = "件名"
+        entity.createdAt = new Date()
+        entity.messages = [msgEntity]
+
+        when:
+        def model = InquiryConverter.toModel(entity)
+
+        then:
+        model != null
+        model.inquiryId.value() == 5L
+        model.userId == 1L
+        model.householdId == 10L
+        model.category == InquiryCategory.GENERAL
+        model.status == InquiryStatus.OPEN
+        model.title == "件名"
+        model.messages.size() == 1
+        model.messages[0].senderType == SenderType.YOU
+        model.messages[0].body == "ユーザーメッセージ"
+    }
+
+    def "toModelはmessagesがnullのとき空リストで変換する"() {
+        given:
+        def entity = new InquiryWithMessagesEntity()
+        entity.inquiryId = 5L
+        entity.userId = 1L
+        entity.householdId = 10L
+        entity.category = "10"
+        entity.status = "00"
+        entity.title = "件名"
+        entity.createdAt = null
+        entity.messages = null
+
+        when:
+        def model = InquiryConverter.toModel(entity)
+
+        then:
+        model != null
+        model.messages.isEmpty()
+        model.createdAt == null
+    }
+
+    // ==================================
+    // toSummary
+    // ==================================
+
+    def "toSummaryはentityがnullのときnullを返す"() {
+        expect:
+        InquiryConverter.toSummary(null) == null
+    }
+
+    def "toSummaryはTInquiryをInquirySummaryに変換する"() {
+        given:
+        def entity = new TInquiry()
+        entity.setInquiryId(3L)
+        entity.setCategory("20")
+        entity.setStatus("10")
+        entity.setTitle("家事の件")
+        entity.setCreatedAt(new Date())
+
+        when:
+        def summary = InquiryConverter.toSummary(entity)
+
+        then:
+        summary != null
+        summary.inquiryId().value() == 3L
+        summary.category() == InquiryCategory.HOUSEWORK
+        summary.status() == InquiryStatus.AI_ANSWERED
+        summary.title() == "家事の件"
+        summary.createdAt() != null
+    }
+
+    def "toSummaryはcreatedAtがnullのときnullを返す"() {
+        given:
+        def entity = new TInquiry()
+        entity.setInquiryId(1L)
+        entity.setCategory("10")
+        entity.setStatus("00")
+        entity.setTitle("件名")
+        entity.setCreatedAt(null)
+
+        when:
+        def summary = InquiryConverter.toSummary(entity)
+
+        then:
+        summary.createdAt() == null
+    }
+
+    // ==================================
+    // toEntity (InquiryModel → TInquiry)
+    // ==================================
+
+    def "toEntityはmodelがnullのときnullを返す"() {
+        expect:
+        InquiryConverter.toEntity(null) == null
+    }
+
+    def "toEntityはInquiryModelをTInquiryに変換する（inquiryIdあり）"() {
+        given:
+        def model = InquiryModel.reconstruct(
+            5L, 1L, 10L, "10", "00", "件名", [], LocalDateTime.now()
+        )
+
+        when:
+        def entity = InquiryConverter.toEntity(model)
+
+        then:
+        entity != null
+        entity.inquiryId == 5L
+        entity.userId == 1L
+        entity.householdId == 10L
+        entity.category == "10"
+        entity.status == "00"
+        entity.title == "件名"
+    }
+
+    def "toEntityはinquiryIdがnull（新規）のときinquiryIdをセットしない"() {
+        given:
+        def model = InquiryModel.newInquiry(1L, 10L, InquiryCategory.GENERAL, "件名", "本文")
+
+        when:
+        def entity = InquiryConverter.toEntity(model)
+
+        then:
+        entity != null
+        entity.inquiryId == null
+        entity.userId == 1L
+        entity.householdId == 10L
+    }
+
+    // ==================================
+    // toMessageModel (TInquiryMessage → InquiryMessageModel)
+    // ==================================
+
+    def "toMessageModelはentityがnullのときnullを返す"() {
+        expect:
+        InquiryConverter.toMessageModel(null) == null
+    }
+
+    def "toMessageModelはTInquiryMessageをInquiryMessageModelに変換する"() {
+        given:
+        def entity = new TInquiryMessage()
+        entity.setMessageId(10L)
+        entity.setInquiryId(5L)
+        entity.setSeq(2)
+        entity.setSenderType("AI")
+        entity.setBody("AI回答")
+        entity.setCreatedAt(new Date())
+
+        when:
+        def model = InquiryConverter.toMessageModel(entity)
+
+        then:
+        model != null
+        model.messageId.value() == 10L
+        model.inquiryId.value() == 5L
+        model.seq == 2
+        model.senderType == SenderType.AI_SUPPORT
+        model.body == "AI回答"
+        model.createdAt != null
+    }
+
+    // ==================================
+    // toMessageEntity (InquiryMessageModel → TInquiryMessage)
+    // ==================================
+
+    def "toMessageEntityはmessageがnullのときnullを返す"() {
+        expect:
+        InquiryConverter.toMessageEntity(null) == null
+    }
+
+    def "toMessageEntityは新規メッセージ（messageId・inquiryIdがnull）を変換する"() {
+        given:
+        def msg = InquiryMessageModel.newMessage(null, 1, SenderType.YOU, "本文")
+
+        when:
+        def entity = InquiryConverter.toMessageEntity(msg)
+
+        then:
+        entity != null
+        entity.messageId == null
+        entity.inquiryId == null
+        entity.seq == 1
+        entity.senderType == "USER"
+        entity.body == "本文"
+    }
+
+    def "toMessageEntityはmessageIdとinquiryIdが設定済みのメッセージを変換する"() {
+        given:
+        def msg = InquiryMessageModel.reconstruct(10L, 5L, 3, "STAFF", "スタッフ返信", LocalDateTime.now())
+
+        when:
+        def entity = InquiryConverter.toMessageEntity(msg)
+
+        then:
+        entity != null
+        entity.messageId == 10L
+        entity.inquiryId == 5L
+        entity.seq == 3
+        entity.senderType == "STAFF"
+        entity.body == "スタッフ返信"
+    }
+
+    def "toMessageEntityは各SenderTypeを正しくコードに変換する"() {
+        given:
+        def msg = InquiryMessageModel.newMessage(null, 1, senderType, "本文")
+
+        when:
+        def entity = InquiryConverter.toMessageEntity(msg)
+
+        then:
+        entity.senderType == expectedCode
+
+        where:
+        senderType             | expectedCode
+        SenderType.YOU         | "USER"
+        SenderType.AI_SUPPORT  | "AI"
+        SenderType.STAFF       | "STAFF"
+    }
+}
