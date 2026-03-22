@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hwhub.backend.infrastructure.mybatis.generated.mapper.MUserRoleMapper">
+  <resultMap id="BaseResultMap" type="com.hwhub.backend.infrastructure.mybatis.generated.entity.MUserRole">
+    <id column="user_role_id" jdbcType="BIGINT" property="userRoleId" />
+    <result column="user_id" jdbcType="BIGINT" property="userId" />
+    <result column="role" jdbcType="VARCHAR" property="role" />
+    <result column="create_user_id" jdbcType="BIGINT" property="createUserId" />
+    <result column="create_program" jdbcType="VARCHAR" property="createProgram" />
+    <result column="created_at" jdbcType="TIMESTAMP" property="createdAt" />
+    <result column="update_user_id" jdbcType="BIGINT" property="updateUserId" />
+    <result column="update_program" jdbcType="VARCHAR" property="updateProgram" />
+    <result column="updated_at" jdbcType="TIMESTAMP" property="updatedAt" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    user_role_id, user_id, `role`, create_user_id, create_program, created_at, update_user_id, 
+    update_program, updated_at
+  </sql>
+  <select id="selectByExample" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.MUserRoleExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    'false' as QUERYID,
+    <include refid="Base_Column_List" />
+    from m_user_role
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from m_user_role
+    where user_role_id = #{userRoleId,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from m_user_role
+    where user_role_id = #{userRoleId,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" keyColumn="user_role_id" keyProperty="userRoleId" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.MUserRole" useGeneratedKeys="true">
+    insert into m_user_role (user_id, `role`, create_user_id, 
+      create_program, created_at, update_user_id, 
+      update_program, updated_at)
+    values (#{userId,jdbcType=BIGINT}, #{role,jdbcType=VARCHAR}, #{createUserId,jdbcType=BIGINT}, 
+      #{createProgram,jdbcType=VARCHAR}, #{createdAt,jdbcType=TIMESTAMP}, #{updateUserId,jdbcType=BIGINT}, 
+      #{updateProgram,jdbcType=VARCHAR}, #{updatedAt,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" keyColumn="user_role_id" keyProperty="userRoleId" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.MUserRole" useGeneratedKeys="true">
+    insert into m_user_role
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="role != null">
+        `role`,
+      </if>
+      <if test="createUserId != null">
+        create_user_id,
+      </if>
+      <if test="createProgram != null">
+        create_program,
+      </if>
+      <if test="createdAt != null">
+        created_at,
+      </if>
+      <if test="updateUserId != null">
+        update_user_id,
+      </if>
+      <if test="updateProgram != null">
+        update_program,
+      </if>
+      <if test="updatedAt != null">
+        updated_at,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="role != null">
+        #{role,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserId != null">
+        #{createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="createProgram != null">
+        #{createProgram,jdbcType=VARCHAR},
+      </if>
+      <if test="createdAt != null">
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUserId != null">
+        #{updateUserId,jdbcType=BIGINT},
+      </if>
+      <if test="updateProgram != null">
+        #{updateProgram,jdbcType=VARCHAR},
+      </if>
+      <if test="updatedAt != null">
+        #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.MUserRole">
+    update m_user_role
+    <set>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="role != null">
+        `role` = #{role,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserId != null">
+        create_user_id = #{createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="createProgram != null">
+        create_program = #{createProgram,jdbcType=VARCHAR},
+      </if>
+      <if test="createdAt != null">
+        created_at = #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUserId != null">
+        update_user_id = #{updateUserId,jdbcType=BIGINT},
+      </if>
+      <if test="updateProgram != null">
+        update_program = #{updateProgram,jdbcType=VARCHAR},
+      </if>
+      <if test="updatedAt != null">
+        updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where user_role_id = #{userRoleId,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.MUserRole">
+    update m_user_role
+    set user_id = #{userId,jdbcType=BIGINT},
+      `role` = #{role,jdbcType=VARCHAR},
+      create_user_id = #{createUserId,jdbcType=BIGINT},
+      create_program = #{createProgram,jdbcType=VARCHAR},
+      created_at = #{createdAt,jdbcType=TIMESTAMP},
+      update_user_id = #{updateUserId,jdbcType=BIGINT},
+      update_program = #{updateProgram,jdbcType=VARCHAR},
+      updated_at = #{updatedAt,jdbcType=TIMESTAMP}
+    where user_role_id = #{userRoleId,jdbcType=BIGINT}
+  </update>
+</mapper>
