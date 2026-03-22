@@ -1,6 +1,8 @@
 package com.hwhub.backend.infrastructure.mybatis.custom.mapper;
 
+import com.hwhub.backend.infrastructure.mybatis.generated.entity.MUser;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -8,6 +10,8 @@ import org.apache.ibatis.annotations.Param;
 @Mapper
 public interface UserCustomMapper {
   Optional<LocalDateTime> findPasswordChangedAt(@Param("userId") Long userId);
+
+  List<MUser> searchByEmail(@Param("email") String email);
 
   int updateAuthProvider(
       @Param("userId") Long userId,

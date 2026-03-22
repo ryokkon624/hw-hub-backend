@@ -39,4 +39,12 @@
         WHERE
             user_id = #{userId}
     </update>
+
+    <select id="searchByEmail" resultType="com.hwhub.backend.infrastructure.mybatis.generated.entity.MUser">
+        SELECT *
+        FROM m_user
+        WHERE email LIKE CONCAT('%', #{email}, '%')
+        ORDER BY created_at DESC
+        LIMIT 50
+    </select>
 </mapper>

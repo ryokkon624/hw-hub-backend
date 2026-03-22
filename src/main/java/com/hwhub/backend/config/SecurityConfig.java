@@ -55,6 +55,10 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.GET, "/api/household-invitations/**")
                     .permitAll()
                     // protected
+                    .requestMatchers("/api/admin/**")
+                    .authenticated()
+                    .requestMatchers("/api/users/me/roles")
+                    .authenticated()
                     .requestMatchers("/api/**")
                     .authenticated()
                     // others

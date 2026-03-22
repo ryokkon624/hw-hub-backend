@@ -204,4 +204,9 @@ public class MyBatisUserRepository implements UserRepository {
     mapper.updateByPrimaryKeySelective(update);
     return enabled;
   }
+
+  @Override
+  public List<UserModel> searchByEmail(String email) {
+    return customMapper.searchByEmail(email).stream().map(UserConverter::toModel).toList();
+  }
 }

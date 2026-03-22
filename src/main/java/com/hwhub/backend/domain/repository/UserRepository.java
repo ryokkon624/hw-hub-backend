@@ -44,4 +44,7 @@ public interface UserRepository {
   boolean isNotificationEnabled(Long userId);
 
   boolean updateNotificationEnabled(Long userId, boolean enabled, Long userId2, String code);
+
+  /** メールアドレスの部分一致でユーザーを検索する */
+  List<UserModel> searchByEmail(String email);
 }
