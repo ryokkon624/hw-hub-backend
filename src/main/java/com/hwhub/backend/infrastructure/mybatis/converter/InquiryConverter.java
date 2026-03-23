@@ -6,6 +6,8 @@ import com.hwhub.backend.domain.model.inquiry.InquiryId;
 import com.hwhub.backend.domain.model.inquiry.InquiryMessageModel;
 import com.hwhub.backend.domain.model.inquiry.InquiryModel;
 import com.hwhub.backend.domain.model.inquiry.InquirySummary;
+import com.hwhub.backend.domain.model.inquiry.InruiryAdmin;
+import com.hwhub.backend.infrastructure.mybatis.custom.entity.AdminInquiryEntity;
 import com.hwhub.backend.infrastructure.mybatis.custom.entity.InquiryWithMessagesEntity;
 import com.hwhub.backend.infrastructure.mybatis.generated.entity.TInquiry;
 import com.hwhub.backend.infrastructure.mybatis.generated.entity.TInquiryMessage;
@@ -45,6 +47,26 @@ public final class InquiryConverter {
         InquiryStatus.fromCode(entity.getStatus()),
         entity.getTitle(),
         DateConverter.toLocalDateTime(entity.getCreatedAt()));
+  }
+
+  public static InruiryAdmin toModel4Admin(AdminInquiryEntity entity) {
+    if (entity == null) {
+      return null;
+    }
+    return new InruiryAdmin(
+        entity.getInquiryId(),
+        entity.getUserId(),
+        entity.getUserEmail(),
+        entity.getUserDisplayName(),
+        entity.getCategory(),
+        entity.getStatus(),
+        entity.getTitle(),
+        entity.getCreatedAt(),
+        entity.getUpdatedAt(),
+        entity.getTotalMessageCount(),
+        entity.getUserMessageCount(),
+        entity.getAiMessageCount(),
+        entity.getStaffMessageCount());
   }
 
   public static TInquiry toEntity(InquiryModel inquiry) {

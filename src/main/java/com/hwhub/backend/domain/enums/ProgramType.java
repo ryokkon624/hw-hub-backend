@@ -20,6 +20,7 @@ public enum ProgramType implements CodeEnum {
   ONL_NTF_QRY("OnlNtfQry"),
   ONL_INQRY("OnlInqry"),
   ONL_USR_ROLE("OnlUsrRole"),
+  ONL_ADM_INQ("OnlAdmInq"),
   BTC_INV_EXPR("BtcInvExpr"),
   BTC_TSK_GEN("BtcTskGen"),
   BTC_TSK_RECL("BtcTskRecl"),

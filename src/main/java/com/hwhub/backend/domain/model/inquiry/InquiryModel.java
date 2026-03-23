@@ -70,9 +70,8 @@ public class InquiryModel {
         createdAt);
   }
 
-  public InquiryMessageModel addUserMessage(String body) {
-    return InquiryMessageModel.newMessage(
-        this.inquiryId, messages.size() + 1, SenderType.YOU, body);
+  public InquiryMessageModel addMessage(String body, SenderType senderType) {
+    return InquiryMessageModel.newMessage(this.inquiryId, messages.size() + 1, senderType, body);
   }
 
   public void close() {
