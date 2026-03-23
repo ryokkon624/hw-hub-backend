@@ -230,7 +230,7 @@ class NotificationPublisherSpec extends Specification {
         permissionService.canReceive(3L, NotificationType.YOUR_INQUIRY_HAS_BEEN_REPLIED) >> true
 
         when:
-        publisher.publishInquiryReplied(5L, "問い合わせ件名", 3L, "prg")
+        publisher.publishInquiryReplied(5L, "問い合わせ件名", 3L, null, "prg")
 
         then:
         1 * notificationRepository.insert({
@@ -308,7 +308,7 @@ class NotificationPublisherSpec extends Specification {
 
     def "publishInquiryRepliedは通知不許可のときinsertを呼び出さない"() {
         when:
-        publisher.publishInquiryReplied(5L, "問い合わせ件名", 3L, "prg")
+        publisher.publishInquiryReplied(5L, "問い合わせ件名", 3L, null, "prg")
 
         then: "thenブロックのinteractionはsetup()のstubより優先されるため、falseで上書きできる"
         1 * permissionService.canReceive(3L, NotificationType.YOUR_INQUIRY_HAS_BEEN_REPLIED) >> false

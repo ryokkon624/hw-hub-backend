@@ -6,6 +6,7 @@ import com.hwhub.backend.domain.enums.SenderType
 import com.hwhub.backend.domain.model.inquiry.InquiryId
 import com.hwhub.backend.domain.model.inquiry.InquiryMessageModel
 import com.hwhub.backend.domain.model.inquiry.InquiryModel
+import com.hwhub.backend.infrastructure.mybatis.custom.entity.AdminInquiryEntity
 import com.hwhub.backend.infrastructure.mybatis.custom.entity.InquiryWithMessagesEntity
 import com.hwhub.backend.infrastructure.mybatis.generated.entity.TInquiry
 import com.hwhub.backend.infrastructure.mybatis.generated.entity.TInquiryMessage
@@ -252,6 +253,80 @@ class InquiryConverterSpec extends Specification {
         entity.seq == 3
         entity.senderType == "STAFF"
         entity.body == "スタッフ返信"
+    }
+
+    // ==================================
+    // toModel4Admin (AdminInquiryEntity → InruiryAdmin)
+    // ==================================
+
+    def "toModel4Adminはentityがnullのときnullを返す"() {
+        expect:
+        InquiryConverter.toModel4Admin(null) == null
+    }
+
+    def "toModel4AdminはAdminInquiryEntityをInruiryAdminに変換する"() {
+        given:
+        def now = LocalDateTime.of(2025, 6, 1, 12, 0)
+        def updated = LocalDateTime.of(2025, 6, 15, 9, 30)
+        def entity = new AdminInquiryEntity()
+        entity.setInquiryId(10L)
+        entity.setUserId(2L)
+        entity.setUserEmail("user@example.com")
+        entity.setUserDisplayName("テストユーザー")
+        entity.setCategory("40")
+        entity.setStatus("20")
+        entity.setTitle("バグ報告")
+        entity.setCreatedAt(now)
+        entity.setUpdatedAt(updated)
+        entity.setTotalMessageCount(5)
+        entity.setUserMessageCount(3)
+        entity.setAiMessageCount(1)
+        entity.setStaffMessageCount(1)
+
+        when:
+        def model = InquiryConverter.toModel4Admin(entity)
+
+        then:
+        model != null
+        model.inquiryId()         == 10L
+        model.userId()            == 2L
+        model.userEmail()         == "user@example.com"
+        model.userDisplayName()   == "テストユーザー"
+        model.category()          == "40"
+        model.status()            == "20"
+        model.title()             == "バグ報告"
+        model.createdAt()         == now
+        model.updatedAt()         == updated
+        model.totalMessageCount() == 5
+        model.userMessageCount()  == 3
+        model.aiMessageCount()    == 1
+        model.staffMessageCount() == 1
+    }
+
+    def "toModel4AdminはcreatedAtとupdatedAtがnullのときnullのまま変換する"() {
+        given:
+        def entity = new AdminInquiryEntity()
+        entity.setInquiryId(1L)
+        entity.setUserId(1L)
+        entity.setUserEmail("a@example.com")
+        entity.setUserDisplayName("ユーザー")
+        entity.setCategory("10")
+        entity.setStatus("00")
+        entity.setTitle("件名")
+        entity.setCreatedAt(null)
+        entity.setUpdatedAt(null)
+        entity.setTotalMessageCount(0)
+        entity.setUserMessageCount(0)
+        entity.setAiMessageCount(0)
+        entity.setStaffMessageCount(0)
+
+        when:
+        def model = InquiryConverter.toModel4Admin(entity)
+
+        then:
+        model != null
+        model.createdAt() == null
+        model.updatedAt() == null
     }
 
     def "toMessageEntityは各SenderTypeを正しくコードに変換する"() {
