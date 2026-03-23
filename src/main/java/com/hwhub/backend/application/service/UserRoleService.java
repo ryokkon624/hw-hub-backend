@@ -8,7 +8,6 @@ import com.hwhub.backend.domain.model.UserRoleModel;
 import com.hwhub.backend.domain.repository.RolePermissionRepository;
 import com.hwhub.backend.domain.repository.UserRepository;
 import com.hwhub.backend.domain.repository.UserRoleRepository;
-import com.hwhub.backend.presentation.rest.admin.dto.AdminUserResponse;
 import com.hwhub.backend.security.RequiresPermission;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +22,12 @@ public class UserRoleService {
   private final RolePermissionRepository rolePermissionRepository;
   private final UserRepository userRepository;
 
-  /** ログインユーザーのロールとパーミッションを返す。 GET /api/users/me/roles から呼ばれる。 */
+  /**
+   * 指定されたユーザーのロールとパーミッションを返す。 GET /api/users/me/roles から呼ばれる。
+   *
+   * @param userId ユーザーID
+   * @return ロールとパーミッションのリスト
+   */
   @Transactional(readOnly = true)
   public UserRoleResult getMyRolesAndPermissions(Long userId) {
     List<UserRoleModel> userRoles = userRoleRepository.findByUserId(userId);
@@ -34,29 +38,33 @@ public class UserRoleService {
     return new UserRoleResult(roles.stream().map(UserRole::getCode).toList(), permissions);
   }
 
-  /** メールアドレスでユーザーを検索してロール情報を付与して返す。 */
+  /**
+   * メールアドレスでユーザーを検索してロール情報を付与して返す。
+   *
+   * @param email メールアドレス
+   * @return ユーザーとロールのリスト
+   */
   @Transactional(readOnly = true)
   @RequiresPermission(Permission.ROLE_MANAGEMENT)
-  public List<AdminUserResponse> searchUsers(String email) {
+  public List<SearchUserResult> searchUsers(String email) {
     List<UserModel> users = userRepository.searchByEmail(email);
 
     return users.stream()
         .map(
             user -> {
               List<UserRoleModel> roles = userRoleRepository.findByUserId(user.getUserId());
-              List<String> roleCodes = roles.stream().map(r -> r.getRole().getCode()).toList();
-              return new AdminUserResponse(
-                  user.getUserId(),
-                  user.getEmail(),
-                  user.getDisplayName(),
-                  user.getLocale(),
-                  user.isActive(),
-                  roleCodes);
+              return new SearchUserResult(user, roles);
             })
         .toList();
   }
 
-  /** ユーザーにロールを付与する。 すでに持っている場合は何もしない（冪等）。 */
+  /**
+   * 指定されたユーザーにロールを付与する。 すでに持っている場合は何もしない（冪等）。
+   *
+   * @param targetUserId 対象ユーザーID
+   * @param role ロール
+   * @param operatorUserId 操作ユーザーID
+   */
   @Transactional
   @RequiresPermission(Permission.ROLE_MANAGEMENT)
   public void assignRole(Long targetUserId, UserRole role, Long operatorUserId) {
@@ -65,7 +73,13 @@ public class UserRoleService {
         targetUserId, role, operatorUserId, ProgramType.ONL_USR_ROLE.getCode());
   }
 
-  /** ユーザーからロールを削除する。 */
+  /**
+   * ユーザーからロールを削除する。
+   *
+   * @param targetUserId 対象ユーザーID
+   * @param role ロール
+   * @param operatorUserId 操作ユーザーID
+   */
   @Transactional
   @RequiresPermission(Permission.ROLE_MANAGEMENT)
   public void removeRole(Long targetUserId, UserRole role, Long operatorUserId) {
@@ -74,4 +88,6 @@ public class UserRoleService {
   }
 
   public record UserRoleResult(List<String> roles, List<String> permissions) {}
+
+  public record SearchUserResult(UserModel user, List<UserRoleModel> roles) {}
 }

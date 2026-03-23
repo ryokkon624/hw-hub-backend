@@ -94,12 +94,12 @@ class UserRoleServiceSpec extends Specification {
 
         and:
         result.size() == 1
-        result[0].userId() == 100L
-        result[0].email() == email
-        result[0].displayName() == "Taro"
-        result[0].locale() == "ja"
-        result[0].isActive()
-        result[0].roles() == ["ADMIN"]
+        result[0].user().userId == 100L
+        result[0].user().email == email
+        result[0].user().displayName == "Taro"
+        result[0].user().locale == "ja"
+        result[0].user().isActive()
+        result[0].roles()*.role == [UserRole.ADMIN]
     }
 
     def "searchUsers: 該当ユーザーがいない場合、空リストを返す"() {

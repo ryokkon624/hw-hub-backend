@@ -24,6 +24,6 @@ public class AdminUserController {
   @GetMapping("/users")
   public List<AdminUserResponse> searchUsers(
       @RequestParam("email") String email, Authentication authentication) {
-    return userRoleService.searchUsers(email);
+    return userRoleService.searchUsers(email).stream().map(AdminUserResponse::from).toList();
   }
 }

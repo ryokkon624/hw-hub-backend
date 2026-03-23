@@ -2,6 +2,9 @@ package com.hwhub.backend.presentation.rest.admin
 
 import com.hwhub.backend.application.service.UserRoleService
 import com.hwhub.backend.presentation.rest.admin.dto.AdminUserResponse
+import com.hwhub.backend.domain.enums.UserRole
+import com.hwhub.backend.domain.model.UserModel
+import com.hwhub.backend.domain.model.UserRoleModel
 import org.springframework.security.core.Authentication
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
@@ -28,7 +31,9 @@ class AdminUserControllerSpec extends Specification {
         given:
         def auth = Mock(Authentication)
         auth.getName() >> "1"
-        def response = new AdminUserResponse(100L, "test@example.com", "Taro", "ja", true, ["ADMIN"])
+        def userModel = UserModel.reconstruct(100L, "test@example.com", null, null, "LOCAL", null, "Taro", "ja", true, null, null, true)
+        def roleModel = UserRoleModel.reconstruct(10L, 100L, UserRole.ADMIN)
+        def response = new UserRoleService.SearchUserResult(userModel, [roleModel])
 
         when:
         def result = mockMvc.perform(
@@ -71,8 +76,11 @@ class AdminUserControllerSpec extends Specification {
         given:
         def auth = Mock(Authentication)
         auth.getName() >> "1"
-        def user1 = new AdminUserResponse(1L, "alice@example.com", "Alice", "en", true, ["ADMIN"])
-        def user2 = new AdminUserResponse(2L, "bob@example.com", "Bob", "ja", true, [])
+        def userModel1 = UserModel.reconstruct(1L, "alice@example.com", null, null, "LOCAL", null, "Alice", "en", true, null, null, true)
+        def roleModel1 = UserRoleModel.reconstruct(11L, 1L, UserRole.ADMIN)
+        def user1 = new UserRoleService.SearchUserResult(userModel1, [roleModel1])
+        def userModel2 = UserModel.reconstruct(2L, "bob@example.com", null, null, "LOCAL", null, "Bob", "ja", true, null, null, true)
+        def user2 = new UserRoleService.SearchUserResult(userModel2, [])
 
         when:
         def result = mockMvc.perform(
