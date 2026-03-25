@@ -238,6 +238,7 @@ Gradle タスク `generateEnums` を実行すると、`com.hwhub.backend.domain.
 
 **テーブル定義やカラムを変更した場合は MBG の再実行が必要です。**  
 テーブル追加をした場合は、`src/main/resources/generator/generatorConfig.xml` の tableタグを更新してください。
+tableタグ直前にコメントアウトされたSQLを実行し結果を貼り付けることで更新可能です。
 
 ```bash
 ./gradlew mybatisGenerator
@@ -267,6 +268,7 @@ Gradle タスク `generateEnums` を実行すると、`com.hwhub.backend.domain.
 ### 11.3. 動作確認
 
 開発環境でGoogleアカウント連携の動作確認を行う場合は、プロジェクトルート直下に `.env` ファイルを作成すること。
+`.env.sample`をコピーして利用すること。
 
 ```text
 GOOGLE_OAUTH_CLIENT_ID=xxxxx-xxxxxxxxx.apps.googleusercontent.com
