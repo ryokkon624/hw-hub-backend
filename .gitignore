@@ -41,6 +41,8 @@ out/
 localstack/data/
 localstack/logs/
 localstack/tmp/
+localstack/init/faq.md
+localstack/init/howto.md
 
 # AI Skills
 CLAUDE_backend.md
