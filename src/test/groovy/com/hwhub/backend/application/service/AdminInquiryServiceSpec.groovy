@@ -53,9 +53,7 @@ class AdminInquiryServiceSpec extends Specification {
 
     def "searchInquiriesはリポジトリのsearchInquiriesに検索条件を渡して結果を返す"() {
         given:
-        def condition = new AdminInquirySearchCondition()
-        condition.setStatus("20")
-        condition.setCategory("10")
+        def condition = new AdminInquirySearchCondition(null, null, null, null, null, "10", "20")
         def items = [Mock(InruiryAdmin)]
 
         when:
@@ -68,7 +66,7 @@ class AdminInquiryServiceSpec extends Specification {
 
     def "searchInquiriesは空の条件でも呼び出せる"() {
         given:
-        def condition = new AdminInquirySearchCondition()
+        def condition = new AdminInquirySearchCondition(null, null, null, null, null, null, null)
 
         when:
         def result = service.searchInquiries(condition)

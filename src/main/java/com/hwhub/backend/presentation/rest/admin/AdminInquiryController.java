@@ -56,14 +56,9 @@ public class AdminInquiryController {
       @RequestParam(name = "category", required = false) String category,
       @RequestParam(name = "status", required = false) String status) {
 
-    AdminInquirySearchCondition condition = new AdminInquirySearchCondition();
-    condition.setCreatedAtFrom(createdAtFrom);
-    condition.setCreatedAtTo(createdAtTo);
-    condition.setUpdatedAtFrom(updatedAtFrom);
-    condition.setUpdatedAtTo(updatedAtTo);
-    condition.setUserId(userId);
-    condition.setCategory(category);
-    condition.setStatus(status);
+    AdminInquirySearchCondition condition =
+        new AdminInquirySearchCondition(
+            createdAtFrom, createdAtTo, updatedAtFrom, updatedAtTo, userId, category, status);
 
     return adminInquiryService.searchInquiries(condition).stream()
         .map(AdminInquiryResponse::from)

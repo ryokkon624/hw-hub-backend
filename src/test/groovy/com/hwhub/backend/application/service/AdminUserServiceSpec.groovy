@@ -21,7 +21,7 @@ class AdminUserServiceSpec extends Specification {
 
     def "searchUsers: 検索条件に基づいてユーザーリストを返し、アイコンURLを設定する"() {
         given:
-        def condition = new AdminUserSearchCondition(email: "test@example.com")
+        def condition = new AdminUserSearchCondition("test@example.com", null, null)
         def user = UserModel.reconstruct(
                 1L, "test@example.com", null, null, AuthProvider.LOCAL.code, null, "Taro", "ja", true, "icon-key", null, true, null, null
         )

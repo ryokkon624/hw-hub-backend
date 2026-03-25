@@ -47,10 +47,7 @@ public class AdminUserController {
       @RequestParam(name = "isActive", required = false) Boolean isActive,
       @RequestParam(name = "locale", required = false) String locale) {
 
-    AdminUserSearchCondition condition = new AdminUserSearchCondition();
-    condition.setEmail(email);
-    condition.setIsActive(isActive);
-    condition.setLocale(locale);
+    AdminUserSearchCondition condition = new AdminUserSearchCondition(email, isActive, locale);
 
     return adminUserService.searchUsers(condition).stream().map(AdminUserResponse::from).toList();
   }
