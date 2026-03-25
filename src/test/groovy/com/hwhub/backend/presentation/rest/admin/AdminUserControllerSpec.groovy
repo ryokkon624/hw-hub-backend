@@ -17,7 +17,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class AdminUserControllerSpec extends Specification {
 
     def userRoleService = Mock(UserRoleService)
-    def controller = new AdminUserController(userRoleService)
+    def adminUserService = Mock(com.hwhub.backend.application.service.AdminUserService)
+    def controller = new AdminUserController(userRoleService, adminUserService)
     MockMvc mockMvc
 
     def setup() {
@@ -31,7 +32,7 @@ class AdminUserControllerSpec extends Specification {
         given:
         def auth = Mock(Authentication)
         auth.getName() >> "1"
-        def userModel = UserModel.reconstruct(100L, "test@example.com", null, null, "LOCAL", null, "Taro", "ja", true, null, null, true)
+        def userModel = UserModel.reconstruct(100L, "test@example.com", null, null, "LOCAL", null, "Taro", "ja", true, null, null, true, null, null)
         def roleModel = UserRoleModel.reconstruct(10L, 100L, UserRole.ADMIN)
         def response = new UserRoleService.SearchUserResult(userModel, [roleModel])
 
@@ -76,10 +77,10 @@ class AdminUserControllerSpec extends Specification {
         given:
         def auth = Mock(Authentication)
         auth.getName() >> "1"
-        def userModel1 = UserModel.reconstruct(1L, "alice@example.com", null, null, "LOCAL", null, "Alice", "en", true, null, null, true)
+        def userModel1 = UserModel.reconstruct(1L, "alice@example.com", null, null, "LOCAL", null, "Alice", "en", true, null, null, true, null, null)
         def roleModel1 = UserRoleModel.reconstruct(11L, 1L, UserRole.ADMIN)
         def user1 = new UserRoleService.SearchUserResult(userModel1, [roleModel1])
-        def userModel2 = UserModel.reconstruct(2L, "bob@example.com", null, null, "LOCAL", null, "Bob", "ja", true, null, null, true)
+        def userModel2 = UserModel.reconstruct(2L, "bob@example.com", null, null, "LOCAL", null, "Bob", "ja", true, null, null, true, null, null)
         def user2 = new UserRoleService.SearchUserResult(userModel2, [])
 
         when:
@@ -111,5 +112,77 @@ class AdminUserControllerSpec extends Specification {
         then:
         0 * userRoleService.searchUsers(_)
         result.andExpect(status().isBadRequest())
+    }
+    // -------------------------------------------------
+    // GET /api/admin/users/search
+    // -------------------------------------------------
+    def "GET /api/admin/users/search: 各種条件で検索して結果を返す"() {
+        given:
+        def auth = Mock(Authentication)
+        def user = UserModel.reconstruct(1L, "test@example.com", null, null, "LOCAL", null, "Taro", "ja", true, null, null, true, null, null)
+
+        when:
+        def result = mockMvc.perform(
+            get("/api/admin/users/search")
+                .param("email", "test@example.com")
+                .param("isActive", "true")
+                .param("locale", "ja")
+                .principal(auth)
+        )
+
+        then:
+        1 * adminUserService.searchUsers(_ as com.hwhub.backend.domain.model.AdminUserSearchCondition) >> [user]
+        result.andExpect(status().isOk())
+              .andExpect(jsonPath('$[0].userId').value(1))
+    }
+
+    // -------------------------------------------------
+    // POST /api/admin/users
+    // -------------------------------------------------
+    def "POST /api/admin/users: ユーザーを新規登録して登録結果を返す"() {
+        given:
+        def auth = Mock(Authentication)
+        auth.getName() >> "99"
+        def user = UserModel.reconstruct(10L, "new@example.com", null, null, "LOCAL", null, "New", "ja", true, null, null, true, null, null)
+        
+        def json = '{"email":"new@example.com", "password":"password", "displayName":"New", "locale":"ja"}'
+
+        when:
+        def result = mockMvc.perform(
+            org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/api/admin/users")
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .content(json)
+                .principal(auth)
+        )
+
+        then:
+        1 * adminUserService.createUser("new@example.com", "password", "New", "ja", 99L) >> user
+        result.andExpect(status().isOk())
+              .andExpect(jsonPath('$.userId').value(10))
+    }
+
+    // -------------------------------------------------
+    // PUT /api/admin/users/{userId}
+    // -------------------------------------------------
+    def "PUT /api/admin/users/{userId}: ユーザー情報を更新して更新結果を返す"() {
+        given:
+        def auth = Mock(Authentication)
+        auth.getName() >> "99"
+        def user = UserModel.reconstruct(10L, "test@example.com", null, null, "LOCAL", null, "Updated", "en", true, null, null, true, null, null)
+
+        def json = '{"displayName":"Updated", "locale":"en", "password":"new-pass", "isActive":true}'
+
+        when:
+        def result = mockMvc.perform(
+            org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/api/admin/users/10")
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .content(json)
+                .principal(auth)
+        )
+
+        then:
+        1 * adminUserService.updateUser(10L, "Updated", "en", "new-pass", true, 99L) >> user
+        result.andExpect(status().isOk())
+              .andExpect(jsonPath('$.userId').value(10))
     }
 }

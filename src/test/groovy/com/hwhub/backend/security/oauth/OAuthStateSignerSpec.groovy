@@ -142,4 +142,94 @@ class OAuthStateSignerSpec extends Specification {
         then:
         thrown(IllegalArgumentException)
     }
+
+    def "generate は kind や subject が null の場合でも動作する"() {
+        when:
+        String state = signer.generate(null, null, secret, 3600)
+
+        then:
+        state != null
+        def parts = state.split("\\.")
+        def payload = new String(Base64.urlDecoder.decode(parts[0]))
+        def segments = payload.split("\\|", -1)
+        segments[0] == ""
+        segments[1] == ""
+    }
+
+    def "verify はペイロードが極端に短い場合 false を返す"() {
+        given: "2つのパーツしかないペイロード（kind, subject のみなど）"
+        String raw = "A|B"
+        String b64 = Base64.urlEncoder.withoutPadding().encodeToString(raw.getBytes())
+        String sig = Base64.urlEncoder.withoutPadding().encodeToString("sig".getBytes()) // dummy
+
+        expect:
+        !signer.verify(b64 + "." + sig, secret)
+    }
+
+    def "extractPurpose はペイロード構造が不正な場合例外を投げる"() {
+        given: "空のペイロード"
+        String raw = ""
+        String b64 = Base64.urlEncoder.withoutPadding().encodeToString(raw.getBytes())
+        String sig = "dummy"
+
+        when:
+        signer.extractPurpose(b64 + "." + sig)
+
+        then:
+        thrown(IllegalArgumentException)
+    }
+
+    def "extractSubject はペイロードが2パーツ未満の場合例外を投げる"() {
+        given:
+        String raw = "ONLYKIND"
+        String b64 = Base64.urlEncoder.withoutPadding().encodeToString(raw.getBytes())
+        String sig = "dummy"
+
+        when:
+        signer.extractSubject(b64 + "." + sig)
+
+        then:
+        thrown(IllegalArgumentException)
+    }
+
+    def "parse の境界条件テスト"() {
+        expect:
+        signer.parse(null) == null
+        signer.parse(".onlysig") == null
+        signer.parse("onlypayload.") == null
+        signer.parse("a.b.c") != null // lastIndexOf を使うので a.b が payload になる
+    }
+
+    def "constantTimeEquals は一方が null の場合 false を返す"() {
+        expect:
+        !signer.constantTimeEquals(null, "sig")
+        !signer.constantTimeEquals("sig", null)
+    }
+
+    def "verify はペイロードが3または4パーツではない場合 false を返す"() {
+        given:
+        // 有効なシークレットで署名を作成するが、ペイロードの中身を2パーツにする
+        String payload = "PART1|PART2"
+        String b64 = Base64.urlEncoder.withoutPadding().encodeToString(payload.getBytes())
+        String signature = signer.hmacSha256Base64Url(b64, secret)
+
+        expect:
+        !signer.verify(b64 + "." + signature, secret)
+    }
+
+    def "extractPurpose はパース結果が null の場合例外を投げる"() {
+        when:
+        signer.extractPurpose("invalid-format")
+
+        then:
+        thrown(IllegalArgumentException)
+    }
+
+    def "extractSubject はパース結果が null の場合例外を投げる"() {
+        when:
+        signer.extractSubject("invalid-format")
+
+        then:
+        thrown(IllegalArgumentException)
+    }
 }

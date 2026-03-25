@@ -64,4 +64,14 @@ class UserRoleConverterSpec extends Specification {
         then:
         thrown(IllegalArgumentException)
     }
+
+    def "private constructor coverage"() {
+        when:
+        def constructor = UserRoleConverter.class.getDeclaredConstructor()
+        constructor.setAccessible(true)
+        def instance = constructor.newInstance()
+
+        then:
+        instance != null
+    }
 }
