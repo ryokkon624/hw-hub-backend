@@ -1,23 +1,31 @@
 package com.hwhub.backend.presentation.rest.admin.dto;
 
-import com.hwhub.backend.application.service.UserRoleService.SearchUserResult;
-import java.util.List;
+import com.hwhub.backend.domain.model.UserModel;
+import java.time.LocalDateTime;
 
 public record AdminUserResponse(
     long userId,
     String email,
+    String authProvider,
     String displayName,
     String locale,
+    boolean notificationEnabled,
     boolean isActive,
-    List<String> roles) {
+    String iconUrl,
+    LocalDateTime createdAt,
+    LocalDateTime updatedAt) {
 
-  public static AdminUserResponse from(SearchUserResult result) {
+  public static AdminUserResponse from(UserModel model) {
     return new AdminUserResponse(
-        result.user().getUserId(),
-        result.user().getEmail(),
-        result.user().getDisplayName(),
-        result.user().getLocale(),
-        result.user().isActive(),
-        result.roles().stream().map(r -> r.getRole().getCode()).toList());
+        model.getUserId(),
+        model.getEmail(),
+        model.getAuthProvider(),
+        model.getDisplayName(),
+        model.getLocale(),
+        model.isNotificationEnabled(),
+        model.isActive(),
+        model.getIconUrl(),
+        model.getCreatedAt(),
+        model.getUpdatedAt());
   }
 }

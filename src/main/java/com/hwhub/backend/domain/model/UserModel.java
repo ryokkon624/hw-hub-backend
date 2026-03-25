@@ -20,6 +20,8 @@ public class UserModel {
   private String iconUrl;
   private LocalDateTime emailVerifiedAt;
   private boolean isActive;
+  private LocalDateTime createdAt;
+  private LocalDateTime updatedAt;
 
   /**
    * 全プロパティを引数に取るコンストラクタ。
@@ -38,6 +40,8 @@ public class UserModel {
    * @param iconUrl アイコンのURL
    * @param emailVerifiedAt 認証完了日時
    * @param isActive 活性フラグ
+   * @param createdAt 作成日時
+   * @param updatedAt 更新日時
    */
   private UserModel(
       Long userId,
@@ -53,7 +57,9 @@ public class UserModel {
       String profileImageKey,
       String iconUrl,
       LocalDateTime emailVerifiedAt,
-      boolean isActive) {
+      boolean isActive,
+      LocalDateTime createdAt,
+      LocalDateTime updatedAt) {
     this.userId = userId;
     this.email = email;
     this.password = password;
@@ -68,6 +74,8 @@ public class UserModel {
     this.iconUrl = iconUrl;
     this.emailVerifiedAt = emailVerifiedAt;
     this.isActive = isActive;
+    this.createdAt = createdAt;
+    this.updatedAt = updatedAt;
   }
 
   /**
@@ -85,6 +93,8 @@ public class UserModel {
    * @param profileImageKey プロフィール画像ストレージキー
    * @param emailVerifiedAt 認証完了日時
    * @param isActive 活性フラグ
+   * @param createdAt 作成日時
+   * @param updatedAt 更新日時
    * @return インスタンスを返す。
    */
   public static UserModel reconstruct(
@@ -99,7 +109,9 @@ public class UserModel {
       boolean notificationEnabled,
       String profileImageKey,
       LocalDateTime emailVerifiedAt,
-      boolean isActive) {
+      boolean isActive,
+      LocalDateTime createdAt,
+      LocalDateTime updatedAt) {
     return new UserModel(
         userId,
         email,
@@ -114,7 +126,9 @@ public class UserModel {
         profileImageKey,
         null,
         emailVerifiedAt,
-        isActive);
+        isActive,
+        createdAt,
+        updatedAt);
   }
 
   /**
@@ -141,7 +155,9 @@ public class UserModel {
         null,
         null,
         null,
-        true);
+        true,
+        null,
+        null);
   }
 
   /**
@@ -169,7 +185,9 @@ public class UserModel {
         null,
         null,
         now,
-        true);
+        true,
+        null,
+        null);
   }
 
   /**
@@ -218,5 +236,10 @@ public class UserModel {
   /** ユーザを活性化する。 */
   public void activate() {
     this.isActive = true;
+  }
+
+  /** ユーザを非活性化する。 */
+  public void deactivate() {
+    this.isActive = false;
   }
 }

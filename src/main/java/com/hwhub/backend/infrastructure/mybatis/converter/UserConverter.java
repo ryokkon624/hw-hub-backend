@@ -24,7 +24,9 @@ public final class UserConverter {
         entity.getNotificationEnabled(),
         entity.getProfileImageKey(),
         DateConverter.toLocalDateTime(entity.getEmailVerifiedAt()),
-        entity.getIsActive());
+        entity.getIsActive(),
+        DateConverter.toLocalDateTime(entity.getCreatedAt()),
+        DateConverter.toLocalDateTime(entity.getUpdatedAt()));
   }
 
   public static MUser toEntity(UserModel model) {
@@ -45,6 +47,7 @@ public final class UserConverter {
     entity.setProfileImageKey(model.getProfileImageKey());
     entity.setEmailVerifiedAt(DateConverter.toDate(model.getEmailVerifiedAt()));
     entity.setIsActive(model.isActive());
+    // created_at, updated_at はDB側で更新するため、渡さない
 
     return entity;
   }

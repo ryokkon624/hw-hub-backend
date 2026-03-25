@@ -1,5 +1,6 @@
 package com.hwhub.backend.infrastructure.mybatis.custom.mapper;
 
+import com.hwhub.backend.domain.model.AdminUserSearchCondition;
 import com.hwhub.backend.infrastructure.mybatis.generated.entity.MUser;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,6 +13,8 @@ public interface UserCustomMapper {
   Optional<LocalDateTime> findPasswordChangedAt(@Param("userId") Long userId);
 
   List<MUser> searchByEmail(@Param("email") String email);
+
+  List<MUser> searchByCondition(AdminUserSearchCondition condition);
 
   int updateAuthProvider(
       @Param("userId") Long userId,
