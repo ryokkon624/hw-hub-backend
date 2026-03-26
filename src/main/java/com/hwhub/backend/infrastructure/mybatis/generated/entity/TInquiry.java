@@ -7,8 +7,6 @@ public class TInquiry {
 
   private Long userId;
 
-  private Long householdId;
-
   private String category;
 
   private String status;
@@ -41,14 +39,6 @@ public class TInquiry {
 
   public void setUserId(Long userId) {
     this.userId = userId;
-  }
-
-  public Long getHouseholdId() {
-    return householdId;
-  }
-
-  public void setHouseholdId(Long householdId) {
-    this.householdId = householdId;
   }
 
   public String getCategory() {

@@ -24,9 +24,8 @@ public class InquiryService {
   private final NotificationPublisher notificationPublisher;
 
   @Transactional
-  public InquiryId createInquiry(
-      Long userId, Long householdId, InquiryCategory category, String title, String body) {
-    InquiryModel inquiry = InquiryModel.newInquiry(userId, householdId, category, title, body);
+  public InquiryId createInquiry(Long userId, InquiryCategory category, String title, String body) {
+    InquiryModel inquiry = InquiryModel.newInquiry(userId, category, title, body);
     return inquiryRepository.insert(inquiry, userId, ProgramType.ONL_INQRY.getCode());
   }
 

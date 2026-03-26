@@ -88,7 +88,6 @@ class InquiryIntegrationSpec extends IntegrationTestBase {
         given:
         def token = tokenFor(testUserId)
         def requestBody = [
-                householdId: testHouseholdId,
                 category   : "10",
                 title      : "テスト件名",
                 body       : "テスト本文"
@@ -111,7 +110,6 @@ class InquiryIntegrationSpec extends IntegrationTestBase {
         given:
         def token = tokenFor(testUserId)
         def requestBody = [
-                householdId: testHouseholdId,
                 category   : "10",
                 title      : "DB確認テスト",
                 body       : "本文内容"
@@ -147,7 +145,6 @@ class InquiryIntegrationSpec extends IntegrationTestBase {
     def "POST /api/inquiries - 異常系: 認証トークンなしでPOSTするとステータス401が返ること"() {
         given:
         def requestBody = [
-                householdId: testHouseholdId,
                 category   : "10",
                 title      : "テスト件名",
                 body       : "テスト本文"
@@ -168,7 +165,6 @@ class InquiryIntegrationSpec extends IntegrationTestBase {
         given:
         def token = tokenFor(testUserId)
         def requestBody = [
-                householdId: testHouseholdId,
                 category   : "10",
                 body       : "テスト本文"
         ]
@@ -189,7 +185,6 @@ class InquiryIntegrationSpec extends IntegrationTestBase {
         given:
         def token = tokenFor(testUserId)
         def requestBody = [
-                householdId: testHouseholdId,
                 category   : "10",
                 title      : "テスト件名"
         ]
@@ -218,7 +213,6 @@ class InquiryIntegrationSpec extends IntegrationTestBase {
                         .header("Authorization", "Bearer ${token}")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString([
-                                householdId: testHouseholdId,
                                 category   : "10",
                                 title      : "一覧テスト",
                                 body       : "本文"
@@ -273,7 +267,6 @@ class InquiryIntegrationSpec extends IntegrationTestBase {
                         .header("Authorization", "Bearer ${token}")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString([
-                                householdId: testHouseholdId,
                                 category   : "10",
                                 title      : "詳細テスト件名",
                                 body       : "詳細テスト本文"
@@ -334,7 +327,6 @@ class InquiryIntegrationSpec extends IntegrationTestBase {
                         .header("Authorization", "Bearer ${otherToken}")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString([
-                                householdId: testHouseholdId,
                                 category   : "10",
                                 title      : "他人の問い合わせ",
                                 body       : "他人の本文"
@@ -366,7 +358,6 @@ class InquiryIntegrationSpec extends IntegrationTestBase {
                         .header("Authorization", "Bearer ${token}")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString([
-                                householdId: testHouseholdId,
                                 category   : "10",
                                 title      : "メッセージ追加テスト",
                                 body       : "初回メッセージ"
@@ -394,7 +385,6 @@ class InquiryIntegrationSpec extends IntegrationTestBase {
                         .header("Authorization", "Bearer ${token}")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString([
-                                householdId: testHouseholdId,
                                 category   : "10",
                                 title      : "メッセージDB確認テスト",
                                 body       : "初回メッセージ"
@@ -430,7 +420,6 @@ class InquiryIntegrationSpec extends IntegrationTestBase {
                         .header("Authorization", "Bearer ${token}")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString([
-                                householdId: testHouseholdId,
                                 category   : "10",
                                 title      : "クローズテスト",
                                 body       : "クローズ前メッセージ"
@@ -467,7 +456,6 @@ class InquiryIntegrationSpec extends IntegrationTestBase {
                         .header("Authorization", "Bearer ${token}")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString([
-                                householdId: testHouseholdId,
                                 category   : "10",
                                 title      : "エスカレーションテスト",
                                 body       : "エスカレーション前メッセージ"

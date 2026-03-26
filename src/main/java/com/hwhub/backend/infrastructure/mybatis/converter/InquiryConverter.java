@@ -29,7 +29,6 @@ public final class InquiryConverter {
     return InquiryModel.reconstruct(
         entity.getInquiryId(),
         entity.getUserId(),
-        entity.getHouseholdId(),
         entity.getCategory(),
         entity.getStatus(),
         entity.getTitle(),
@@ -78,7 +77,6 @@ public final class InquiryConverter {
       entity.setInquiryId(inquiry.getInquiryId().value());
     }
     entity.setUserId(inquiry.getUserId());
-    entity.setHouseholdId(inquiry.getHouseholdId());
     entity.setCategory(inquiry.getCategory().getCode());
     entity.setStatus(inquiry.getStatus().getCode());
     entity.setTitle(inquiry.getTitle());

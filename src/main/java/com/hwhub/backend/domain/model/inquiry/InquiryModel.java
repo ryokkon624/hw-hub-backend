@@ -12,7 +12,6 @@ import lombok.Getter;
 public class InquiryModel {
   private final InquiryId inquiryId;
   private final long userId;
-  private final long householdId;
   private final InquiryCategory category;
   private InquiryStatus status;
   private final String title;
@@ -22,7 +21,6 @@ public class InquiryModel {
   private InquiryModel(
       InquiryId inquiryId,
       long userId,
-      long householdId,
       InquiryCategory category,
       InquiryStatus status,
       String title,
@@ -30,7 +28,6 @@ public class InquiryModel {
       LocalDateTime createdAt) {
     this.inquiryId = inquiryId;
     this.userId = userId;
-    this.householdId = householdId;
     this.category = category;
     this.status = status;
     this.title = title;
@@ -39,21 +36,15 @@ public class InquiryModel {
   }
 
   public static InquiryModel newInquiry(
-      long userId,
-      long householdId,
-      InquiryCategory category,
-      String title,
-      String firstMessageBody) {
+      long userId, InquiryCategory category, String title, String firstMessageBody) {
     List<InquiryMessageModel> messages = new ArrayList<>();
     messages.add(InquiryMessageModel.newMessage(null, 1, SenderType.YOU, firstMessageBody));
-    return new InquiryModel(
-        null, userId, householdId, category, InquiryStatus.OPEN, title, messages, null);
+    return new InquiryModel(null, userId, category, InquiryStatus.OPEN, title, messages, null);
   }
 
   public static InquiryModel reconstruct(
       Long inquiryId,
       long userId,
-      long householdId,
       String category,
       String status,
       String title,
@@ -62,7 +53,6 @@ public class InquiryModel {
     return new InquiryModel(
         new InquiryId(inquiryId),
         userId,
-        householdId,
         InquiryCategory.fromCode(category),
         InquiryStatus.fromCode(status),
         title,

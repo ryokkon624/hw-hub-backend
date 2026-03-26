@@ -50,7 +50,6 @@ class InquiryConverterSpec extends Specification {
         def entity = new InquiryWithMessagesEntity()
         entity.inquiryId = 5L
         entity.userId = 1L
-        entity.householdId = 10L
         entity.category = "10"
         entity.status = "00"
         entity.title = "件名"
@@ -64,7 +63,6 @@ class InquiryConverterSpec extends Specification {
         model != null
         model.inquiryId.value() == 5L
         model.userId == 1L
-        model.householdId == 10L
         model.category == InquiryCategory.GENERAL
         model.status == InquiryStatus.OPEN
         model.title == "件名"
@@ -78,7 +76,6 @@ class InquiryConverterSpec extends Specification {
         def entity = new InquiryWithMessagesEntity()
         entity.inquiryId = 5L
         entity.userId = 1L
-        entity.householdId = 10L
         entity.category = "10"
         entity.status = "00"
         entity.title = "件名"
@@ -152,7 +149,7 @@ class InquiryConverterSpec extends Specification {
     def "toEntityはInquiryModelをTInquiryに変換する（inquiryIdあり）"() {
         given:
         def model = InquiryModel.reconstruct(
-            5L, 1L, 10L, "10", "00", "件名", [], LocalDateTime.now()
+            5L, 1L, "10", "00", "件名", [], LocalDateTime.now()
         )
 
         when:
@@ -162,7 +159,6 @@ class InquiryConverterSpec extends Specification {
         entity != null
         entity.inquiryId == 5L
         entity.userId == 1L
-        entity.householdId == 10L
         entity.category == "10"
         entity.status == "00"
         entity.title == "件名"
@@ -170,7 +166,7 @@ class InquiryConverterSpec extends Specification {
 
     def "toEntityはinquiryIdがnull（新規）のときinquiryIdをセットしない"() {
         given:
-        def model = InquiryModel.newInquiry(1L, 10L, InquiryCategory.GENERAL, "件名", "本文")
+        def model = InquiryModel.newInquiry(1L, InquiryCategory.GENERAL, "件名", "本文")
 
         when:
         def entity = InquiryConverter.toEntity(model)
@@ -179,7 +175,6 @@ class InquiryConverterSpec extends Specification {
         entity != null
         entity.inquiryId == null
         entity.userId == 1L
-        entity.householdId == 10L
     }
 
     // ==================================

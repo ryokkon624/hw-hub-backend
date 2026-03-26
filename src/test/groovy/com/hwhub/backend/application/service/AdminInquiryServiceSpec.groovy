@@ -82,7 +82,7 @@ class AdminInquiryServiceSpec extends Specification {
 
     def "getInquiryAsAdminはIDでInquiryModelを取得して返す（userIdチェックなし）"() {
         given:
-        def model = InquiryModel.reconstruct(5L, 1L, 10L, "10", "00", "件名", [], LocalDateTime.now())
+        def model = InquiryModel.reconstruct(5L, 1L, "10", "00", "件名", [], LocalDateTime.now())
 
         when:
         def result = service.getInquiryAsAdmin(5L)
@@ -104,7 +104,7 @@ class AdminInquiryServiceSpec extends Specification {
     def "getInquiryAsAdminは任意のuserIdの問い合わせを取得できる（ユーザーチェックなし）"() {
         given:
         // userId=99L（自分以外のユーザーの問い合わせ）でも取得できることを確認
-        def model = InquiryModel.reconstruct(10L, 99L, 20L, "40", "20", "バグ報告", [], LocalDateTime.now())
+        def model = InquiryModel.reconstruct(10L, 99L, "40", "20", "バグ報告", [], LocalDateTime.now())
 
         when:
         def result = service.getInquiryAsAdmin(10L)

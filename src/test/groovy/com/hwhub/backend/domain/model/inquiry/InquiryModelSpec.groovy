@@ -16,11 +16,10 @@ class InquiryModelSpec extends Specification {
 
     def "newInquiryは初期ステータスがOPENで最初のメッセージが1件作られる"() {
         when:
-        def inquiry = InquiryModel.newInquiry(1L, 10L, InquiryCategory.GENERAL, "タイトル", "本文")
+        def inquiry = InquiryModel.newInquiry(1L, InquiryCategory.GENERAL, "タイトル", "本文")
 
         then:
         inquiry.userId == 1L
-        inquiry.householdId == 10L
         inquiry.category == InquiryCategory.GENERAL
         inquiry.status == InquiryStatus.OPEN
         inquiry.title == "タイトル"
@@ -44,12 +43,11 @@ class InquiryModelSpec extends Specification {
         ]
 
         when:
-        def inquiry = InquiryModel.reconstruct(5L, 2L, 20L, "10", "00", "件名", messages, now)
+        def inquiry = InquiryModel.reconstruct(5L, 2L, "10", "00", "件名", messages, now)
 
         then:
         inquiry.inquiryId.value() == 5L
         inquiry.userId == 2L
-        inquiry.householdId == 20L
         inquiry.category == InquiryCategory.GENERAL
         inquiry.status == InquiryStatus.OPEN
         inquiry.title == "件名"
@@ -63,7 +61,7 @@ class InquiryModelSpec extends Specification {
 
     def "addUserMessageは現在のメッセージ数+1のseqでユーザーメッセージを生成する"() {
         given:
-        def inquiry = InquiryModel.newInquiry(1L, 10L, InquiryCategory.GENERAL, "タイトル", "初回メッセージ")
+        def inquiry = InquiryModel.newInquiry(1L, InquiryCategory.GENERAL, "タイトル", "初回メッセージ")
 
         when:
         def message = inquiry.addMessage("追加メッセージ", SenderType.YOU)
@@ -82,7 +80,7 @@ class InquiryModelSpec extends Specification {
             InquiryMessageModel.newMessage(new InquiryId(1L), 2, SenderType.AI_SUPPORT, "AI返信"),
             InquiryMessageModel.newMessage(new InquiryId(1L), 3, SenderType.YOU, "3通目"),
         ]
-        def inquiry = InquiryModel.reconstruct(1L, 2L, 10L, "10", "00", "件名", existingMessages, now)
+        def inquiry = InquiryModel.reconstruct(1L, 2L, "10", "00", "件名", existingMessages, now)
 
         when:
         def message = inquiry.addMessage("4通目", SenderType.YOU)
@@ -97,7 +95,7 @@ class InquiryModelSpec extends Specification {
 
     def "closeはOPENステータスをCLOSEDに変更する"() {
         given:
-        def inquiry = InquiryModel.newInquiry(1L, 10L, InquiryCategory.GENERAL, "タイトル", "本文")
+        def inquiry = InquiryModel.newInquiry(1L, InquiryCategory.GENERAL, "タイトル", "本文")
 
         when:
         inquiry.close()
@@ -109,7 +107,7 @@ class InquiryModelSpec extends Specification {
     def "closeはAI_ANSWEREDステータスをCLOSEDに変更できる"() {
         given:
         def inquiry = InquiryModel.reconstruct(
-            1L, 1L, 10L, "10", InquiryStatus.AI_ANSWERED.code, "タイトル", [], LocalDateTime.now()
+            1L, 1L, "10", InquiryStatus.AI_ANSWERED.code, "タイトル", [], LocalDateTime.now()
         )
 
         when:
@@ -122,7 +120,7 @@ class InquiryModelSpec extends Specification {
     def "closeはSTAFF_ANSWEREDステータスをCLOSEDに変更できる"() {
         given:
         def inquiry = InquiryModel.reconstruct(
-            1L, 1L, 10L, "10", InquiryStatus.STAFF_ANSWERED.code, "タイトル", [], LocalDateTime.now()
+            1L, 1L, "10", InquiryStatus.STAFF_ANSWERED.code, "タイトル", [], LocalDateTime.now()
         )
 
         when:
@@ -135,7 +133,7 @@ class InquiryModelSpec extends Specification {
     def "closeはすでにCLOSEDの場合はIllegalStateExceptionをスローする"() {
         given:
         def inquiry = InquiryModel.reconstruct(
-            1L, 1L, 10L, "10", InquiryStatus.CLOSED.code, "タイトル", [], LocalDateTime.now()
+            1L, 1L, "10", InquiryStatus.CLOSED.code, "タイトル", [], LocalDateTime.now()
         )
 
         when:
@@ -152,7 +150,7 @@ class InquiryModelSpec extends Specification {
     def "escalateToStaffはAI_ANSWEREDステータスをPENDING_STAFFに変更する"() {
         given:
         def inquiry = InquiryModel.reconstruct(
-            1L, 1L, 10L, "10", InquiryStatus.AI_ANSWERED.code, "タイトル", [], LocalDateTime.now()
+            1L, 1L, "10", InquiryStatus.AI_ANSWERED.code, "タイトル", [], LocalDateTime.now()
         )
 
         when:
@@ -164,7 +162,7 @@ class InquiryModelSpec extends Specification {
 
     def "escalateToStaffはAI_ANSWERED以外のステータスではIllegalStateExceptionをスローする"() {
         given:
-        def inquiry = InquiryModel.reconstruct(1L, 1L, 10L, "10", statusCode, "タイトル", [], LocalDateTime.now())
+        def inquiry = InquiryModel.reconstruct(1L, 1L, "10", statusCode, "タイトル", [], LocalDateTime.now())
 
         when:
         inquiry.escalateToStaff()
@@ -186,7 +184,7 @@ class InquiryModelSpec extends Specification {
 
     def "applyAiAnswerはステータスをAI_ANSWEREDに変更し、AIメッセージをリストに追加する"() {
         given:
-        def inquiry = InquiryModel.newInquiry(1L, 10L, InquiryCategory.GENERAL, "タイトル", "ユーザー質問")
+        def inquiry = InquiryModel.newInquiry(1L, InquiryCategory.GENERAL, "タイトル", "ユーザー質問")
         int initialMessageCount = inquiry.messages.size()
 
         when:

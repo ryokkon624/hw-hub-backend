@@ -10,7 +10,6 @@ import lombok.Data;
 public class InquiryWithMessagesEntity {
   private Long inquiryId;
   private Long userId;
-  private Long householdId;
   private String category;
   private String status;
   private String title;

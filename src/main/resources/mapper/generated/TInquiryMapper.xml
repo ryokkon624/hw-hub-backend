@@ -4,7 +4,6 @@
   <resultMap id="BaseResultMap" type="com.hwhub.backend.infrastructure.mybatis.generated.entity.TInquiry">
     <id column="inquiry_id" jdbcType="BIGINT" property="inquiryId" />
     <result column="user_id" jdbcType="BIGINT" property="userId" />
-    <result column="household_id" jdbcType="BIGINT" property="householdId" />
     <result column="category" jdbcType="VARCHAR" property="category" />
     <result column="status" jdbcType="VARCHAR" property="status" />
     <result column="title" jdbcType="VARCHAR" property="title" />
@@ -45,8 +44,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    inquiry_id, user_id, household_id, category, `status`, title, create_user_id, create_program, 
-    created_at, update_user_id, update_program, updated_at
+    inquiry_id, user_id, category, `status`, title, create_user_id, create_program, created_at, 
+    update_user_id, update_program, updated_at
   </sql>
   <select id="selectByExample" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.TInquiryExample" resultMap="BaseResultMap">
     select
@@ -74,23 +73,20 @@
     where inquiry_id = #{inquiryId,jdbcType=BIGINT}
   </delete>
   <insert id="insert" keyColumn="inquiry_id" keyProperty="inquiryId" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.TInquiry" useGeneratedKeys="true">
-    insert into t_inquiry (user_id, household_id, category, 
-      `status`, title, create_user_id, 
-      create_program, created_at, update_user_id, 
-      update_program, updated_at)
-    values (#{userId,jdbcType=BIGINT}, #{householdId,jdbcType=BIGINT}, #{category,jdbcType=VARCHAR}, 
-      #{status,jdbcType=VARCHAR}, #{title,jdbcType=VARCHAR}, #{createUserId,jdbcType=BIGINT}, 
-      #{createProgram,jdbcType=VARCHAR}, #{createdAt,jdbcType=TIMESTAMP}, #{updateUserId,jdbcType=BIGINT}, 
-      #{updateProgram,jdbcType=VARCHAR}, #{updatedAt,jdbcType=TIMESTAMP})
+    insert into t_inquiry (user_id, category, `status`, 
+      title, create_user_id, create_program, 
+      created_at, update_user_id, update_program, 
+      updated_at)
+    values (#{userId,jdbcType=BIGINT}, #{category,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
+      #{title,jdbcType=VARCHAR}, #{createUserId,jdbcType=BIGINT}, #{createProgram,jdbcType=VARCHAR}, 
+      #{createdAt,jdbcType=TIMESTAMP}, #{updateUserId,jdbcType=BIGINT}, #{updateProgram,jdbcType=VARCHAR}, 
+      #{updatedAt,jdbcType=TIMESTAMP})
   </insert>
   <insert id="insertSelective" keyColumn="inquiry_id" keyProperty="inquiryId" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.TInquiry" useGeneratedKeys="true">
     insert into t_inquiry
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="userId != null">
         user_id,
-      </if>
-      <if test="householdId != null">
-        household_id,
       </if>
       <if test="category != null">
         category,
@@ -123,9 +119,6 @@
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="userId != null">
         #{userId,jdbcType=BIGINT},
-      </if>
-      <if test="householdId != null">
-        #{householdId,jdbcType=BIGINT},
       </if>
       <if test="category != null">
         #{category,jdbcType=VARCHAR},
@@ -162,9 +155,6 @@
       <if test="userId != null">
         user_id = #{userId,jdbcType=BIGINT},
       </if>
-      <if test="householdId != null">
-        household_id = #{householdId,jdbcType=BIGINT},
-      </if>
       <if test="category != null">
         category = #{category,jdbcType=VARCHAR},
       </if>
@@ -198,7 +188,6 @@
   <update id="updateByPrimaryKey" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.TInquiry">
     update t_inquiry
     set user_id = #{userId,jdbcType=BIGINT},
-      household_id = #{householdId,jdbcType=BIGINT},
       category = #{category,jdbcType=VARCHAR},
       `status` = #{status,jdbcType=VARCHAR},
       title = #{title,jdbcType=VARCHAR},
