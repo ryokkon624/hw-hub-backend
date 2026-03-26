@@ -169,17 +169,46 @@ class InquiryServiceSpec extends Specification {
         then:
         1 * inquiryRepository.findById(inquiryId) >> Optional.of(model)
         1 * inquiryRepository.addMessage(_, 1L, ProgramType.ONL_INQRY.code)
-        1 * notificationPublisher.publishInquiryReplied(5L, "件名", 1L, ProgramType.ONL_INQRY.code)
+        1 * notificationPublisher.publishInquiryReplied(5L, "件名", 1L, 1L, ProgramType.ONL_INQRY.code)
 
         where:
         senderType << [SenderType.AI_SUPPORT, SenderType.STAFF]
     }
 
-    def "addMessageはSTAFF_ANSWEREDかつYOU以外の送信者の場合、ステータス更新と通知が両方行われる"() {
+    def "addMessageはYOU以外の送信者で問い合わせが見つからない場合ResourceNotFoundExceptionをスローする"() {
+        given:
+        def inquiryId = new InquiryId(5L)
+
+        when:
+        service.addMessage(inquiryId, 1L, "返信内容", SenderType.AI_SUPPORT)
+
+        then:
+        1 * inquiryRepository.findById(inquiryId) >> Optional.empty()
+        thrown(ResourceNotFoundException)
+    }
+
+    def "addMessageはSTAFF_ANSWEREDかつSTAFF送信者の場合、ステータス更新なしで通知のみ行われる"() {
         given:
         def inquiryId = new InquiryId(5L)
         def model = InquiryModel.reconstruct(
             5L, 1L, 10L, "10", InquiryStatus.STAFF_ANSWERED.code, "件名", [], LocalDateTime.now()
+        )
+
+        when:
+        service.addMessage(inquiryId, 1L, "スタッフ追記", SenderType.STAFF)
+
+        then:
+        1 * inquiryRepository.findById(inquiryId) >> Optional.of(model)
+        1 * inquiryRepository.addMessage(_, 1L, ProgramType.ONL_INQRY.code)
+        0 * inquiryRepository.updateStatus(_, _, _, _)
+        1 * notificationPublisher.publishInquiryReplied(5L, "件名", 1L, 1L, ProgramType.ONL_INQRY.code)
+    }
+
+    def "addMessageはPENDING_STAFFかつSTAFF送信者の場合、ステータス更新と通知が両方行われる"() {
+        given:
+        def inquiryId = new InquiryId(5L)
+        def model = InquiryModel.reconstruct(
+            5L, 1L, 10L, "10", InquiryStatus.PENDING_STAFF.code, "件名", [], LocalDateTime.now()
         )
 
         when:
@@ -188,8 +217,8 @@ class InquiryServiceSpec extends Specification {
         then:
         1 * inquiryRepository.findById(inquiryId) >> Optional.of(model)
         1 * inquiryRepository.addMessage(_, 1L, ProgramType.ONL_INQRY.code)
-        1 * inquiryRepository.updateStatus(inquiryId, InquiryStatus.PENDING_STAFF, 1L, ProgramType.ONL_INQRY.code)
-        1 * notificationPublisher.publishInquiryReplied(5L, "件名", 1L, ProgramType.ONL_INQRY.code)
+        1 * inquiryRepository.updateStatus(inquiryId, InquiryStatus.STAFF_ANSWERED, 1L, ProgramType.ONL_INQRY.code)
+        1 * notificationPublisher.publishInquiryReplied(5L, "件名", 1L, 1L, ProgramType.ONL_INQRY.code)
     }
 
     // ==================================

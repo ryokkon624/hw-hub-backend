@@ -140,23 +140,62 @@ class JwtAuthenticationFilterSpec extends Specification {
         SecurityContextHolder.context.authentication == null
     }
 
-    def "shouldNotFilter は /api/auth/login のとき true を返す"() {
+    def "トークンの発行日時(iat)が取得できない場合 Authentication はセットされない"() {
         given:
         def request = Mock(HttpServletRequest) {
-            getServletPath() >> "/api/auth/login"
+            getHeader("Authorization") >> "Bearer valid-token"
         }
+        def response = Mock(HttpServletResponse)
+        def chain = Mock(FilterChain)
 
-        expect:
-        filter.shouldNotFilter(request)
+        and:
+        1 * jwtProvider.validateToken("valid-token") >> true
+        1 * jwtProvider.getUserIdFromToken("valid-token") >> 123L
+        1 * jwtProvider.getIssuedAtFromToken("valid-token") >> null
+
+        when:
+        filter.doFilterInternal(request, response, chain)
+
+        then:
+        1 * chain.doFilter(request, response)
+        SecurityContextHolder.context.authentication == null
     }
 
-    def "shouldNotFilter は login 以外のパスでは false を返す"() {
+    @spock.lang.Unroll
+    def "shouldNotFilter はパス '#path' のとき #expected を返す"() {
         given:
         def request = Mock(HttpServletRequest) {
-            getServletPath() >> "/api/houseworks"
+            getServletPath() >> path
         }
 
         expect:
-        !filter.shouldNotFilter(request)
+        filter.shouldNotFilter(request) == expected
+
+        where:
+        path                                    | expected
+        "/api/auth/login"                       | true
+        "/api/auth/email-verification/verify"   | true
+        "/api/auth/email-verification/resend"   | true
+        "/api/auth/password-reset/request"      | true
+        "/api/auth/password-reset/confirm"      | true
+        "/oauth/google"                         | true
+        "/api/houseworks"                       | false
+        "/api/user/profile"                     | false
+    }
+
+    def "Authorization ヘッダーが Bearer のみでトークンがない場合 skips"() {
+        given:
+        def request = Mock(HttpServletRequest) {
+            getHeader("Authorization") >> "Bearer "
+        }
+        def response = Mock(HttpServletResponse)
+        def chain = Mock(FilterChain)
+
+        when:
+        filter.doFilterInternal(request, response, chain)
+
+        then:
+        1 * chain.doFilter(request, response)
+        SecurityContextHolder.context.authentication == null
     }
 }

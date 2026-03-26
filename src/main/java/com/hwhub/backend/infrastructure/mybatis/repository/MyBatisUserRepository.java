@@ -1,6 +1,7 @@
 package com.hwhub.backend.infrastructure.mybatis.repository;
 
 import com.hwhub.backend.domain.enums.AuthProvider;
+import com.hwhub.backend.domain.model.AdminUserSearchCondition;
 import com.hwhub.backend.domain.model.HouseholdModel;
 import com.hwhub.backend.domain.model.UserModel;
 import com.hwhub.backend.domain.repository.UserRepository;
@@ -203,5 +204,45 @@ public class MyBatisUserRepository implements UserRepository {
 
     mapper.updateByPrimaryKeySelective(update);
     return enabled;
+  }
+
+  @Override
+  public List<UserModel> searchByEmail(String email) {
+    return customMapper.searchByEmail(email).stream().map(UserConverter::toModel).toList();
+  }
+
+  @Override
+  public List<UserModel> searchByCondition(AdminUserSearchCondition condition) {
+    return customMapper.searchByCondition(condition).stream().map(UserConverter::toModel).toList();
+  }
+
+  @Override
+  public UserModel insertByAdmin(UserModel model, Long operatorUserId, String program) {
+    MUser entity = UserConverter.toEntity(model);
+    entity.setCreateUserId(operatorUserId);
+    entity.setCreateProgram(program);
+    entity.setUpdateUserId(operatorUserId);
+    entity.setUpdateProgram(program);
+
+    mapper.insertSelective(entity);
+
+    MUser inserted = mapper.selectByPrimaryKey(entity.getUserId());
+    return UserConverter.toModel(inserted);
+  }
+
+  @Override
+  public void updateByAdmin(UserModel user, Long operatorUserId, String program) {
+    MUser update = new MUser();
+    update.setUserId(user.getUserId());
+    update.setDisplayName(user.getDisplayName());
+    update.setLocale(user.getLocale());
+    update.setIsActive(user.isActive());
+    if (user.getPasswordHash() != null) {
+      update.setPasswordHash(user.getPasswordHash());
+    }
+    update.setUpdateUserId(operatorUserId);
+    update.setUpdateProgram(program);
+
+    mapper.updateByPrimaryKeySelective(update);
   }
 }

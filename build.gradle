@@ -41,6 +41,9 @@ dependencies {
     // Spring Security
     implementation 'org.springframework.boot:spring-boot-starter-security'
 
+    // AOP
+    implementation 'org.aspectj:aspectjweaver'
+
     // JWT (jjwt)
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
     implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'

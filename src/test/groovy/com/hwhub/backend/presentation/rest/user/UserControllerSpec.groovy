@@ -83,7 +83,9 @@ class UserControllerSpec extends Specification {
                 true,
                 "icon-key",
                 null,
-                true
+                true,
+                null,
+                null
         )
 
         when:
@@ -121,7 +123,9 @@ class UserControllerSpec extends Specification {
                 true,
                 "icon-key",
                 null,
-                true
+                true,
+                null,
+                null
         )
 
         when:

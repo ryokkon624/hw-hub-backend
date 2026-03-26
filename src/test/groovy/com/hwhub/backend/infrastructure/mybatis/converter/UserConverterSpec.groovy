@@ -67,7 +67,9 @@ class UserConverterSpec extends Specification{
                 true,                    // notificationEnabled
                 "profile/key/002",       // profileImageKey
                 now,                     // emailVerifiedAt
-                true                     // isActive
+                true,                    // isActive
+                null,                    // createdAt
+                null                     // updatedAt
         )
 
         when: "toEntityでMyBatisエンティティに変換する"

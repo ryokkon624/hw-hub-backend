@@ -453,11 +453,12 @@ public class NotificationPublisher {
    * @param inquiryId 問い合わせID
    * @param inquiryTitle 問い合わせ件名
    * @param targetUserId 通知対象のユーザーID（問い合わせの作成者）
+   * @param operatorUserId 操作者のユーザーID
    * @param program プログラム名
    */
   @Transactional
   public void publishInquiryReplied(
-      Long inquiryId, String inquiryTitle, Long targetUserId, String program) {
+      Long inquiryId, String inquiryTitle, Long targetUserId, Long operatorUserId, String program) {
 
     if (!permissionService.canReceive(
         targetUserId, NotificationType.YOUR_INQUIRY_HAS_BEEN_REPLIED)) {
@@ -481,7 +482,7 @@ public class NotificationPublisher {
         NotificationModel.newUnread(
             null,
             NotificationType.YOUR_INQUIRY_HAS_BEEN_REPLIED,
-            null,
+            operatorUserId,
             targetUserId,
             message,
             link,

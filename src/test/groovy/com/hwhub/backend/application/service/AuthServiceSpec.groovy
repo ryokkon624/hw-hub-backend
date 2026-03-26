@@ -58,7 +58,9 @@ class AuthServiceSpec extends Specification{
                 true,
                 "icon/key/001",
                 null, 
-                true // Active
+                true, // Active
+                null,
+                null
         )
 
         // Default is enabled=false
@@ -124,7 +126,9 @@ class AuthServiceSpec extends Specification{
                 true,
                 null,
                 null,
-                false // Inactive
+                false, // Inactive
+                null,
+                null
         )
 
         when:
@@ -193,7 +197,9 @@ class AuthServiceSpec extends Specification{
                 true,
                 null,
                 null,
-                true
+                true,
+                null,
+                null
         )
 
         when:
@@ -224,10 +230,12 @@ class AuthServiceSpec extends Specification{
                 "新規ユーザ",
                 "ja",
                 true,
-                 "icon/key/999",
-                 null,
-                 true
-         )
+                "icon/key/999",
+                null,
+                true,
+                null,
+                null
+        )
         // Default is enabled=false
 
 
@@ -255,7 +263,7 @@ class AuthServiceSpec extends Specification{
                 "ja"
         )
         def existingUser = UserModel.reconstruct(
-                20L, "dup@example.com", "hash", null, AuthProvider.LOCAL.code, null, "Exist", "en", true, null, null, true
+                20L, "dup@example.com", "hash", null, AuthProvider.LOCAL.code, null, "Exist", "en", true, null, null, true, null, null
         )
 
         when:
@@ -270,7 +278,7 @@ class AuthServiceSpec extends Specification{
     def "registerはメール認証有効時にVerificationRequiredを返す"() {
         given:
         def model = UserModel.create("verify@example.com", "pw", "VerifyMe", "ja")
-        def inserted = UserModel.reconstruct(100L, "verify@example.com", "hash", null, AuthProvider.LOCAL.code, null, "VerifyMe", "ja", true, null, null, true)
+        def inserted = UserModel.reconstruct(100L, "verify@example.com", "hash", null, AuthProvider.LOCAL.code, null, "VerifyMe", "ja", true, null, null, true, null, null)
 
         // Re-init with enabled=true, sendMail=true
         def props = new EmailVerificationProperties(true, true, 30, 60, 5, "http://front", "/verify")

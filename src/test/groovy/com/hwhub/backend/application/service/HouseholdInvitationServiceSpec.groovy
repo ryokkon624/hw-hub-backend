@@ -177,7 +177,9 @@ class HouseholdInvitationServiceSpec extends Specification {
                 true,
                 "ja",
                 null, 
-                true
+                true,
+                null,
+                null
         )
 
         // 既存メンバーなし（または非ACTIVE）を表現するため null を返す
@@ -223,7 +225,9 @@ class HouseholdInvitationServiceSpec extends Specification {
                 true,
                 null,
                 null, 
-                true
+                true,
+                null,
+                null
         )
 
         def member = HouseholdMemberModel.reconstruct(
@@ -273,7 +277,9 @@ class HouseholdInvitationServiceSpec extends Specification {
                 true,
                 null,
                 null, 
-                true
+                true,
+                null,
+                null
         )
 
         def member = HouseholdMemberModel.reconstruct(

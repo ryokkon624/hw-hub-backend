@@ -1,5 +1,6 @@
 package com.hwhub.backend.domain.repository;
 
+import com.hwhub.backend.domain.model.AdminUserSearchCondition;
 import com.hwhub.backend.domain.model.HouseholdModel;
 import com.hwhub.backend.domain.model.UserModel;
 import java.time.LocalDateTime;
@@ -44,4 +45,16 @@ public interface UserRepository {
   boolean isNotificationEnabled(Long userId);
 
   boolean updateNotificationEnabled(Long userId, boolean enabled, Long userId2, String code);
+
+  /** メールアドレスの部分一致でユーザーを検索する */
+  List<UserModel> searchByEmail(String email);
+
+  /** 管理者用ユーザー検索（email部分一致 / is_active / locale で絞り込み） */
+  List<UserModel> searchByCondition(AdminUserSearchCondition condition);
+
+  /** 管理者専用登録（メール認証スキップ・即時active） */
+  UserModel insertByAdmin(UserModel model, Long operatorUserId, String program);
+
+  /** 管理者専用更新（is_active / password_hash の更新も含む） */
+  void updateByAdmin(UserModel user, Long operatorUserId, String program);
 }

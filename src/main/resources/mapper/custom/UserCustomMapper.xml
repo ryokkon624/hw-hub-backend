@@ -39,4 +39,30 @@
         WHERE
             user_id = #{userId}
     </update>
+
+    <select id="searchByEmail" resultType="com.hwhub.backend.infrastructure.mybatis.generated.entity.MUser">
+        SELECT *
+        FROM m_user
+        WHERE email LIKE CONCAT('%', #{email}, '%')
+        ORDER BY created_at DESC
+        LIMIT 50
+    </select>
+
+    <select id="searchByCondition" resultType="com.hwhub.backend.infrastructure.mybatis.generated.entity.MUser">
+        SELECT *
+        FROM m_user
+        <where>
+            <if test="email != null and email != ''">
+                AND email LIKE CONCAT('%', #{email}, '%')
+            </if>
+            <if test="isActive != null">
+                AND is_active = #{isActive}
+            </if>
+            <if test="locale != null and locale != ''">
+                AND locale = #{locale}
+            </if>
+        </where>
+        ORDER BY created_at DESC
+        LIMIT 200
+    </select>
 </mapper>

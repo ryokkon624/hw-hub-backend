@@ -49,22 +49,42 @@ public class InquiryService {
 
   @Transactional
   public void addMessage(InquiryId inquiryId, Long userId, String body, SenderType senderType) {
-    InquiryModel inquiry = getInquiry(inquiryId, userId);
+    addMessage(inquiryId, userId, body, senderType, ProgramType.ONL_INQRY);
+  }
 
-    InquiryMessageModel message = inquiry.addUserMessage(body);
-    inquiryRepository.addMessage(message, userId, ProgramType.ONL_INQRY.getCode());
+  @Transactional
+  public void addMessage(
+      InquiryId inquiryId, Long userId, String body, SenderType senderType, ProgramType program) {
 
-    if (inquiry.getStatus() == InquiryStatus.STAFF_ANSWERED) {
+    // Userからのメッセージの場合は問い合わせの起票者かチェックする
+    InquiryModel inquiry;
+    if (senderType == SenderType.YOU) {
+      inquiry = getInquiry(inquiryId, userId);
+    } else {
+      inquiry =
+          inquiryRepository
+              .findById(inquiryId)
+              .orElseThrow(() -> new ResourceNotFoundException("Inquiry not found"));
+    }
+
+    InquiryMessageModel message = inquiry.addMessage(body, senderType);
+    inquiryRepository.addMessage(message, userId, program.getCode());
+
+    boolean doUpdateStatus =
+        inquiry.getStatus() == InquiryStatus.PENDING_STAFF
+            || inquiry.getStatus() == InquiryStatus.OPEN;
+
+    if (senderType == SenderType.YOU && inquiry.getStatus() == InquiryStatus.STAFF_ANSWERED) {
       inquiryRepository.updateStatus(
-          inquiryId, InquiryStatus.PENDING_STAFF, userId, ProgramType.ONL_INQRY.getCode());
+          inquiryId, InquiryStatus.PENDING_STAFF, userId, program.getCode());
+    } else if (senderType == SenderType.STAFF && doUpdateStatus) {
+      inquiryRepository.updateStatus(
+          inquiryId, InquiryStatus.STAFF_ANSWERED, userId, program.getCode());
     }
 
     if (senderType != SenderType.YOU) {
       notificationPublisher.publishInquiryReplied(
-          inquiryId.value(),
-          inquiry.getTitle(),
-          inquiry.getUserId(),
-          ProgramType.ONL_INQRY.getCode());
+          inquiryId.value(), inquiry.getTitle(), inquiry.getUserId(), userId, program.getCode());
     }
   }
 

@@ -72,4 +72,73 @@
         created_at DESC
   </select>
 
+
+  <!-- 共通の集計 SELECT 句 -->
+  <sql id="adminInquirySelect">
+    SELECT
+      i.inquiry_id,
+      i.user_id,
+      u.email           AS user_email,
+      u.display_name    AS user_display_name,
+      i.category,
+      i.status,
+      i.title,
+      i.created_at,
+      i.updated_at,
+      COUNT(m.message_id)                                       AS total_message_count,
+      SUM(CASE WHEN m.sender_type = 'USER'  THEN 1 ELSE 0 END) AS user_message_count,
+      SUM(CASE WHEN m.sender_type = 'AI'    THEN 1 ELSE 0 END) AS ai_message_count,
+      SUM(CASE WHEN m.sender_type = 'STAFF' THEN 1 ELSE 0 END) AS staff_message_count
+    FROM t_inquiry i
+    INNER JOIN m_user u ON i.user_id = u.user_id
+    LEFT JOIN t_inquiry_message m ON i.inquiry_id = m.inquiry_id
+  </sql>
+
+  <!-- 共通の GROUP BY -->
+  <sql id="adminInquiryGroupBy">
+    GROUP BY i.inquiry_id, i.user_id, u.email, u.display_name,
+             i.category, i.status, i.title, i.created_at, i.updated_at
+  </sql>
+
+  <!-- 対応待ち一覧: status='20'(PENDING_STAFF)、created_at ASC -->
+  <select id="findPendingStaff"
+          resultType="com.hwhub.backend.infrastructure.mybatis.custom.entity.AdminInquiryEntity">
+    <include refid="adminInquirySelect"/>
+    WHERE i.status = '20'
+    <include refid="adminInquiryGroupBy"/>
+    ORDER BY i.created_at ASC
+  </select>
+
+  <!-- 全件検索 -->
+  <select id="searchInquiries"
+          resultType="com.hwhub.backend.infrastructure.mybatis.custom.entity.AdminInquiryEntity">
+    <include refid="adminInquirySelect"/>
+    <where>
+      <if test="userId != null">
+        AND i.user_id = #{userId}
+      </if>
+      <if test="category != null and category != ''">
+        AND i.category = #{category}
+      </if>
+      <if test="status != null and status != ''">
+        AND i.status = #{status}
+      </if>
+      <if test="createdAtFrom != null">
+        AND i.created_at &gt;= #{createdAtFrom}
+      </if>
+      <if test="createdAtTo != null">
+        AND i.created_at &lt; #{createdAtTo} + INTERVAL 1 DAY
+      </if>
+      <if test="updatedAtFrom != null">
+        AND i.updated_at &gt;= #{updatedAtFrom}
+      </if>
+      <if test="updatedAtTo != null">
+        AND i.updated_at &lt; #{updatedAtTo} + INTERVAL 1 DAY
+      </if>
+    </where>
+    <include refid="adminInquiryGroupBy"/>
+    ORDER BY i.created_at DESC
+    LIMIT 200
+  </select>
+
 </mapper>

@@ -66,7 +66,7 @@ class InquiryModelSpec extends Specification {
         def inquiry = InquiryModel.newInquiry(1L, 10L, InquiryCategory.GENERAL, "タイトル", "初回メッセージ")
 
         when:
-        def message = inquiry.addUserMessage("追加メッセージ")
+        def message = inquiry.addMessage("追加メッセージ", SenderType.YOU)
 
         then:
         message.senderType == SenderType.YOU
@@ -85,7 +85,7 @@ class InquiryModelSpec extends Specification {
         def inquiry = InquiryModel.reconstruct(1L, 2L, 10L, "10", "00", "件名", existingMessages, now)
 
         when:
-        def message = inquiry.addUserMessage("4通目")
+        def message = inquiry.addMessage("4通目", SenderType.YOU)
 
         then:
         message.seq == 4

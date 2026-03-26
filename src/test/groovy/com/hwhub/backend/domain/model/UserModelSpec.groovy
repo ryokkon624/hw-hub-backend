@@ -29,7 +29,9 @@ class UserModelSpec extends Specification {
                 true,
                 profileImageKey,
                 null,
-                isActive
+                isActive,
+                null,
+                null
         )
 
         then:
@@ -44,6 +46,8 @@ class UserModelSpec extends Specification {
         model.iconUrl == null
         model.emailVerifiedAt == null // added
         model.isActive == true
+        model.createdAt == null
+        model.updatedAt == null
     }
 
     def "createはuserIdとpasswordHashがnullでisActive=trueのUserModelを生成する"() {
@@ -87,7 +91,7 @@ class UserModelSpec extends Specification {
     def "changePasswordHash updates passwordHash and passwordChangedAt"() {
         given:
         def model = UserModel.reconstruct(
-                1L, "test@example.com", "old", null, AuthProvider.LOCAL.code, null, "User", "en", true, null, null, true
+                1L, "test@example.com", "old", null, AuthProvider.LOCAL.code, null, "User", "en", true, null, null, true, null, null
         )
         def newHash = "new-hash"
         def changedAt = LocalDateTime.now()
@@ -114,7 +118,9 @@ class UserModelSpec extends Specification {
                 true,
                 "icon/key.png",
                 null,
-                true
+                true,
+                null,
+                null
         )
 
         when:
@@ -138,7 +144,9 @@ class UserModelSpec extends Specification {
                 true,
                 null,
                 null,
-                true
+                true,
+                null,
+                null
         )
 
         when:
@@ -163,7 +171,9 @@ class UserModelSpec extends Specification {
                 true,
                 "old/key.png",
                 null,
-                true
+                true,
+                null,
+                null
         )
 
         when:
@@ -187,7 +197,9 @@ class UserModelSpec extends Specification {
                 true,
                 null,
                 null,
-                false
+                false,
+                null,
+                null
         )
 
         when:
@@ -195,6 +207,32 @@ class UserModelSpec extends Specification {
 
         then:
         model.isActive == true
+    }
+
+    def "deactivateでisActiveがfalseになる"() {
+        given:
+        def model = UserModel.reconstruct(
+                1L,
+                "active@example.com",
+                "hashed",
+                null,
+                AuthProvider.LOCAL.code,
+                null,
+                "アクティブユーザ",
+                "ja",
+                true,
+                null,
+                null,
+                true,
+                null,
+                null
+        )
+
+        when:
+        model.deactivate()
+
+        then:
+        model.isActive == false
     }
 
     def "createGoogleUser initializes google user correctly"() {
