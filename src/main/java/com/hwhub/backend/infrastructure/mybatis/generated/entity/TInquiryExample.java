@@ -225,66 +225,6 @@ public class TInquiryExample {
       return (Criteria) this;
     }
 
-    public Criteria andHouseholdIdIsNull() {
-      addCriterion("household_id is null");
-      return (Criteria) this;
-    }
-
-    public Criteria andHouseholdIdIsNotNull() {
-      addCriterion("household_id is not null");
-      return (Criteria) this;
-    }
-
-    public Criteria andHouseholdIdEqualTo(Long value) {
-      addCriterion("household_id =", value, "householdId");
-      return (Criteria) this;
-    }
-
-    public Criteria andHouseholdIdNotEqualTo(Long value) {
-      addCriterion("household_id <>", value, "householdId");
-      return (Criteria) this;
-    }
-
-    public Criteria andHouseholdIdGreaterThan(Long value) {
-      addCriterion("household_id >", value, "householdId");
-      return (Criteria) this;
-    }
-
-    public Criteria andHouseholdIdGreaterThanOrEqualTo(Long value) {
-      addCriterion("household_id >=", value, "householdId");
-      return (Criteria) this;
-    }
-
-    public Criteria andHouseholdIdLessThan(Long value) {
-      addCriterion("household_id <", value, "householdId");
-      return (Criteria) this;
-    }
-
-    public Criteria andHouseholdIdLessThanOrEqualTo(Long value) {
-      addCriterion("household_id <=", value, "householdId");
-      return (Criteria) this;
-    }
-
-    public Criteria andHouseholdIdIn(List<Long> values) {
-      addCriterion("household_id in", values, "householdId");
-      return (Criteria) this;
-    }
-
-    public Criteria andHouseholdIdNotIn(List<Long> values) {
-      addCriterion("household_id not in", values, "householdId");
-      return (Criteria) this;
-    }
-
-    public Criteria andHouseholdIdBetween(Long value1, Long value2) {
-      addCriterion("household_id between", value1, value2, "householdId");
-      return (Criteria) this;
-    }
-
-    public Criteria andHouseholdIdNotBetween(Long value1, Long value2) {
-      addCriterion("household_id not between", value1, value2, "householdId");
-      return (Criteria) this;
-    }
-
     public Criteria andCategoryIsNull() {
       addCriterion("category is null");
       return (Criteria) this;

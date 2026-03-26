@@ -34,26 +34,26 @@ class InquiryControllerSpec extends Specification {
 
     def "createInquiryはサービスを呼び出してinquiryIdを含むMapを返す"() {
         given:
-        def request = new InquiryCreateRequest(10L, "10", "件名", "本文")
+        def request = new InquiryCreateRequest("10", "件名", "本文")
         def generatedId = new InquiryId(99L)
 
         when:
         def result = controller.createInquiry(request, auth)
 
         then:
-        1 * inquiryService.createInquiry(1L, 10L, InquiryCategory.GENERAL, "件名", "本文") >> generatedId
+        1 * inquiryService.createInquiry(1L, InquiryCategory.GENERAL, "件名", "本文") >> generatedId
         result["inquiryId"] == 99L
     }
 
     def "createInquiryは各カテゴリコードを正しくInquiryCategoryに変換してサービスに渡す"() {
         given:
-        def request = new InquiryCreateRequest(10L, categoryCode, "件名", "本文")
+        def request = new InquiryCreateRequest(categoryCode, "件名", "本文")
 
         when:
         controller.createInquiry(request, auth)
 
         then:
-        1 * inquiryService.createInquiry(1L, 10L, expectedCategory, "件名", "本文") >> new InquiryId(1L)
+        1 * inquiryService.createInquiry(1L, expectedCategory, "件名", "本文") >> new InquiryId(1L)
 
         where:
         categoryCode | expectedCategory
@@ -103,7 +103,7 @@ class InquiryControllerSpec extends Specification {
 
     def "getInquiryは指定IDの問い合わせ詳細を返す"() {
         given:
-        def model = InquiryModel.reconstruct(5L, 1L, 10L, "10", "00", "件名", [], LocalDateTime.now())
+        def model = InquiryModel.reconstruct(5L, 1L, "10", "00", "件名", [], LocalDateTime.now())
 
         when:
         def result = controller.getInquiry(5L, auth)

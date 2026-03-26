@@ -138,7 +138,7 @@ class AdminInquiryControllerSpec extends Specification {
     def "getDetailは問い合わせIDで管理者向け詳細をInquiryDetailResponseで返す"() {
         given:
         def model = InquiryModel.reconstruct(
-            5L, 1L, 10L, "10", "20", "件名", [], LocalDateTime.of(2025, 1, 1, 0, 0)
+            5L, 1L, "10", "20", "件名", [], LocalDateTime.of(2025, 1, 1, 0, 0)
         )
 
         when:
@@ -156,7 +156,7 @@ class AdminInquiryControllerSpec extends Specification {
     def "getDetailはメッセージが含まれる問い合わせも正しく返す"() {
         given:
         def now = LocalDateTime.of(2025, 1, 1, 0, 0)
-        def model = InquiryModel.reconstruct(7L, 2L, 20L, "40", "25", "バグ報告", [], now)
+        def model = InquiryModel.reconstruct(7L, 2L, "40", "25", "バグ報告", [], now)
 
         when:
         def result = controller.getDetail(7L)

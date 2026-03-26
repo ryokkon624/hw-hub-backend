@@ -32,7 +32,7 @@ class InquiryServiceSpec extends Specification {
         def generatedId = new InquiryId(99L)
 
         when:
-        def result = service.createInquiry(1L, 10L, InquiryCategory.GENERAL, "件名", "本文")
+        def result = service.createInquiry(1L, InquiryCategory.GENERAL, "件名", "本文")
 
         then:
         1 * inquiryRepository.insert(_, 1L, ProgramType.ONL_INQRY.code) >> generatedId
@@ -41,7 +41,7 @@ class InquiryServiceSpec extends Specification {
 
     def "createInquiryは各カテゴリで正しく動作する"() {
         when:
-        service.createInquiry(1L, 10L, category, "件名", "本文")
+        service.createInquiry(1L, category, "件名", "本文")
 
         then:
         1 * inquiryRepository.insert({ InquiryModel m ->
@@ -84,7 +84,7 @@ class InquiryServiceSpec extends Specification {
     def "getInquiryはID・ユーザーIDが一致すれば問い合わせを返す"() {
         given:
         def inquiryId = new InquiryId(5L)
-        def model = InquiryModel.reconstruct(5L, 1L, 10L, "10", "00", "件名", [], LocalDateTime.now())
+        def model = InquiryModel.reconstruct(5L, 1L, "10", "00", "件名", [], LocalDateTime.now())
 
         when:
         def result = service.getInquiry(inquiryId, 1L)
@@ -110,7 +110,7 @@ class InquiryServiceSpec extends Specification {
         given:
         def inquiryId = new InquiryId(5L)
         // userId=2L で作成されたが、1L でアクセス
-        def model = InquiryModel.reconstruct(5L, 2L, 10L, "10", "00", "件名", [], LocalDateTime.now())
+        def model = InquiryModel.reconstruct(5L, 2L, "10", "00", "件名", [], LocalDateTime.now())
 
         when:
         service.getInquiry(inquiryId, 1L)
@@ -127,7 +127,7 @@ class InquiryServiceSpec extends Specification {
     def "addMessageはOPENステータスの問い合わせにユーザーメッセージを追加する"() {
         given:
         def inquiryId = new InquiryId(5L)
-        def model = InquiryModel.reconstruct(5L, 1L, 10L, "10", InquiryStatus.OPEN.code, "件名", [], LocalDateTime.now())
+        def model = InquiryModel.reconstruct(5L, 1L, "10", InquiryStatus.OPEN.code, "件名", [], LocalDateTime.now())
 
         when:
         service.addMessage(inquiryId, 1L, "返信内容", SenderType.YOU)
@@ -143,7 +143,7 @@ class InquiryServiceSpec extends Specification {
         given:
         def inquiryId = new InquiryId(5L)
         def model = InquiryModel.reconstruct(
-            5L, 1L, 10L, "10", InquiryStatus.STAFF_ANSWERED.code, "件名", [], LocalDateTime.now()
+            5L, 1L, "10", InquiryStatus.STAFF_ANSWERED.code, "件名", [], LocalDateTime.now()
         )
 
         when:
@@ -160,7 +160,7 @@ class InquiryServiceSpec extends Specification {
         given:
         def inquiryId = new InquiryId(5L)
         def model = InquiryModel.reconstruct(
-            5L, 1L, 10L, "10", InquiryStatus.OPEN.code, "件名", [], LocalDateTime.now()
+            5L, 1L, "10", InquiryStatus.OPEN.code, "件名", [], LocalDateTime.now()
         )
 
         when:
@@ -191,7 +191,7 @@ class InquiryServiceSpec extends Specification {
         given:
         def inquiryId = new InquiryId(5L)
         def model = InquiryModel.reconstruct(
-            5L, 1L, 10L, "10", InquiryStatus.STAFF_ANSWERED.code, "件名", [], LocalDateTime.now()
+            5L, 1L, "10", InquiryStatus.STAFF_ANSWERED.code, "件名", [], LocalDateTime.now()
         )
 
         when:
@@ -208,7 +208,7 @@ class InquiryServiceSpec extends Specification {
         given:
         def inquiryId = new InquiryId(5L)
         def model = InquiryModel.reconstruct(
-            5L, 1L, 10L, "10", InquiryStatus.PENDING_STAFF.code, "件名", [], LocalDateTime.now()
+            5L, 1L, "10", InquiryStatus.PENDING_STAFF.code, "件名", [], LocalDateTime.now()
         )
 
         when:
@@ -229,7 +229,7 @@ class InquiryServiceSpec extends Specification {
         given:
         def inquiryId = new InquiryId(5L)
         def model = InquiryModel.reconstruct(
-            5L, 1L, 10L, "10", InquiryStatus.OPEN.code, "件名", [], LocalDateTime.now()
+            5L, 1L, "10", InquiryStatus.OPEN.code, "件名", [], LocalDateTime.now()
         )
 
         when:
@@ -256,7 +256,7 @@ class InquiryServiceSpec extends Specification {
         given:
         def inquiryId = new InquiryId(5L)
         def model = InquiryModel.reconstruct(
-            5L, 1L, 10L, "10", InquiryStatus.CLOSED.code, "件名", [], LocalDateTime.now()
+            5L, 1L, "10", InquiryStatus.CLOSED.code, "件名", [], LocalDateTime.now()
         )
 
         when:
@@ -276,7 +276,7 @@ class InquiryServiceSpec extends Specification {
         given:
         def inquiryId = new InquiryId(5L)
         def model = InquiryModel.reconstruct(
-            5L, 1L, 10L, "10", InquiryStatus.AI_ANSWERED.code, "件名", [], LocalDateTime.now()
+            5L, 1L, "10", InquiryStatus.AI_ANSWERED.code, "件名", [], LocalDateTime.now()
         )
 
         when:
@@ -303,7 +303,7 @@ class InquiryServiceSpec extends Specification {
         given:
         def inquiryId = new InquiryId(5L)
         def model = InquiryModel.reconstruct(
-            5L, 1L, 10L, "10", statusCode, "件名", [], LocalDateTime.now()
+            5L, 1L, "10", statusCode, "件名", [], LocalDateTime.now()
         )
 
         when:

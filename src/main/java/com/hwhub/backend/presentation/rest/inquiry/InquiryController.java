@@ -35,8 +35,7 @@ public class InquiryController {
     Long userId = Long.valueOf(authentication.getName());
     InquiryCategory category = InquiryCategory.fromCode(request.category());
     InquiryId inquiryId =
-        inquiryService.createInquiry(
-            userId, request.householdId(), category, request.title(), request.body());
+        inquiryService.createInquiry(userId, category, request.title(), request.body());
     return Map.of("inquiryId", inquiryId.value());
   }
 
