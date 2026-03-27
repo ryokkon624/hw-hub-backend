@@ -6,6 +6,9 @@ import com.hwhub.backend.domain.model.inquiry.AdminInquirySearchCondition;
 import com.hwhub.backend.domain.model.inquiry.InquiryModel;
 import com.hwhub.backend.presentation.rest.admin.dto.AdminInquiryReplyRequest;
 import com.hwhub.backend.presentation.rest.admin.dto.AdminInquiryResponse;
+import com.hwhub.backend.presentation.rest.admin.dto.DailyInquiryMessageResponse;
+import com.hwhub.backend.presentation.rest.admin.dto.DailyInquiryStatusResponse;
+import com.hwhub.backend.presentation.rest.admin.dto.InquiryStatusSummaryResponse;
 import com.hwhub.backend.presentation.rest.inquiry.dto.InquiryDetailResponse;
 import com.hwhub.backend.security.RequiresPermission;
 import jakarta.validation.Valid;
@@ -28,6 +31,38 @@ import org.springframework.web.bind.annotation.RestController;
 public class AdminInquiryController {
 
   private final AdminInquiryService adminInquiryService;
+
+  /** ステータス別件数サマリー（ダッシュボード用） */
+  @RequiresPermission(Permission.INQUIRY_REPLY)
+  @GetMapping("/status-summary")
+  public InquiryStatusSummaryResponse getStatusSummary() {
+    return InquiryStatusSummaryResponse.from(adminInquiryService.findStatusSummary());
+  }
+
+  /** 日別・ステータス別問い合わせ件数（ダッシュボード用） */
+  @RequiresPermission(Permission.INQUIRY_REPLY)
+  @GetMapping("/stats")
+  public List<DailyInquiryStatusResponse> getStats(
+      @RequestParam(name = "days", defaultValue = "30") int days) {
+
+    int safeDays = Math.min(Math.max(days, 7), 90);
+
+    return adminInquiryService.findDailyStats(safeDays).stream()
+        .map(DailyInquiryStatusResponse::from)
+        .toList();
+  }
+
+  /** 日別・送信者タイプ別メッセージ件数（ダッシュボード用） */
+  @RequiresPermission(Permission.INQUIRY_REPLY)
+  @GetMapping("/message-stats")
+  public List<DailyInquiryMessageResponse> getMessageStats(
+      @RequestParam(name = "days", defaultValue = "10") int days) {
+
+    int safeDays = Math.min(Math.max(days, 7), 30);
+    return adminInquiryService.findMessageDailyStats(safeDays).stream()
+        .map(DailyInquiryMessageResponse::from)
+        .toList();
+  }
 
   /** 対応待ち一覧 */
   @RequiresPermission(Permission.INQUIRY_REPLY)

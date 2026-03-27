@@ -2,11 +2,11 @@ package com.hwhub.backend.infrastructure.mybatis.converter;
 
 import com.hwhub.backend.domain.enums.InquiryCategory;
 import com.hwhub.backend.domain.enums.InquiryStatus;
+import com.hwhub.backend.domain.model.inquiry.InquiryAdmin;
 import com.hwhub.backend.domain.model.inquiry.InquiryId;
 import com.hwhub.backend.domain.model.inquiry.InquiryMessageModel;
 import com.hwhub.backend.domain.model.inquiry.InquiryModel;
 import com.hwhub.backend.domain.model.inquiry.InquirySummary;
-import com.hwhub.backend.domain.model.inquiry.InruiryAdmin;
 import com.hwhub.backend.infrastructure.mybatis.custom.entity.AdminInquiryEntity;
 import com.hwhub.backend.infrastructure.mybatis.custom.entity.InquiryWithMessagesEntity;
 import com.hwhub.backend.infrastructure.mybatis.generated.entity.TInquiry;
@@ -48,11 +48,11 @@ public final class InquiryConverter {
         DateConverter.toLocalDateTime(entity.getCreatedAt()));
   }
 
-  public static InruiryAdmin toModel4Admin(AdminInquiryEntity entity) {
+  public static InquiryAdmin toModel4Admin(AdminInquiryEntity entity) {
     if (entity == null) {
       return null;
     }
-    return new InruiryAdmin(
+    return new InquiryAdmin(
         entity.getInquiryId(),
         entity.getUserId(),
         entity.getUserEmail(),

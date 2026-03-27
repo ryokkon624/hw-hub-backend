@@ -2,12 +2,15 @@ package com.hwhub.backend.infrastructure.mybatis.repository;
 
 import com.hwhub.backend.domain.enums.InquiryStatus;
 import com.hwhub.backend.domain.model.inquiry.AdminInquirySearchCondition;
+import com.hwhub.backend.domain.model.inquiry.DailyInquiryMessage;
+import com.hwhub.backend.domain.model.inquiry.DailyInquiryStatus;
+import com.hwhub.backend.domain.model.inquiry.InquiryAdmin;
 import com.hwhub.backend.domain.model.inquiry.InquiryId;
 import com.hwhub.backend.domain.model.inquiry.InquiryMessageId;
 import com.hwhub.backend.domain.model.inquiry.InquiryMessageModel;
 import com.hwhub.backend.domain.model.inquiry.InquiryModel;
+import com.hwhub.backend.domain.model.inquiry.InquiryStatusSummary;
 import com.hwhub.backend.domain.model.inquiry.InquirySummary;
-import com.hwhub.backend.domain.model.inquiry.InruiryAdmin;
 import com.hwhub.backend.domain.repository.InquiryRepository;
 import com.hwhub.backend.infrastructure.mybatis.converter.InquiryConverter;
 import com.hwhub.backend.infrastructure.mybatis.custom.entity.InquiryWithMessagesEntity;
@@ -100,14 +103,29 @@ public class MyBatisInquiryRepository implements InquiryRepository {
   }
 
   @Override
-  public List<InruiryAdmin> findPendingStaff() {
+  public List<InquiryAdmin> findPendingStaff() {
     return customMapper.findPendingStaff().stream().map(InquiryConverter::toModel4Admin).toList();
   }
 
   @Override
-  public List<InruiryAdmin> searchInquiries(AdminInquirySearchCondition condition) {
+  public List<InquiryAdmin> searchInquiries(AdminInquirySearchCondition condition) {
     return customMapper.searchInquiries(condition).stream()
         .map(InquiryConverter::toModel4Admin)
         .toList();
+  }
+
+  @Override
+  public List<DailyInquiryStatus> findDailyStats(int days) {
+    return customMapper.findDailyStats(days);
+  }
+
+  @Override
+  public List<DailyInquiryMessage> findMessageDailyStats(int days) {
+    return customMapper.findMessageDailyStats(days);
+  }
+
+  @Override
+  public InquiryStatusSummary findStatusSummary() {
+    return customMapper.findStatusSummary();
   }
 }
