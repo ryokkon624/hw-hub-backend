@@ -1,6 +1,6 @@
 package com.hwhub.backend.presentation.rest.admin.dto;
 
-import com.hwhub.backend.domain.model.inquiry.InruiryAdmin;
+import com.hwhub.backend.domain.model.inquiry.InquiryAdmin;
 import java.time.LocalDateTime;
 
 public record AdminInquiryResponse(
@@ -18,7 +18,7 @@ public record AdminInquiryResponse(
     int aiMessageCount,
     int staffMessageCount) {
 
-  public static AdminInquiryResponse from(InruiryAdmin model) {
+  public static AdminInquiryResponse from(InquiryAdmin model) {
     return new AdminInquiryResponse(
         model.inquiryId(),
         model.userId(),

@@ -6,7 +6,7 @@ import com.hwhub.backend.domain.enums.SenderType
 import com.hwhub.backend.domain.model.inquiry.AdminInquirySearchCondition
 import com.hwhub.backend.domain.model.inquiry.InquiryId
 import com.hwhub.backend.domain.model.inquiry.InquiryModel
-import com.hwhub.backend.domain.model.inquiry.InruiryAdmin
+import com.hwhub.backend.domain.model.inquiry.InquiryAdmin
 import com.hwhub.backend.domain.repository.InquiryRepository
 import com.hwhub.backend.presentation.rest.common.ResourceNotFoundException
 import spock.lang.Specification
@@ -28,7 +28,7 @@ class AdminInquiryServiceSpec extends Specification {
 
     def "findPendingStaffはリポジトリのfindPendingStaffを呼び出し結果をそのまま返す"() {
         given:
-        def items = [Mock(InruiryAdmin), Mock(InruiryAdmin)]
+        def items = [Mock(InquiryAdmin), Mock(InquiryAdmin)]
 
         when:
         def result = service.findPendingStaff()
@@ -54,7 +54,7 @@ class AdminInquiryServiceSpec extends Specification {
     def "searchInquiriesはリポジトリのsearchInquiriesに検索条件を渡して結果を返す"() {
         given:
         def condition = new AdminInquirySearchCondition(null, null, null, null, null, "10", "20")
-        def items = [Mock(InruiryAdmin)]
+        def items = [Mock(InquiryAdmin)]
 
         when:
         def result = service.searchInquiries(condition)
@@ -136,5 +136,53 @@ class AdminInquiryServiceSpec extends Specification {
         1 * inquiryService.addMessage(
             new InquiryId(100L), 99L, "別返信", SenderType.STAFF, ProgramType.ONL_ADM_INQ
         )
+    }
+
+    // ==================================
+    // findDailyStats
+    // ==================================
+
+    def "findDailyStatsはリポジトリのfindDailyStatsに指定日数を渡して結果を返す"() {
+        given:
+        def stats = [Mock(com.hwhub.backend.domain.model.inquiry.DailyInquiryStatus)]
+
+        when:
+        def result = service.findDailyStats(15)
+
+        then:
+        1 * inquiryRepository.findDailyStats(15) >> stats
+        result == stats
+    }
+
+    // ==================================
+    // findMessageDailyStats
+    // ==================================
+
+    def "findMessageDailyStatsはリポジトリのfindMessageDailyStatsに指定日数を渡して結果を返す"() {
+        given:
+        def stats = [Mock(com.hwhub.backend.domain.model.inquiry.DailyInquiryMessage)]
+
+        when:
+        def result = service.findMessageDailyStats(7)
+
+        then:
+        1 * inquiryRepository.findMessageDailyStats(7) >> stats
+        result == stats
+    }
+
+    // ==================================
+    // findStatusSummary
+    // ==================================
+
+    def "findStatusSummaryはリポジトリのfindStatusSummaryの結果を返す"() {
+        given:
+        def summary = Mock(com.hwhub.backend.domain.model.inquiry.InquiryStatusSummary)
+
+        when:
+        def result = service.findStatusSummary()
+
+        then:
+        1 * inquiryRepository.findStatusSummary() >> summary
+        result == summary
     }
 }

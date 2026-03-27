@@ -3,7 +3,10 @@ package com.hwhub.backend.presentation.rest.admin
 import com.hwhub.backend.application.service.AdminInquiryService
 import com.hwhub.backend.domain.model.inquiry.AdminInquirySearchCondition
 import com.hwhub.backend.domain.model.inquiry.InquiryModel
-import com.hwhub.backend.domain.model.inquiry.InruiryAdmin
+import com.hwhub.backend.domain.model.inquiry.InquiryAdmin
+import com.hwhub.backend.domain.model.inquiry.DailyInquiryStatus
+import com.hwhub.backend.domain.model.inquiry.DailyInquiryMessage
+import com.hwhub.backend.domain.model.inquiry.InquiryStatusSummary
 import com.hwhub.backend.presentation.rest.admin.dto.AdminInquiryReplyRequest
 import org.springframework.security.core.Authentication
 import spock.lang.Specification
@@ -26,8 +29,8 @@ class AdminInquiryControllerSpec extends Specification {
     }
 
     // テスト用ファクトリ
-    private static InruiryAdmin makeInruiryAdmin(Long inquiryId) {
-        new InruiryAdmin(
+    private static InquiryAdmin makeInquiryAdmin(Long inquiryId) {
+        new InquiryAdmin(
             inquiryId, 2L, "user@example.com", "ユーザー名",
             "10", "20", "件名 ${inquiryId}",
             LocalDateTime.of(2025, 1, 1, 0, 0),
@@ -42,7 +45,7 @@ class AdminInquiryControllerSpec extends Specification {
 
     def "getPendingStaffはスタッフ対応待ち一覧をAdminInquiryResponseのリストで返す"() {
         given:
-        def items = [makeInruiryAdmin(1L), makeInruiryAdmin(2L)]
+        def items = [makeInquiryAdmin(1L), makeInquiryAdmin(2L)]
 
         when:
         def result = controller.getPendingStaff()
@@ -82,7 +85,7 @@ class AdminInquiryControllerSpec extends Specification {
         def createdTo    = LocalDate.of(2025, 6, 30)
         def updatedFrom  = LocalDate.of(2025, 3, 1)
         def updatedTo    = LocalDate.of(2025, 6, 30)
-        def item = makeInruiryAdmin(5L)
+        def item = makeInquiryAdmin(5L)
 
         when:
         def result = controller.search(createdFrom, createdTo, updatedFrom, updatedTo, 2L, "10", "20")
@@ -120,7 +123,7 @@ class AdminInquiryControllerSpec extends Specification {
 
     def "searchの結果はAdminInquiryResponseに変換されてリストで返る"() {
         given:
-        def items = [makeInruiryAdmin(10L), makeInruiryAdmin(20L), makeInruiryAdmin(30L)]
+        def items = [makeInquiryAdmin(10L), makeInquiryAdmin(20L), makeInquiryAdmin(30L)]
 
         when:
         def result = controller.search(null, null, null, null, null, null, null)
@@ -194,5 +197,71 @@ class AdminInquiryControllerSpec extends Specification {
 
         then:
         1 * adminInquiryService.replyAsStaff(100L, "別スタッフの返信", 99L)
+    }
+    // ==================================
+    // status-summary
+    // ==================================
+
+    def "getStatusSummaryはサービスから取得したサマリーをレスポンスに変換して返す"() {
+        given:
+        def summary = new InquiryStatusSummary(1, 2, 3, 4, 5)
+
+        when:
+        def result = controller.getStatusSummary()
+
+        then:
+        1 * adminInquiryService.findStatusSummary() >> summary
+        result.open() == 1
+        result.aiAnswered() == 2
+        result.pendingStaff() == 3
+        result.staffAnswered() == 4
+        result.recentUnclosed() == 5
+    }
+
+    // ==================================
+    // stats
+    // ==================================
+
+    def "getStatsは指定された日数（#days）をバリデーションしてサービスを呼び出す（期待値: #expectedDays）"() {
+        given:
+        def stats = [new DailyInquiryStatus(LocalDate.now(), 1, 0, 0, 0, 0)]
+
+        when:
+        def result = controller.getStats(days)
+
+        then:
+        1 * adminInquiryService.findDailyStats(expectedDays) >> stats
+        result.size() == 1
+        result[0].date() == LocalDate.now().toString()
+
+        where:
+        days | expectedDays
+        30   | 30  // デフォルト付近
+        5    | 7   // 下限
+        100  | 90  // 上限
+    }
+
+    // ==================================
+    // message-stats
+    // ==================================
+
+    def "getMessageStatsは指定された日数（#days）をバリデーションしてサービスを呼び出す（期待値: #expectedDays）"() {
+        given:
+        def stats = [new DailyInquiryMessage(LocalDate.now(), 2, 1, 1)]
+
+        when:
+        def result = controller.getMessageStats(days)
+
+        then:
+        1 * adminInquiryService.findMessageDailyStats(expectedDays) >> stats
+        result.size() == 1
+        result[0].date() == LocalDate.now().toString()
+        result[0].user() == 2
+
+        where:
+        days | expectedDays
+        10   | 10  // デフォルト
+        5    | 7   // 下限
+        50   | 30  // 上限
     }
 }

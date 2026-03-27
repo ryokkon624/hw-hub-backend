@@ -138,4 +138,55 @@
     LIMIT 200
   </select>
 
+
+  <select id="findDailyStats"
+          resultType="com.hwhub.backend.domain.model.inquiry.DailyInquiryStatus">
+    WITH RECURSIVE date_series AS (
+      SELECT CURDATE() - INTERVAL (#{days} - 1) DAY AS d
+      UNION ALL
+      SELECT d + INTERVAL 1 DAY FROM date_series WHERE d &lt; CURDATE()
+    )
+    SELECT
+      ds.d                                                                    AS date,
+      COALESCE(SUM(CASE WHEN i.status = '00' THEN 1 ELSE 0 END), 0)          AS open,
+      COALESCE(SUM(CASE WHEN i.status = '10' THEN 1 ELSE 0 END), 0)          AS ai_answered,
+      COALESCE(SUM(CASE WHEN i.status = '20' THEN 1 ELSE 0 END), 0)          AS pending_staff,
+      COALESCE(SUM(CASE WHEN i.status = '25' THEN 1 ELSE 0 END), 0)          AS staff_answered,
+      COALESCE(SUM(CASE WHEN i.status = '90' THEN 1 ELSE 0 END), 0)          AS closed
+    FROM date_series ds
+    LEFT JOIN t_inquiry i ON DATE(i.created_at) = ds.d
+    GROUP BY ds.d
+    ORDER BY ds.d ASC
+  </select>
+
+  <select id="findMessageDailyStats"
+          resultType="com.hwhub.backend.domain.model.inquiry.DailyInquiryMessage">
+    WITH RECURSIVE date_series AS (
+      SELECT CURDATE() - INTERVAL (#{days} - 1) DAY AS d
+      UNION ALL
+      SELECT d + INTERVAL 1 DAY FROM date_series WHERE d &lt; CURDATE()
+    )
+    SELECT
+      ds.d                                                                        AS date,
+      COALESCE(SUM(CASE WHEN m.sender_type = 'USER'  THEN 1 ELSE 0 END), 0)      AS user,
+      COALESCE(SUM(CASE WHEN m.sender_type = 'AI'    THEN 1 ELSE 0 END), 0)      AS ai,
+      COALESCE(SUM(CASE WHEN m.sender_type = 'STAFF' THEN 1 ELSE 0 END), 0)      AS staff
+    FROM date_series ds
+    LEFT JOIN t_inquiry_message m ON DATE(m.created_at) = ds.d
+    GROUP BY ds.d
+    ORDER BY ds.d ASC
+  </select>
+
+  <select id="findStatusSummary"
+          resultType="com.hwhub.backend.domain.model.inquiry.InquiryStatusSummary">
+    SELECT
+      SUM(CASE WHEN status = '00' THEN 1 ELSE 0 END)                                AS open,
+      SUM(CASE WHEN status = '10' THEN 1 ELSE 0 END)                                AS ai_answered,
+      SUM(CASE WHEN status = '20' THEN 1 ELSE 0 END)                                AS pending_staff,
+      SUM(CASE WHEN status = '25' THEN 1 ELSE 0 END)                                AS staff_answered,
+      SUM(CASE WHEN created_at &lt; NOW() - INTERVAL 3 DAY THEN 1 ELSE 0 END)       AS recent_unclosed
+    FROM t_inquiry
+    WHERE status != '90'
+  </select>
+
 </mapper>

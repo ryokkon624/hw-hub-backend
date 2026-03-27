@@ -4,9 +4,12 @@ import com.hwhub.backend.application.service.inquiry.InquiryService;
 import com.hwhub.backend.domain.enums.ProgramType;
 import com.hwhub.backend.domain.enums.SenderType;
 import com.hwhub.backend.domain.model.inquiry.AdminInquirySearchCondition;
+import com.hwhub.backend.domain.model.inquiry.DailyInquiryMessage;
+import com.hwhub.backend.domain.model.inquiry.DailyInquiryStatus;
+import com.hwhub.backend.domain.model.inquiry.InquiryAdmin;
 import com.hwhub.backend.domain.model.inquiry.InquiryId;
 import com.hwhub.backend.domain.model.inquiry.InquiryModel;
-import com.hwhub.backend.domain.model.inquiry.InruiryAdmin;
+import com.hwhub.backend.domain.model.inquiry.InquiryStatusSummary;
 import com.hwhub.backend.domain.repository.InquiryRepository;
 import com.hwhub.backend.presentation.rest.common.ResourceNotFoundException;
 import java.util.List;
@@ -27,7 +30,7 @@ public class AdminInquiryService {
    * @return スタッフ対応待ち一覧
    */
   @Transactional(readOnly = true)
-  public List<InruiryAdmin> findPendingStaff() {
+  public List<InquiryAdmin> findPendingStaff() {
     return inquiryRepository.findPendingStaff();
   }
 
@@ -38,7 +41,7 @@ public class AdminInquiryService {
    * @return 検索結果
    */
   @Transactional(readOnly = true)
-  public List<InruiryAdmin> searchInquiries(AdminInquirySearchCondition condition) {
+  public List<InquiryAdmin> searchInquiries(AdminInquirySearchCondition condition) {
     return inquiryRepository.searchInquiries(condition);
   }
 
@@ -53,6 +56,38 @@ public class AdminInquiryService {
     return inquiryRepository
         .findById(new InquiryId(inquiryId))
         .orElseThrow(() -> new ResourceNotFoundException("Inquiry not found: " + inquiryId));
+  }
+
+  /**
+   * 日別・ステータス別の問い合わせ件数を集計する
+   *
+   * @param days 集計対象日数
+   * @return 日別統計一覧
+   */
+  @Transactional(readOnly = true)
+  public List<DailyInquiryStatus> findDailyStats(int days) {
+    return inquiryRepository.findDailyStats(days);
+  }
+
+  /**
+   * 日別・送信者タイプ別のメッセージ件数を集計する
+   *
+   * @param days 集計対象日数
+   * @return 日別統計一覧
+   */
+  @Transactional(readOnly = true)
+  public List<DailyInquiryMessage> findMessageDailyStats(int days) {
+    return inquiryRepository.findMessageDailyStats(days);
+  }
+
+  /**
+   * ステータス別件数サマリーを取得する
+   *
+   * @return ステータスサマリー
+   */
+  @Transactional(readOnly = true)
+  public InquiryStatusSummary findStatusSummary() {
+    return inquiryRepository.findStatusSummary();
   }
 
   /**
