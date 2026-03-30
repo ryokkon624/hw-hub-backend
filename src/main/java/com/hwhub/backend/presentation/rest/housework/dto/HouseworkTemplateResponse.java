@@ -1,6 +1,6 @@
 package com.hwhub.backend.presentation.rest.housework.dto;
 
-import com.hwhub.backend.domain.model.HouseworkTemplate.HouseworkTemplateModel;
+import com.hwhub.backend.domain.model.houseworktemplate.HouseworkTemplateModel;
 
 public record HouseworkTemplateResponse(
     long houseworkTemplateId,

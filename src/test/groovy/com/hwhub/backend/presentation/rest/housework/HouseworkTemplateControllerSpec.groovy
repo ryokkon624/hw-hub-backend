@@ -3,8 +3,8 @@ package com.hwhub.backend.presentation.rest.housework
 import com.hwhub.backend.application.service.HouseworkTemplateService
 import com.hwhub.backend.domain.enums.Category
 import com.hwhub.backend.domain.enums.RecurrenceType
-import com.hwhub.backend.domain.model.HouseworkTemplate.HouseworkTemplateId
-import com.hwhub.backend.domain.model.HouseworkTemplate.HouseworkTemplateModel
+import com.hwhub.backend.domain.model.houseworktemplate.HouseworkTemplateId
+import com.hwhub.backend.domain.model.houseworktemplate.HouseworkTemplateModel
 import com.hwhub.backend.presentation.rest.housework.dto.HouseworkTemplateResponse
 import spock.lang.Specification
 

@@ -1,6 +1,6 @@
 package com.hwhub.backend.application.service;
 
-import com.hwhub.backend.domain.model.HouseworkTemplate.HouseworkTemplateModel;
+import com.hwhub.backend.domain.model.houseworktemplate.HouseworkTemplateModel;
 import com.hwhub.backend.domain.repository.HouseworkTemplateRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

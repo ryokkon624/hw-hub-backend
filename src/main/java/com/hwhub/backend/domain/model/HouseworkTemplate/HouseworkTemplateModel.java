@@ -1,4 +1,4 @@
-package com.hwhub.backend.domain.model.HouseworkTemplate;
+package com.hwhub.backend.domain.model.houseworktemplate;
 
 import com.hwhub.backend.domain.enums.Category;
 import com.hwhub.backend.domain.enums.NthWeek;

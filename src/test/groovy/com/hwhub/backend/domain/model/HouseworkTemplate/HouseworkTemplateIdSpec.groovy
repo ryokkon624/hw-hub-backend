@@ -1,4 +1,4 @@
-package com.hwhub.backend.domain.model.HouseworkTemplate
+package com.hwhub.backend.domain.model.houseworktemplate
 
 import spock.lang.Specification
 import spock.lang.Unroll

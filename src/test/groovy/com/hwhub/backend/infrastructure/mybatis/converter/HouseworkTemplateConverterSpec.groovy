@@ -4,8 +4,8 @@ import com.hwhub.backend.domain.enums.Category
 import com.hwhub.backend.domain.enums.NthWeek
 import com.hwhub.backend.domain.enums.RecurrenceType
 import com.hwhub.backend.domain.enums.Weekday
-import com.hwhub.backend.domain.model.HouseworkTemplate.HouseworkTemplateId
-import com.hwhub.backend.domain.model.HouseworkTemplate.HouseworkTemplateModel
+import com.hwhub.backend.domain.model.houseworktemplate.HouseworkTemplateId
+import com.hwhub.backend.domain.model.houseworktemplate.HouseworkTemplateModel
 import com.hwhub.backend.infrastructure.mybatis.generated.entity.MHouseworkTemplate
 import spock.lang.Specification
 import spock.lang.Unroll

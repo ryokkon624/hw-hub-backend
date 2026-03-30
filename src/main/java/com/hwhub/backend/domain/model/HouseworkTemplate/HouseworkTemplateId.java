@@ -1,4 +1,4 @@
-package com.hwhub.backend.domain.model.HouseworkTemplate;
+package com.hwhub.backend.domain.model.houseworktemplate;
 
 public record HouseworkTemplateId(long value) {
   public HouseworkTemplateId {

@@ -1,6 +1,6 @@
 package com.hwhub.backend.infrastructure.mybatis.repository;
 
-import com.hwhub.backend.domain.model.HouseworkTemplate.HouseworkTemplateModel;
+import com.hwhub.backend.domain.model.houseworktemplate.HouseworkTemplateModel;
 import com.hwhub.backend.domain.repository.HouseworkTemplateRepository;
 import com.hwhub.backend.infrastructure.mybatis.converter.HouseworkTemplateConverter;
 import com.hwhub.backend.infrastructure.mybatis.generated.entity.MHouseworkTemplate;
