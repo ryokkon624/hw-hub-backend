@@ -3,7 +3,8 @@ package com.hwhub.backend.domain.enums;
 public enum Permission implements CodeEnum {
   USER_LIST_VIEW("10"),
   ROLE_MANAGEMENT("11"),
-  INQUIRY_REPLY("20");
+  INQUIRY_REPLY("20"),
+  SYSTEM_TEMPLATE_MANAGEMENT("30");
 
   private final String code;
 
