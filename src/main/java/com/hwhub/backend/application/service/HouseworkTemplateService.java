@@ -57,6 +57,6 @@ public class HouseworkTemplateService {
    */
   @Transactional
   public void delete(HouseworkTemplateId id, Long operatorUserId) {
-    repository.delete(id, operatorUserId, ProgramType.ONL_ADM_USR.getCode());
+    repository.delete(id, operatorUserId, ProgramType.ONL_ADM_HW_TP.getCode());
   }
 }

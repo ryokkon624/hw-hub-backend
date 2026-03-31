@@ -43,4 +43,54 @@ class HouseworkTemplateServiceSpec extends Specification {
         1 * repository.findAll() >> []
         result == []
     }
+
+    def "create: リポジトリの insert が呼ばれ、結果が返ること"() {
+        given:
+        def model = HouseworkTemplateModel.reconstruct(
+                null, "J", "E", "S",
+                null, null, null, null, null, null,
+                Category.CLEANING, RecurrenceType.WEEKLY, 127, null, null, null
+        )
+        def createdModel = HouseworkTemplateModel.reconstruct(
+                new HouseworkTemplateId(10L), "J", "E", "S",
+                null, null, null, null, null, null,
+                Category.CLEANING, RecurrenceType.WEEKLY, 127, null, null, null
+        )
+        def operatorUserId = 100L
+
+        when:
+        def result = service.create(model, operatorUserId)
+
+        then:
+        1 * repository.insert(model, operatorUserId, "OnlAdmHwTp") >> createdModel
+        result == createdModel
+    }
+
+    def "update: リポジトリの update が呼ばれること"() {
+        given:
+        def model = HouseworkTemplateModel.reconstruct(
+                new HouseworkTemplateId(10L), "J", "E", "S",
+                null, null, null, null, null, null,
+                Category.CLEANING, RecurrenceType.WEEKLY, 127, null, null, null
+        )
+        def operatorUserId = 100L
+
+        when:
+        service.update(model, operatorUserId)
+
+        then:
+        1 * repository.update(model, operatorUserId, "OnlAdmHwTp")
+    }
+
+    def "delete: リポジトリの delete が呼ばれること"() {
+        given:
+        def id = new HouseworkTemplateId(20L)
+        def operatorUserId = 100L
+
+        when:
+        service.delete(id, operatorUserId)
+
+        then:
+        1 * repository.delete(id, operatorUserId, "OnlAdmHwTp")
+    }
 }
