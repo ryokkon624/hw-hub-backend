@@ -204,7 +204,7 @@ class AdminInquiryControllerSpec extends Specification {
 
     def "getStatusSummaryはサービスから取得したサマリーをレスポンスに変換して返す"() {
         given:
-        def summary = new InquiryStatusSummary(1, 2, 3, 4, 5)
+        def summary = new InquiryStatusSummary(1, 2, 3, 4, 1, 0, 2, 1)
 
         when:
         def result = controller.getStatusSummary()
@@ -215,7 +215,10 @@ class AdminInquiryControllerSpec extends Specification {
         result.aiAnswered() == 2
         result.pendingStaff() == 3
         result.staffAnswered() == 4
-        result.recentUnclosed() == 5
+        result.staleUnclosedOpen() == 1
+        result.staleUnclosedAiAnswered() == 0
+        result.staleUnclosedPendingStaff() == 2
+        result.staleUnclosedStaffAnswered() == 1
     }
 
     // ==================================

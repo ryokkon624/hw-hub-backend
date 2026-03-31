@@ -184,7 +184,18 @@
       SUM(CASE WHEN status = '10' THEN 1 ELSE 0 END)                                AS ai_answered,
       SUM(CASE WHEN status = '20' THEN 1 ELSE 0 END)                                AS pending_staff,
       SUM(CASE WHEN status = '25' THEN 1 ELSE 0 END)                                AS staff_answered,
-      SUM(CASE WHEN created_at &lt; NOW() - INTERVAL 3 DAY THEN 1 ELSE 0 END)       AS recent_unclosed
+      SUM(CASE WHEN status = '00'
+               AND created_at &lt; NOW() - INTERVAL 3 DAY
+               THEN 1 ELSE 0 END)                                                   AS stale_unclosed_open,
+      SUM(CASE WHEN status = '10'
+               AND created_at &lt; NOW() - INTERVAL 3 DAY
+               THEN 1 ELSE 0 END)                                                   AS stale_unclosed_ai_answered,
+      SUM(CASE WHEN status = '20'
+               AND created_at &lt; NOW() - INTERVAL 3 DAY
+               THEN 1 ELSE 0 END)                                                   AS stale_unclosed_pending_staff,
+      SUM(CASE WHEN status = '25'
+               AND created_at &lt; NOW() - INTERVAL 3 DAY
+               THEN 1 ELSE 0 END)                                                   AS stale_unclosed_staff_answered
     FROM t_inquiry
     WHERE status != '90'
   </select>
