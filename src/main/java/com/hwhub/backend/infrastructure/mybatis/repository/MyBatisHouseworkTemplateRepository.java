@@ -26,8 +26,8 @@ public class MyBatisHouseworkTemplateRepository implements HouseworkTemplateRepo
   }
 
   @Override
-  public HouseworkTemplateModel insert(HouseworkTemplateModel model, Long operatorUserId,
-      String program) {
+  public HouseworkTemplateModel insert(
+      HouseworkTemplateModel model, Long operatorUserId, String program) {
     MHouseworkTemplate entity = HouseworkTemplateConverter.toEntity(model);
     entity.setCreateUserId(operatorUserId);
     entity.setCreateProgram(program);

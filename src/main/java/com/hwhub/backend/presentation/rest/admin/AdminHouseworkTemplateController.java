@@ -49,8 +49,10 @@ public class AdminHouseworkTemplateController {
   /** 更新 */
   @RequiresPermission(Permission.SYSTEM_TEMPLATE_MANAGEMENT)
   @PutMapping("/{id}")
-  public void update(@PathVariable("id") Long id,
-      @RequestBody @Valid AdminHouseworkTemplateRequest request, Authentication authentication) {
+  public void update(
+      @PathVariable("id") Long id,
+      @RequestBody @Valid AdminHouseworkTemplateRequest request,
+      Authentication authentication) {
     Long operatorUserId = Long.valueOf(authentication.getName());
     HouseworkTemplateModel model = request.toModel(new HouseworkTemplateId(id));
     service.update(model, operatorUserId);

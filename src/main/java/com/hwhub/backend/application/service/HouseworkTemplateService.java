@@ -18,7 +18,7 @@ public class HouseworkTemplateService {
 
   /**
    * 家事テンプレート全件取得する。
-   * 
+   *
    * @return 家事テンプレート全件
    */
   @Transactional(readOnly = true)
@@ -28,7 +28,7 @@ public class HouseworkTemplateService {
 
   /**
    * 家事テンプレートを新規登録する。
-   * 
+   *
    * @param model 家事テンプレートモデル
    * @param operatorUserId 操作者ユーザーID
    * @return 新規登録された家事テンプレートモデル
@@ -40,7 +40,7 @@ public class HouseworkTemplateService {
 
   /**
    * 家事テンプレートを更新する。
-   * 
+   *
    * @param model 家事テンプレートモデル
    * @param operatorUserId 操作者ユーザーID
    */
@@ -51,7 +51,7 @@ public class HouseworkTemplateService {
 
   /**
    * 家事テンプレートを削除する。
-   * 
+   *
    * @param id 家事テンプレートID
    * @param operatorUserId 操作者ユーザーID
    */
