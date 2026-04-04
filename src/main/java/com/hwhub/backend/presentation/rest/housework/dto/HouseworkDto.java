@@ -24,7 +24,6 @@ public class HouseworkDto {
   private LocalDate endDate;
   private Long defaultAssigneeUserId;
 
-  // ★ Domain -> DTO 変換ヘルパ
   public static HouseworkDto fromModel(HouseworkModel model) {
     HouseworkDto dto = new HouseworkDto();
 
