@@ -155,7 +155,7 @@ public class AuthService {
 
     UserModel user = opt.get();
 
-    // すでに認証済みなら 409（または何もせず成功扱いでもOK）
+    // すでに認証済みなら 409
     if (user.getEmailVerifiedAt() != null) {
       throw new EmailAlreadyVerifiedException();
     }

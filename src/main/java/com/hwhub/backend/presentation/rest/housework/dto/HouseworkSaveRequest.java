@@ -1,4 +1,3 @@
-// src/main/java/com/hwhub/backend/presentation/rest/housework/dto/HouseworkSaveRequest.java
 package com.hwhub.backend.presentation.rest.housework.dto;
 
 import com.hwhub.backend.domain.enums.Category;

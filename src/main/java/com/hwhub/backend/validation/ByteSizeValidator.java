@@ -17,7 +17,7 @@ public class ByteSizeValidator implements ConstraintValidator<ByteSize, String> 
   @Override
   public boolean isValid(String value, ConstraintValidatorContext context) {
     if (value == null) {
-      return true; // null OK にする（要件次第）
+      return true;
     }
     int byteLength = value.getBytes(StandardCharsets.UTF_8).length;
     return byteLength <= max;

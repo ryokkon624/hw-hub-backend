@@ -1,9 +1,11 @@
 package com.hwhub.backend.presentation.rest.admin;
 
 import com.hwhub.backend.application.service.UserRoleService;
+import com.hwhub.backend.domain.enums.Permission;
 import com.hwhub.backend.domain.enums.UserRole;
 import com.hwhub.backend.presentation.rest.admin.dto.AssignRoleRequest;
 import com.hwhub.backend.presentation.rest.admin.dto.UserRoleResponse;
+import com.hwhub.backend.security.RequiresPermission;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -23,6 +25,7 @@ public class AdminRoleController {
   private final UserRoleService userRoleService;
 
   /** 自分のロール・パーミッション取得（全認証済みユーザーが呼べる） */
+  @RequiresPermission(Permission.ROLE_MANAGEMENT)
   @GetMapping("/users/me/roles")
   public UserRoleResponse getMyRoles(Authentication authentication) {
     Long userId = Long.valueOf(authentication.getName());
@@ -30,6 +33,7 @@ public class AdminRoleController {
   }
 
   /** ロール付与（ROLE_MANAGEMENT パーミッション必須） */
+  @RequiresPermission(Permission.ROLE_MANAGEMENT)
   @PostMapping("/admin/roles/{userId}")
   public void assignRole(
       @PathVariable("userId") Long userId,
@@ -41,6 +45,7 @@ public class AdminRoleController {
   }
 
   /** ロール削除（ROLE_MANAGEMENT パーミッション必須） */
+  @RequiresPermission(Permission.ROLE_MANAGEMENT)
   @DeleteMapping("/admin/roles/{userId}/{role}")
   public void removeRole(
       @PathVariable("userId") Long userId,

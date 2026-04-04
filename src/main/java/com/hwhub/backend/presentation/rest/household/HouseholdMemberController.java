@@ -143,7 +143,6 @@ public class HouseholdMemberController {
 
     memberService.deleteMember(householdId, userId, loginUserId);
 
-    // 特に返すものがなないため、 204 No Content
     return ResponseEntity.noContent().build();
   }
 }
