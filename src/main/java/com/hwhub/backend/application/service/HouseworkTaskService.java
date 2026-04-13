@@ -31,7 +31,8 @@ public class HouseworkTaskService {
           "User does not belong to household: userId=" + userId + ", householdId=" + householdId);
     }
 
-    return taskRepository.findForAssign(householdId, status);
+    LocalDate lowerDate = LocalDate.now().minusDays(7);
+    return taskRepository.findForAssign(householdId, status, lowerDate);
   }
 
   @Transactional

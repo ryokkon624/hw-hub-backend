@@ -32,7 +32,7 @@ class HouseworkTaskServiceSpec extends Specification{
 
         then:
         1 * authService.canAccessHousehold(householdId, userId) >> false
-        0 * taskRepository.findForAssign(_, _)
+        0 * taskRepository.findForAssign(_, _, _)
         thrown(AccessDeniedException)
     }
 
@@ -49,7 +49,7 @@ class HouseworkTaskServiceSpec extends Specification{
 
         then:
         1 * authService.canAccessHousehold(householdId, userId) >> true
-        1 * taskRepository.findForAssign(householdId, status) >> tasks
+        1 * taskRepository.findForAssign(householdId, status, _ as java.time.LocalDate) >> tasks
         result == tasks
     }
 

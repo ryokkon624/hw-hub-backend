@@ -50,6 +50,7 @@
         WHERE
             t.household_id = #{householdId}
           AND t.status = #{status}
+          AND t.target_date &gt;= #{lowerDate}
         ORDER BY
             t.target_date ASC,
             t.housework_task_id ASC

@@ -11,7 +11,9 @@ import org.apache.ibatis.annotations.Param;
 public interface HouseworkTaskCustomMapper {
 
   List<HouseworkTask4AssignModel> selectTasksForAssign(
-      @Param("householdId") Long householdId, @Param("status") String status);
+      @Param("householdId") Long householdId,
+      @Param("status") String status,
+      @Param("lowerDate") LocalDate lowerDate);
 
   void updateByTaskId4Online(
       @Param("item") HouseworkTaskModel item,
