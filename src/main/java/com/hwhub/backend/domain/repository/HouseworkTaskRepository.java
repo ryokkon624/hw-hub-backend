@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface HouseworkTaskRepository {
 
-  List<HouseworkTask4AssignModel> findForAssign(Long householdId, String status);
+  List<HouseworkTask4AssignModel> findForAssign(Long householdId, String status, LocalDate lowerDate);
 
   HouseworkTaskModel findById(Long houseworkTaskId);
 

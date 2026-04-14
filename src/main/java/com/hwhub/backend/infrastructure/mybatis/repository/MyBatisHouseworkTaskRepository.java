@@ -27,8 +27,9 @@ public class MyBatisHouseworkTaskRepository implements HouseworkTaskRepository {
   private final HouseworkTaskAssignmentHistoryCustomMapper historyCustomMapper;
 
   @Override
-  public List<HouseworkTask4AssignModel> findForAssign(Long householdId, String status) {
-    return customMapper.selectTasksForAssign(householdId, status);
+  public List<HouseworkTask4AssignModel> findForAssign(
+      Long householdId, String status, LocalDate lowerDate) {
+    return customMapper.selectTasksForAssign(householdId, status, lowerDate);
   }
 
   @Override
