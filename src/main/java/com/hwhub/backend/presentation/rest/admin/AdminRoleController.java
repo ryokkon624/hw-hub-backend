@@ -34,8 +34,10 @@ public class AdminRoleController {
   /** ロール付与（ROLE_MANAGEMENT パーミッション必須） */
   @RequiresPermission(Permission.ROLE_MANAGEMENT)
   @PostMapping("/admin/roles/{userId}")
-  public void assignRole(@PathVariable("userId") Long userId,
-      @RequestBody @Valid AssignRoleRequest request, Authentication authentication) {
+  public void assignRole(
+      @PathVariable("userId") Long userId,
+      @RequestBody @Valid AssignRoleRequest request,
+      Authentication authentication) {
     Long operatorUserId = Long.valueOf(authentication.getName());
     UserRole role = UserRole.fromCode(request.role());
     userRoleService.assignRole(userId, role, operatorUserId);
@@ -44,7 +46,9 @@ public class AdminRoleController {
   /** ロール削除（ROLE_MANAGEMENT パーミッション必須） */
   @RequiresPermission(Permission.ROLE_MANAGEMENT)
   @DeleteMapping("/admin/roles/{userId}/{role}")
-  public void removeRole(@PathVariable("userId") Long userId, @PathVariable("role") String role,
+  public void removeRole(
+      @PathVariable("userId") Long userId,
+      @PathVariable("role") String role,
       Authentication authentication) {
     Long operatorUserId = Long.valueOf(authentication.getName());
     UserRole userRole = UserRole.fromCode(role);
