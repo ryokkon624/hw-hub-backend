@@ -171,11 +171,8 @@ public class ShoppingItemService {
       throw new AccessDeniedException("You do not have access to this household.");
     }
 
-    // 添付画像を先に削除
-    var attachments = shoppingItemAttachmentRepository.findByShoppingItemId(shoppingItemId);
-    for (var attachment : attachments) {
-      shoppingItemAttachmentRepository.deleteById(attachment.getId());
-    }
+    // 添付画像を一括削除
+    shoppingItemAttachmentRepository.deleteByShoppingItemId(shoppingItemId);
 
     shoppingItemRepository.deleteById(shoppingItemId);
   }

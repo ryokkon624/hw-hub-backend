@@ -13,4 +13,6 @@ public interface ShoppingItemAttachmentRepository {
   Optional<ShoppingItemAttachment> findById(Long id);
 
   void deleteById(Long id);
+
+  void deleteByShoppingItemId(Long shoppingItemId);
 }
