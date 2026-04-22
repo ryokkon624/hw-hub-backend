@@ -522,6 +522,72 @@ class ShoppingItemServiceSpec extends Specification {
     }
 
     // ==================================
+    // delete
+    // ==================================
+
+    def "deleteはアイテムが存在しない場合ResourceNotFoundExceptionを投げる"() {
+        given:
+        long shoppingItemId = 600L
+        long userId = 10L
+
+        when:
+        service.delete(shoppingItemId, userId)
+
+        then:
+        1 * shoppingItemRepository.findById(shoppingItemId) >> Optional.empty()
+        0 * shoppingItemAttachmentRepository.deleteByShoppingItemId(_)
+        0 * shoppingItemRepository.deleteById(_)
+
+        thrown(ResourceNotFoundException)
+    }
+
+    def "deleteは世帯アクセス不可の場合AccessDeniedExceptionを投げる"() {
+        given:
+        long shoppingItemId = 601L
+        long userId = 10L
+        long householdId = 1L
+
+        def item = Mock(ShoppingItemModel) {
+            getHouseholdId() >> householdId
+        }
+
+        when:
+        service.delete(shoppingItemId, userId)
+
+        then:
+        1 * shoppingItemRepository.findById(shoppingItemId) >> Optional.of(item)
+        1 * householdAuthorizationService.canAccessHousehold(householdId, userId) >> false
+        0 * shoppingItemAttachmentRepository.deleteByShoppingItemId(_)
+        0 * shoppingItemRepository.deleteById(_)
+
+        thrown(AccessDeniedException)
+    }
+
+    def "deleteは認可OKの場合添付画像を先に削除してからアイテムを削除する"() {
+        given:
+        long shoppingItemId = 602L
+        long userId = 10L
+        long householdId = 1L
+
+        def item = Mock(ShoppingItemModel) {
+            getHouseholdId() >> householdId
+        }
+
+        when:
+        service.delete(shoppingItemId, userId)
+
+        then:
+        1 * shoppingItemRepository.findById(shoppingItemId) >> Optional.of(item)
+        1 * householdAuthorizationService.canAccessHousehold(householdId, userId) >> true
+
+        then:
+        1 * shoppingItemAttachmentRepository.deleteByShoppingItemId(shoppingItemId)
+
+        then:
+        1 * shoppingItemRepository.deleteById(shoppingItemId)
+    }
+
+    // ==================================
     // listHistorySuggestions
     // ==================================
 
