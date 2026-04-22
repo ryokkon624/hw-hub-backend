@@ -19,6 +19,8 @@ public interface ShoppingItemRepository {
 
   ShoppingItemModel update(ShoppingItemModel model, long userId, String program);
 
+  void deleteById(long shoppingItemId);
+
   /**
    * 買い物履歴サジェスト（name + storeType ごとに集約）
    *

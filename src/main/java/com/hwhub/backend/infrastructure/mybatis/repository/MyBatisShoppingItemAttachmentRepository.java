@@ -3,6 +3,7 @@ package com.hwhub.backend.infrastructure.mybatis.repository;
 import com.hwhub.backend.domain.model.ShoppingItemAttachment;
 import com.hwhub.backend.domain.repository.ShoppingItemAttachmentRepository;
 import com.hwhub.backend.infrastructure.mybatis.converter.ShoppingItemAttachmentConverter;
+import com.hwhub.backend.infrastructure.mybatis.custom.mapper.ShoppingItemAttachmentCustomMapper;
 import com.hwhub.backend.infrastructure.mybatis.generated.entity.TShoppingItemAttachment;
 import com.hwhub.backend.infrastructure.mybatis.generated.entity.TShoppingItemAttachmentExample;
 import com.hwhub.backend.infrastructure.mybatis.generated.mapper.TShoppingItemAttachmentMapper;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Repository;
 public class MyBatisShoppingItemAttachmentRepository implements ShoppingItemAttachmentRepository {
 
   private final TShoppingItemAttachmentMapper mapper;
+  private final ShoppingItemAttachmentCustomMapper customMapper;
 
   @Override
   public ShoppingItemAttachment save(ShoppingItemAttachment model, long userId, String program) {
@@ -53,5 +55,10 @@ public class MyBatisShoppingItemAttachmentRepository implements ShoppingItemAtta
   @Override
   public void deleteById(Long id) {
     mapper.deleteByPrimaryKey(id);
+  }
+
+  @Override
+  public void deleteByShoppingItemId(Long shoppingItemId) {
+    customMapper.deleteByShoppingItemId(shoppingItemId);
   }
 }

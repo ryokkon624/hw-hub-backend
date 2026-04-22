@@ -68,6 +68,11 @@ public class MyBatisShoppingItemRepository implements ShoppingItemRepository {
   }
 
   @Override
+  public void deleteById(long shoppingItemId) {
+    mapper.deleteByPrimaryKey(shoppingItemId);
+  }
+
+  @Override
   public List<ShoppingItemHistorySuggestionModel> findHistorySuggestions(
       Long householdId, String keyword, String storeType, int limit) {
     return historyCustomMapper.selectHistorySuggestions(householdId, keyword, storeType, limit);

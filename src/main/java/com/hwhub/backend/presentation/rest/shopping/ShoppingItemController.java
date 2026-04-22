@@ -139,6 +139,24 @@ public class ShoppingItemController {
   }
 
   /**
+   * 買い物アイテムを削除します（物理削除）。<br>
+   * DELETE /api/shopping-items/{shoppingItemId}
+   *
+   * @param shoppingItemId 買い物アイテムのID
+   * @param authentication 認証ユーザー情報
+   * @return HTTPステータス 204 No Content（削除成功）
+   */
+  @DeleteMapping("/shopping-items/{shoppingItemId}")
+  public ResponseEntity<Void> delete(
+      @PathVariable("shoppingItemId") Long shoppingItemId, Authentication authentication) {
+    long userId = Long.parseLong(authentication.getName());
+
+    shoppingItemService.delete(shoppingItemId, userId);
+
+    return ResponseEntity.noContent().build();
+  }
+
+  /**
    * 既存の買い物アイテムの情報を全体的に更新します（PUT）。<br>
    * PUT /api/households/{householdId}/shopping-items/{shoppingItemId}
    *
