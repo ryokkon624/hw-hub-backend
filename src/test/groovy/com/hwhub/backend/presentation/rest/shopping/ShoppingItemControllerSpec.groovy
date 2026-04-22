@@ -196,6 +196,26 @@ class ShoppingItemControllerSpec extends Specification {
     }
 
     // ------------------------------------------------------------------
+    // DELETE /api/shopping-items/{shoppingItemId}
+    // ------------------------------------------------------------------
+    def "delete は ログインユーザIDで service.delete を呼び 204 を返す"() {
+        given:
+        Long shoppingItemId = 300L
+        long userId = 50L
+        Authentication auth = Mock()
+        auth.getName() >> userId.toString()
+
+        when:
+        def response = controller.delete(shoppingItemId, auth)
+
+        then:
+        1 * shoppingItemService.delete(shoppingItemId, userId)
+
+        and:
+        response.statusCode == HttpStatus.NO_CONTENT
+    }
+
+    // ------------------------------------------------------------------
     // PUT /api/households/{householdId}/shopping-items/{shoppingItemId}
     // ------------------------------------------------------------------
     def "update は householdId, shoppingItemId, リクエスト内容, ログインユーザIDで service.update を呼び 200 を返す"() {
