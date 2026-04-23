@@ -160,6 +160,28 @@ public class ShoppingItemService {
   }
 
   @Transactional
+  public void bulkUpdateStatus(List<Long> ids, String status, long userId) {
+    ShoppingItemStatus.fromCode(status); // バリデーション（不正コードは例外）
+
+    // IN句で一括取得（N+1解消）
+    List<ShoppingItemModel> items = shoppingItemRepository.findByIds(ids);
+
+    if (items.size() != ids.size()) {
+      throw new ResourceNotFoundException("SHOPPING_ITEM_NOT_FOUND");
+    }
+
+    // 認可チェック（一括取得した全アイテムに対して実施）
+    for (ShoppingItemModel item : items) {
+      if (!householdAuthorizationService.canAccessHousehold(item.getHouseholdId(), userId)) {
+        throw new AccessDeniedException("You do not have access to this household.");
+      }
+    }
+
+    // IN句で一括更新（N+1解消）
+    shoppingItemRepository.bulkUpdateStatus(ids, status, userId, ProgramType.ONL_SHP.getCode());
+  }
+
+  @Transactional
   public void delete(long shoppingItemId, long userId) {
     var itemOpt = shoppingItemRepository.findById(shoppingItemId);
     if (itemOpt.isEmpty()) {

@@ -46,6 +46,22 @@ public class MyBatisShoppingItemRepository implements ShoppingItemRepository {
   }
 
   @Override
+  public List<ShoppingItemModel> findByIds(List<Long> ids) {
+    if (ids == null || ids.isEmpty()) {
+      return List.of();
+    }
+    return customMapper.selectByIds(ids).stream().map(ShoppingItemConverter::toModel).toList();
+  }
+
+  @Override
+  public void bulkUpdateStatus(List<Long> ids, String status, long userId, String program) {
+    if (ids == null || ids.isEmpty()) {
+      return;
+    }
+    customMapper.bulkUpdateStatus(ids, status, userId, program);
+  }
+
+  @Override
   public ShoppingItemModel insert(ShoppingItemModel model, long userId, String program) {
     TShoppingItem entity = ShoppingItemConverter.toEntity(model);
     entity.setCreateUserId(userId);

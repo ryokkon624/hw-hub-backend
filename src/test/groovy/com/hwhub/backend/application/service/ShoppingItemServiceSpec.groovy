@@ -295,6 +295,67 @@ class ShoppingItemServiceSpec extends Specification {
     }
 
     // ==================================
+    // bulkUpdateStatus
+    // ==================================
+
+    def "bulkUpdateStatusはアイテムが存在しない場合ResourceNotFoundExceptionを投げる"() {
+        given:
+        long userId = 10L
+        def ids = [700L]
+
+        when:
+        service.bulkUpdateStatus(ids, ShoppingItemStatus.PURCHASED.code, userId)
+
+        then:
+        // findByIds が返すリストがidsより少ない場合に例外
+        1 * shoppingItemRepository.findByIds(ids) >> []
+        thrown(ResourceNotFoundException)
+    }
+
+    def "bulkUpdateStatusは世帯アクセス不可の場合AccessDeniedExceptionを投げる"() {
+        given:
+        long userId = 10L
+        long householdId = 1L
+        def ids = [701L]
+
+        def item = Mock(ShoppingItemModel) {
+            getHouseholdId() >> householdId
+        }
+
+        when:
+        service.bulkUpdateStatus(ids, ShoppingItemStatus.PURCHASED.code, userId)
+
+        then:
+        1 * shoppingItemRepository.findByIds(ids) >> [item]
+        1 * householdAuthorizationService.canAccessHousehold(householdId, userId) >> false
+        0 * shoppingItemRepository.bulkUpdateStatus(_, _, _, _)
+
+        thrown(AccessDeniedException)
+    }
+
+    def "bulkUpdateStatusは認可OKの場合全アイテムのステータスをIN句で一括更新する"() {
+        given:
+        long userId = 10L
+        long householdId = 1L
+        def ids = [702L, 703L]
+
+        def item1 = Mock(ShoppingItemModel) {
+            getHouseholdId() >> householdId
+        }
+        def item2 = Mock(ShoppingItemModel) {
+            getHouseholdId() >> householdId
+        }
+
+        when:
+        service.bulkUpdateStatus(ids, ShoppingItemStatus.PURCHASED.code, userId)
+
+        then:
+        1 * shoppingItemRepository.findByIds(ids) >> [item1, item2]
+        2 * householdAuthorizationService.canAccessHousehold(householdId, userId) >> true
+        1 * shoppingItemRepository.bulkUpdateStatus(ids, ShoppingItemStatus.PURCHASED.code, userId, ProgramType.ONL_SHP.code)
+    }
+
+    // ==================================
     // create
     // ==================================
 
