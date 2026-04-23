@@ -295,6 +295,74 @@ class ShoppingItemServiceSpec extends Specification {
     }
 
     // ==================================
+    // bulkUpdateStatus
+    // ==================================
+
+    def "bulkUpdateStatusはアイテムが存在しない場合ResourceNotFoundExceptionを投げる"() {
+        given:
+        long userId = 10L
+        def ids = [700L]
+
+        when:
+        service.bulkUpdateStatus(ids, ShoppingItemStatus.PURCHASED.code, userId)
+
+        then:
+        1 * shoppingItemRepository.findById(700L) >> Optional.empty()
+        thrown(ResourceNotFoundException)
+    }
+
+    def "bulkUpdateStatusは世帯アクセス不可の場合AccessDeniedExceptionを投げる"() {
+        given:
+        long userId = 10L
+        long householdId = 1L
+        def ids = [701L]
+
+        def item = Mock(ShoppingItemModel) {
+            getHouseholdId() >> householdId
+        }
+
+        when:
+        service.bulkUpdateStatus(ids, ShoppingItemStatus.PURCHASED.code, userId)
+
+        then:
+        1 * shoppingItemRepository.findById(701L) >> Optional.of(item)
+        1 * householdAuthorizationService.canAccessHousehold(householdId, userId) >> false
+        0 * item.purchased()
+        0 * shoppingItemRepository.update(_, _, _)
+
+        thrown(AccessDeniedException)
+    }
+
+    def "bulkUpdateStatusは認可OKの場合全アイテムのステータスを一括更新する"() {
+        given:
+        long userId = 10L
+        long householdId = 1L
+        def ids = [702L, 703L]
+
+        def item1 = Mock(ShoppingItemModel) {
+            getHouseholdId() >> householdId
+        }
+        def item2 = Mock(ShoppingItemModel) {
+            getHouseholdId() >> householdId
+        }
+
+        when:
+        service.bulkUpdateStatus(ids, ShoppingItemStatus.PURCHASED.code, userId)
+
+        then:
+        1 * shoppingItemRepository.findById(702L) >> Optional.of(item1)
+        1 * householdAuthorizationService.canAccessHousehold(householdId, userId) >> true
+        1 * item1.purchased()
+        1 * shoppingItemRepository.update(item1, userId, ProgramType.ONL_SHP.code)
+
+        then:
+        1 * shoppingItemRepository.findById(703L) >> Optional.of(item2)
+        1 * householdAuthorizationService.canAccessHousehold(householdId, userId) >> true
+        1 * item2.purchased()
+        1 * shoppingItemRepository.update(item2, userId, ProgramType.ONL_SHP.code)
+    }
+
+    // ==================================
     // create
     // ==================================
 

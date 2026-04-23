@@ -89,6 +89,24 @@ public class ShoppingItemController {
   }
 
   /**
+   * 複数の買い物アイテムのステータスを一括更新します。<br>
+   * PATCH /api/shopping-items/bulk-status
+   *
+   * @param request 更新するアイテムIDリストと更新後のステータスを含むリクエストボディ
+   * @param authentication 認証ユーザー情報
+   * @return HTTPステータス 204 No Content（更新成功）
+   */
+  @PatchMapping("/shopping-items/bulk-status")
+  public ResponseEntity<Void> bulkUpdateStatus(
+      @RequestBody @Valid BulkUpdateStatusRequest request, Authentication authentication) {
+    long userId = Long.parseLong(authentication.getName());
+
+    shoppingItemService.bulkUpdateStatus(request.ids(), request.status(), userId);
+
+    return ResponseEntity.noContent().build();
+  }
+
+  /**
    * 買い物アイテムのステータス（購入済み、未購入など）を更新します。<br>
    * PATCH /api/shopping-items/{shoppingItemId}/status
    *

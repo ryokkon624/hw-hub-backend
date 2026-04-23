@@ -160,6 +160,31 @@ public class ShoppingItemService {
   }
 
   @Transactional
+  public void bulkUpdateStatus(List<Long> ids, String status, long userId) {
+    ShoppingItemStatus shoppingItemStatus = ShoppingItemStatus.fromCode(status);
+
+    for (Long shoppingItemId : ids) {
+      var itemOpt = shoppingItemRepository.findById(shoppingItemId);
+      if (itemOpt.isEmpty()) {
+        throw new ResourceNotFoundException("SHOPPING_ITEM_NOT_FOUND");
+      }
+      var item = itemOpt.get();
+
+      if (!householdAuthorizationService.canAccessHousehold(item.getHouseholdId(), userId)) {
+        throw new AccessDeniedException("You do not have access to this household.");
+      }
+
+      switch (shoppingItemStatus) {
+        case NOT_PURCHASED -> item.notPurcased();
+        case PURCHASED -> item.purchased();
+        default -> item.inBasket();
+      }
+
+      shoppingItemRepository.update(item, userId, ProgramType.ONL_SHP.getCode());
+    }
+  }
+
+  @Transactional
   public void delete(long shoppingItemId, long userId) {
     var itemOpt = shoppingItemRepository.findById(shoppingItemId);
     if (itemOpt.isEmpty()) {
