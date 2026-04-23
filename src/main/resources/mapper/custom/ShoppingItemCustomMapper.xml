@@ -124,4 +124,45 @@
             shopping_item_id = #{item.shoppingItemId}
     </update>
 
+    <!-- 複数IDで買い物アイテムを一括取得 -->
+    <select id="selectByIds" resultType="com.hwhub.backend.infrastructure.mybatis.generated.entity.TShoppingItem">
+        SELECT
+            shopping_item_id
+          , household_id
+          , name
+          , memo
+          , store_type
+          , status
+          , favorite
+          , purchased_at
+          , created_at
+          , update_user_id
+          , update_program
+        FROM
+            t_shopping_item
+        WHERE
+            shopping_item_id IN
+            <foreach collection="ids" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+    </select>
+
+    <!-- 複数の買い物アイテムのステータスを一括更新 (WHERE id IN (...)) -->
+    <update id="bulkUpdateStatus">
+        UPDATE t_shopping_item
+        SET
+            status = #{status}
+          , purchased_at = CASE
+              WHEN #{status} = '9' THEN CURDATE()
+              ELSE NULL
+            END
+          , update_user_id = #{userId}
+          , update_program = #{program}
+        WHERE
+            shopping_item_id IN
+            <foreach collection="ids" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+    </update>
+
 </mapper>

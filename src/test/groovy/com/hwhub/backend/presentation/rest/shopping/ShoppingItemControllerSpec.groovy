@@ -7,6 +7,7 @@ import com.hwhub.backend.domain.model.ShoppingItemModel
 import com.hwhub.backend.presentation.rest.shopping.dto.CreateShoppingItemRequest
 import com.hwhub.backend.presentation.rest.shopping.dto.ShoppingItemDto
 import com.hwhub.backend.presentation.rest.shopping.dto.ShoppingItemListResponse
+import com.hwhub.backend.presentation.rest.shopping.dto.BulkUpdateStatusRequest
 import com.hwhub.backend.presentation.rest.shopping.dto.UpdateFavoriteRequest
 import com.hwhub.backend.presentation.rest.shopping.dto.UpdateShoppingItemRequest
 import com.hwhub.backend.presentation.rest.shopping.dto.UpdateStatusRequest
@@ -115,6 +116,28 @@ class ShoppingItemControllerSpec extends Specification {
 
         then:
         1 * shoppingItemService.updateFavorite(shoppingItemId, FavoriteFlag.FAVORITE.code, userId)
+
+        and:
+        response.statusCode == HttpStatus.NO_CONTENT
+    }
+
+    // ------------------------------------------------------------------
+    // PATCH /api/shopping-items/bulk-status
+    // ------------------------------------------------------------------
+    def "bulkUpdateStatus は リクエストのids・statusとログインユーザIDで service.bulkUpdateStatus を呼び 204 を返す"() {
+        given:
+        long userId = 50L
+        Authentication auth = Mock()
+        auth.getName() >> userId.toString()
+
+        def ids = [1L, 2L, 3L]
+        def request = new BulkUpdateStatusRequest(ids, ShoppingItemStatus.PURCHASED.code)
+
+        when:
+        def response = controller.bulkUpdateStatus(request, auth)
+
+        then:
+        1 * shoppingItemService.bulkUpdateStatus(ids, ShoppingItemStatus.PURCHASED.code, userId)
 
         and:
         response.statusCode == HttpStatus.NO_CONTENT

@@ -307,7 +307,8 @@ class ShoppingItemServiceSpec extends Specification {
         service.bulkUpdateStatus(ids, ShoppingItemStatus.PURCHASED.code, userId)
 
         then:
-        1 * shoppingItemRepository.findById(700L) >> Optional.empty()
+        // findByIds が返すリストがidsより少ない場合に例外
+        1 * shoppingItemRepository.findByIds(ids) >> []
         thrown(ResourceNotFoundException)
     }
 
@@ -325,15 +326,14 @@ class ShoppingItemServiceSpec extends Specification {
         service.bulkUpdateStatus(ids, ShoppingItemStatus.PURCHASED.code, userId)
 
         then:
-        1 * shoppingItemRepository.findById(701L) >> Optional.of(item)
+        1 * shoppingItemRepository.findByIds(ids) >> [item]
         1 * householdAuthorizationService.canAccessHousehold(householdId, userId) >> false
-        0 * item.purchased()
-        0 * shoppingItemRepository.update(_, _, _)
+        0 * shoppingItemRepository.bulkUpdateStatus(_, _, _, _)
 
         thrown(AccessDeniedException)
     }
 
-    def "bulkUpdateStatusは認可OKの場合全アイテムのステータスを一括更新する"() {
+    def "bulkUpdateStatusは認可OKの場合全アイテムのステータスをIN句で一括更新する"() {
         given:
         long userId = 10L
         long householdId = 1L
@@ -350,16 +350,9 @@ class ShoppingItemServiceSpec extends Specification {
         service.bulkUpdateStatus(ids, ShoppingItemStatus.PURCHASED.code, userId)
 
         then:
-        1 * shoppingItemRepository.findById(702L) >> Optional.of(item1)
-        1 * householdAuthorizationService.canAccessHousehold(householdId, userId) >> true
-        1 * item1.purchased()
-        1 * shoppingItemRepository.update(item1, userId, ProgramType.ONL_SHP.code)
-
-        then:
-        1 * shoppingItemRepository.findById(703L) >> Optional.of(item2)
-        1 * householdAuthorizationService.canAccessHousehold(householdId, userId) >> true
-        1 * item2.purchased()
-        1 * shoppingItemRepository.update(item2, userId, ProgramType.ONL_SHP.code)
+        1 * shoppingItemRepository.findByIds(ids) >> [item1, item2]
+        2 * householdAuthorizationService.canAccessHousehold(householdId, userId) >> true
+        1 * shoppingItemRepository.bulkUpdateStatus(ids, ShoppingItemStatus.PURCHASED.code, userId, ProgramType.ONL_SHP.code)
     }
 
     // ==================================

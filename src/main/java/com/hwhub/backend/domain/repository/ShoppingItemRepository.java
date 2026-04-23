@@ -15,6 +15,12 @@ public interface ShoppingItemRepository {
 
   Optional<ShoppingItemModel> findById(long shoppingItemId);
 
+  /** 複数IDで買い物アイテムを一括取得 */
+  List<ShoppingItemModel> findByIds(List<Long> ids);
+
+  /** 複数の買い物アイテムのステータスを一括更新（WHERE id IN (...) による一括SQL） */
+  void bulkUpdateStatus(List<Long> ids, String status, long userId, String program);
+
   ShoppingItemModel insert(ShoppingItemModel model, long userId, String program);
 
   ShoppingItemModel update(ShoppingItemModel model, long userId, String program);
