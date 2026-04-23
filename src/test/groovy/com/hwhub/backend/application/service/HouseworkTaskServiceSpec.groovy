@@ -321,6 +321,27 @@ class HouseworkTaskServiceSpec extends Specification{
         thrown(AccessDeniedException)
     }
 
+    def "bulkUpdateStatusは他世帯のタスクIDが混在する場合AccessDeniedExceptionを投げる"() {
+        given:
+        def taskIds = [300L, 301L, 302L]
+        Long householdId = 1L
+        Long loginUserId = 99L
+
+        def model = Mock(HouseworkTaskModel) {
+            getHouseholdId() >> householdId
+        }
+
+        when:
+        service.bulkUpdateStatus(taskIds, TaskStatus.SKIPPED.code, "bulk update", loginUserId)
+
+        then:
+        1 * taskRepository.findById(300L) >> model
+        1 * authService.canAccessHousehold(householdId, loginUserId) >> true
+        1 * taskRepository.countByIdsAndHouseholdId(taskIds, householdId) >> 2L
+        0 * taskRepository.bulkUpdateStatus(_, _, _, _, _, _)
+        thrown(AccessDeniedException)
+    }
+
     def "bulkUpdateStatusはSKIPPEDのとき一括更新を呼び出す（doneAtがnullでない）"() {
         given:
         def taskIds = [300L, 301L, 302L]
@@ -338,6 +359,7 @@ class HouseworkTaskServiceSpec extends Specification{
         then:
         1 * taskRepository.findById(300L) >> model
         1 * authService.canAccessHousehold(householdId, loginUserId) >> true
+        1 * taskRepository.countByIdsAndHouseholdId(taskIds, householdId) >> 3L
         1 * taskRepository.bulkUpdateStatus(taskIds, TaskStatus.SKIPPED.code, reason, { it != null }, loginUserId, ProgramType.ONL_HWRTSK.code)
     }
 
@@ -357,6 +379,7 @@ class HouseworkTaskServiceSpec extends Specification{
         then:
         1 * taskRepository.findById(400L) >> model
         1 * authService.canAccessHousehold(householdId, loginUserId) >> true
+        1 * taskRepository.countByIdsAndHouseholdId(taskIds, householdId) >> 2L
         1 * taskRepository.bulkUpdateStatus(taskIds, TaskStatus.DONE.code, null, { it != null }, loginUserId, ProgramType.ONL_HWRTSK.code)
     }
 

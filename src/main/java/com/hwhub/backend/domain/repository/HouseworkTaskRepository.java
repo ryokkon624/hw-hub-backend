@@ -16,6 +16,8 @@ public interface HouseworkTaskRepository {
 
   void clearAssignee(Long householdId, Long userId, Long loginUserId, String program);
 
+  long countByIdsAndHouseholdId(List<Long> taskIds, Long householdId);
+
   void bulkUpdateStatus(
       List<Long> taskIds,
       String status,

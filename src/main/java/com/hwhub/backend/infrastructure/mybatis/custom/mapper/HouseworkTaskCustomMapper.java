@@ -26,6 +26,9 @@ public interface HouseworkTaskCustomMapper {
       @Param("loginUserId") Long loginUserId,
       @Param("program") String program);
 
+  long countByIdsAndHouseholdId(
+      @Param("taskIds") List<Long> taskIds, @Param("householdId") Long householdId);
+
   void bulkUpdateStatus(
       @Param("taskIds") List<Long> taskIds,
       @Param("status") String status,

@@ -74,6 +74,11 @@ public class MyBatisHouseworkTaskRepository implements HouseworkTaskRepository {
   }
 
   @Override
+  public long countByIdsAndHouseholdId(List<Long> taskIds, Long householdId) {
+    return customMapper.countByIdsAndHouseholdId(taskIds, householdId);
+  }
+
+  @Override
   public void bulkUpdateStatus(
       List<Long> taskIds,
       String status,

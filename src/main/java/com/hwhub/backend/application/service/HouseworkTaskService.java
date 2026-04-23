@@ -118,6 +118,13 @@ public class HouseworkTaskService {
               + first.getHouseholdId());
     }
 
+    // 全タスクIDが同一世帯に属することを検証
+    long count = taskRepository.countByIdsAndHouseholdId(taskIds, first.getHouseholdId());
+    if (count != taskIds.size()) {
+      throw new AccessDeniedException(
+          "Some taskIds do not belong to household: householdId=" + first.getHouseholdId());
+    }
+
     TaskStatus taskStatus = TaskStatus.fromCode(status);
     LocalDate doneAt =
         (taskStatus == TaskStatus.DONE || taskStatus == TaskStatus.SKIPPED)
