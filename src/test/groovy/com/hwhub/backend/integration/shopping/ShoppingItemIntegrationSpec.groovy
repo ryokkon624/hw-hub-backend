@@ -7,6 +7,7 @@ import org.springframework.http.MediaType
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
@@ -202,6 +203,156 @@ class ShoppingItemIntegrationSpec extends IntegrationTestBase {
 
         then: "ステータス204が返ること"
         result.andExpect(status().isNoContent())
+    }
+
+    def "PUT /api/shopping-items/{shoppingItemId} - 正常系: name/memo/storeType/favoriteを更新するとステータス200が返りDBが更新されること"() {
+        given: "買い物アイテムを1件INSERTしてIDを取得する"
+        jdbcTemplate.update("""
+            INSERT INTO t_shopping_item
+              (household_id, name, memo, store_type, status, favorite,
+               create_user_id, create_program, created_at,
+               update_user_id, update_program, updated_at)
+            VALUES
+              (?, '更新前アイテム', '更新前メモ', '1', '0', '0',
+               1, 'IT-data', NOW(),
+               1, 'IT-data', NOW())
+        """, testHouseholdId)
+        def shoppingItemId = jdbcTemplate.queryForObject(
+                "SELECT shopping_item_id FROM t_shopping_item WHERE household_id = ? AND name = '更新前アイテム'",
+                Long.class,
+                testHouseholdId
+        )
+
+        def token = tokenFor(testUserId)
+        def requestBody = [
+                name     : "更新後アイテム",
+                memo     : "更新後メモ",
+                storeType: "2",
+                favorite : "1"
+        ]
+
+        when:
+        def result = mockMvc.perform(
+                put("/api/shopping-items/${shoppingItemId}")
+                        .header("Authorization", "Bearer ${token}")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestBody))
+        )
+
+        then: "ステータス200が返ること"
+        result.andExpect(status().isOk())
+
+        and: "レスポンスBodyに更新後の値が含まれていること"
+        result.andExpect(jsonPath('$.shoppingItemId').value(shoppingItemId.intValue()))
+        result.andExpect(jsonPath('$.name').value("更新後アイテム"))
+        result.andExpect(jsonPath('$.memo').value("更新後メモ"))
+        result.andExpect(jsonPath('$.storeType').value("2"))
+
+        and: "DBのname/memo/store_typeカラムが更新されていること"
+        def updated = jdbcTemplate.queryForMap(
+                "SELECT name, memo, store_type FROM t_shopping_item WHERE shopping_item_id = ?",
+                shoppingItemId
+        )
+        updated.name == "更新後アイテム"
+        updated.memo == "更新後メモ"
+        updated.store_type == "2"
+    }
+
+    def "PUT /api/shopping-items/{shoppingItemId} - 異常系: 別世帯のアイテムを更新しようとするとステータス403が返ること"() {
+        given: "別ユーザーが所有する別世帯と、その世帯に紐づく買い物アイテムを作成する"
+        jdbcTemplate.update("""
+            INSERT INTO m_user
+              (email, password_hash, auth_provider, display_name, locale,
+               notification_enabled, is_active,
+               create_user_id, create_program, created_at,
+               update_user_id, update_program, updated_at)
+            VALUES
+              ('shopping-other@example.com', 'dummy-hash', 'LOCAL', '別ユーザー', 'ja',
+               true, true,
+               1, 'IT-data', NOW(),
+               1, 'IT-data', NOW())
+        """)
+        def otherUserId = jdbcTemplate.queryForObject(
+                "SELECT user_id FROM m_user WHERE email = 'shopping-other@example.com'",
+                Long.class
+        )
+
+        jdbcTemplate.update("""
+            INSERT INTO m_household
+              (name, owner_user_id,
+               create_user_id, create_program, created_at,
+               update_user_id, update_program, updated_at)
+            VALUES
+              ('別世帯', ?,
+               1, 'IT-data', NOW(),
+               1, 'IT-data', NOW())
+        """, otherUserId)
+        def otherHouseholdId = jdbcTemplate.queryForObject(
+                "SELECT household_id FROM m_household WHERE owner_user_id = ?",
+                Long.class,
+                otherUserId
+        )
+
+        jdbcTemplate.update("""
+            INSERT INTO m_household_member
+              (household_id, user_id, nickname, status,
+               create_user_id, create_program, created_at,
+               update_user_id, update_program, updated_at)
+            VALUES
+              (?, ?, '別ユーザー', '1',
+               1, 'IT-data', NOW(),
+               1, 'IT-data', NOW())
+        """, otherHouseholdId, otherUserId)
+
+        jdbcTemplate.update("""
+            INSERT INTO t_shopping_item
+              (household_id, name, store_type, status, favorite,
+               create_user_id, create_program, created_at,
+               update_user_id, update_program, updated_at)
+            VALUES
+              (?, '別世帯のアイテム', '1', '0', '0',
+               1, 'IT-data', NOW(),
+               1, 'IT-data', NOW())
+        """, otherHouseholdId)
+        def otherShoppingItemId = jdbcTemplate.queryForObject(
+                "SELECT shopping_item_id FROM t_shopping_item WHERE household_id = ?",
+                Long.class,
+                otherHouseholdId
+        )
+
+        and: "testUser（別世帯に属していない）のトークンを用意する"
+        def token = tokenFor(testUserId)
+        def requestBody = [
+                name     : "認可エラー狙いの更新",
+                memo     : "memo",
+                storeType: "1",
+                favorite : "0"
+        ]
+
+        when:
+        def result = mockMvc.perform(
+                put("/api/shopping-items/${otherShoppingItemId}")
+                        .header("Authorization", "Bearer ${token}")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestBody))
+        )
+
+        then: "ステータス403が返ること"
+        result.andExpect(status().isForbidden())
+
+        and: "DBのアイテムは更新されていないこと"
+        def name = jdbcTemplate.queryForObject(
+                "SELECT name FROM t_shopping_item WHERE shopping_item_id = ?",
+                String.class,
+                otherShoppingItemId
+        )
+        name == "別世帯のアイテム"
+
+        cleanup:
+        jdbcTemplate.update("DELETE FROM t_shopping_item WHERE household_id = ?", otherHouseholdId)
+        jdbcTemplate.update("DELETE FROM m_household_member WHERE household_id = ?", otherHouseholdId)
+        jdbcTemplate.update("DELETE FROM m_household WHERE household_id = ?", otherHouseholdId)
+        jdbcTemplate.update("DELETE FROM m_user WHERE email = 'shopping-other@example.com'")
     }
 
     def "POST /api/households/{householdId}/shopping-items - 異常系: 認証トークンなしでPOSTするとステータス401が返ること"() {
