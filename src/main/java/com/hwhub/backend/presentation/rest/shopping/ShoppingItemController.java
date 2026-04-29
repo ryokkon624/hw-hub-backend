@@ -176,17 +176,15 @@ public class ShoppingItemController {
 
   /**
    * 既存の買い物アイテムの情報を全体的に更新します（PUT）。<br>
-   * PUT /api/households/{householdId}/shopping-items/{shoppingItemId}
+   * PUT /api/shopping-items/{shoppingItemId}
    *
-   * @param householdId 対象アイテムが所属する世帯ID
    * @param shoppingItemId 更新する買い物アイテムのID
    * @param request 更新内容を含むリクエストボディ
    * @param authentication 認証ユーザー情報
    * @return HTTPステータス 200 OK と共に、更新後のアイテムのDTO
    */
-  @PutMapping("/households/{householdId}/shopping-items/{shoppingItemId}")
+  @PutMapping("/shopping-items/{shoppingItemId}")
   public ResponseEntity<ShoppingItemDto> update(
-      @PathVariable("householdId") Long householdId,
       @PathVariable("shoppingItemId") Long shoppingItemId,
       @Valid @RequestBody UpdateShoppingItemRequest request,
       Authentication authentication) {
@@ -195,12 +193,7 @@ public class ShoppingItemController {
 
     ShoppingItemModel updated =
         shoppingItemService.update(
-            householdId,
-            shoppingItemId,
-            request.name(),
-            request.memo(),
-            request.storeType(),
-            userId);
+            shoppingItemId, request.name(), request.memo(), request.storeType(), userId);
 
     ShoppingItemDto dto = ShoppingItemDto.fromModel(updated);
     return ResponseEntity.ok(dto);

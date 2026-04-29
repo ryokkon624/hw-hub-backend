@@ -239,9 +239,9 @@ class ShoppingItemControllerSpec extends Specification {
     }
 
     // ------------------------------------------------------------------
-    // PUT /api/households/{householdId}/shopping-items/{shoppingItemId}
+    // PUT /api/shopping-items/{shoppingItemId}
     // ------------------------------------------------------------------
-    def "update は householdId, shoppingItemId, リクエスト内容, ログインユーザIDで service.update を呼び 200 を返す"() {
+    def "update は shoppingItemId, リクエスト内容, ログインユーザIDで service.update を呼び 200 を返す"() {
         given:
         Long householdId = 70L
         Long shoppingItemId = 80L
@@ -254,11 +254,10 @@ class ShoppingItemControllerSpec extends Specification {
         def request = new UpdateShoppingItemRequest("牛乳", "成分無調整", "2", "0")
 
         when:
-        def response = controller.update(householdId, shoppingItemId, request, auth)
+        def response = controller.update(shoppingItemId, request, auth)
 
         then:
         1 * shoppingItemService.update(
-                householdId,
                 shoppingItemId,
                 "牛乳",
                 "成分無調整",

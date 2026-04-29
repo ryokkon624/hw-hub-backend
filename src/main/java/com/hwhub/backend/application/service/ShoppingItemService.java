@@ -137,23 +137,17 @@ public class ShoppingItemService {
 
   @Transactional
   public ShoppingItemModel update(
-      Long householdId,
-      Long shoppingItemId,
-      String name,
-      String memo,
-      String storeType,
-      Long userId) {
+      Long shoppingItemId, String name, String memo, String storeType, Long userId) {
 
     ShoppingItemModel model =
         shoppingItemRepository
             .findById(shoppingItemId)
-            .orElseThrow(() -> new IllegalArgumentException("shopping item not found"));
+            .orElseThrow(() -> new ResourceNotFoundException("SHOPPING_ITEM_NOT_FOUND"));
 
     // 認可チェック
-    if (!model.getHouseholdId().equals(householdId)) {
-      throw new IllegalStateException("household mismatch");
+    if (!householdAuthorizationService.canAccessHousehold(model.getHouseholdId(), userId)) {
+      throw new AccessDeniedException("You do not have access to this household.");
     }
-    householdAuthorizationService.assertUserBelongsToHousehold(householdId, userId);
 
     model.update(name, memo, storeType);
     return shoppingItemRepository.update(model, userId, ProgramType.ONL_SHP.getCode());

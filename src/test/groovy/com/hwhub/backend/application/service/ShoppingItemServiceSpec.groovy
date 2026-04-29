@@ -521,47 +521,47 @@ class ShoppingItemServiceSpec extends Specification {
     // update
     // ==================================
 
-    def "updateはアイテムが存在しない場合IllegalArgumentExceptionを投げる"() {
+    def "updateはアイテムが存在しない場合ResourceNotFoundExceptionを投げる"() {
         given:
-        Long householdId = 1L
         Long shoppingItemId = 500L
         Long userId = 10L
 
         when:
-        service.update(householdId, shoppingItemId, "name", "memo", "store", userId)
+        service.update(shoppingItemId, "name", "memo", "store", userId)
 
         then:
         1 * shoppingItemRepository.findById(shoppingItemId) >> Optional.empty()
-        thrown(IllegalArgumentException)
+        thrown(ResourceNotFoundException)
     }
 
-    def "updateはhouseholdIdが一致しない場合IllegalStateExceptionを投げる"() {
+    def "updateは世帯アクセス不可の場合AccessDeniedExceptionを投げる"() {
         given:
-        Long householdId = 1L
         Long shoppingItemId = 501L
         Long userId = 10L
+        Long householdId = 1L
 
         def model = Mock(ShoppingItemModel) {
-            getHouseholdId() >> 999L
+            getHouseholdId() >> householdId
         }
 
         when:
-        service.update(householdId, shoppingItemId, "name", "memo", "store", userId)
+        service.update(shoppingItemId, "name", "memo", "store", userId)
 
         then:
         1 * shoppingItemRepository.findById(shoppingItemId) >> Optional.of(model)
+        1 * householdAuthorizationService.canAccessHousehold(householdId, userId) >> false
 
-        0 * householdAuthorizationService.assertUserBelongsToHousehold(_, _)
+        0 * model.update(_, _, _)
         0 * shoppingItemRepository.update(_, _, _)
 
-        thrown(IllegalStateException)
+        thrown(AccessDeniedException)
     }
 
-    def "updateは正しいhouseholdかつ認可OKならupdateを呼び出し更新結果を返す"() {
+    def "updateは認可OKならupdateを呼び出し更新結果を返す"() {
         given:
-        Long householdId = 1L
         Long shoppingItemId = 502L
         Long userId = 10L
+        Long householdId = 1L
 
         def model = Mock(ShoppingItemModel) {
             getHouseholdId() >> householdId
@@ -569,11 +569,11 @@ class ShoppingItemServiceSpec extends Specification {
         def updated = Mock(ShoppingItemModel)
 
         when:
-        def result = service.update(householdId, shoppingItemId, "newName", "newMemo", "newStore", userId)
+        def result = service.update(shoppingItemId, "newName", "newMemo", "newStore", userId)
 
         then:
         1 * shoppingItemRepository.findById(shoppingItemId) >> Optional.of(model)
-        1 * householdAuthorizationService.assertUserBelongsToHousehold(householdId, userId)
+        1 * householdAuthorizationService.canAccessHousehold(householdId, userId) >> true
 
         1 * model.update("newName", "newMemo", "newStore")
         1 * shoppingItemRepository.update(model, userId, ProgramType.ONL_SHP.code) >> updated
