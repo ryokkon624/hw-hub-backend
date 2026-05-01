@@ -38,6 +38,10 @@ public class CurrentUserIdArgumentResolver implements HandlerMethodArgumentResol
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthenticated");
     }
 
-    return Long.parseLong(authentication.getName());
+    try {
+      return Long.parseLong(authentication.getName());
+    } catch (NumberFormatException e) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid user id format");
+    }
   }
 }

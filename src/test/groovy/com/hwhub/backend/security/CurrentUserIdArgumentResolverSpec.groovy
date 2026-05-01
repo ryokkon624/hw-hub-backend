@@ -23,22 +23,19 @@ class CurrentUserIdArgumentResolverSpec extends Specification {
     // supportsParameter
     // ------------------------------------------------------------------
 
-    def "supportsParameter は @CurrentUserId かつ Long 型の場合 true を返す"() {
+    def "supportsParameter はアノテーションとパラメータ型の組み合わせに応じて正しく true/false を返す"() {
         given:
-        def method = SampleController.getDeclaredMethod("withAnnotation", Long)
+        def method = SampleController.getDeclaredMethod(methodName, paramType)
         def param = MethodParameter.forExecutable(method, 0)
 
         expect:
-        resolver.supportsParameter(param)
-    }
+        resolver.supportsParameter(param) == expected
 
-    def "supportsParameter は @CurrentUserId がない場合 false を返す"() {
-        given:
-        def method = SampleController.getDeclaredMethod("withoutAnnotation", Long)
-        def param = MethodParameter.forExecutable(method, 0)
-
-        expect:
-        !resolver.supportsParameter(param)
+        where:
+        methodName          | paramType | expected
+        "withAnnotation"    | Long      | true    // @CurrentUserId + Long型 → true
+        "withoutAnnotation" | Long      | false   // アノテーションなし + Long型 → false
+        "withAnnotationStr" | String    | false   // @CurrentUserId + String型（非Long）→ false
     }
 
     // ------------------------------------------------------------------
@@ -105,6 +102,26 @@ class CurrentUserIdArgumentResolverSpec extends Specification {
         ex.statusCode == HttpStatus.UNAUTHORIZED
     }
 
+    def "resolveArgument は Authentication.getName() が数値でない文字列の場合 UNAUTHORIZED を投げる"() {
+        given:
+        def auth = Mock(Authentication)
+        auth.getName() >> "not-a-number"
+
+        def context = Mock(SecurityContext)
+        context.getAuthentication() >> auth
+        SecurityContextHolder.setContext(context)
+
+        def method = SampleController.getDeclaredMethod("withAnnotation", Long)
+        def param = MethodParameter.forExecutable(method, 0)
+
+        when:
+        resolver.resolveArgument(param, null, null, null)
+
+        then:
+        def ex = thrown(ResponseStatusException)
+        ex.statusCode == HttpStatus.UNAUTHORIZED
+    }
+
     // ------------------------------------------------------------------
     // テスト用スタブコントローラ
     // ------------------------------------------------------------------
@@ -112,5 +129,6 @@ class CurrentUserIdArgumentResolverSpec extends Specification {
     static class SampleController {
         void withAnnotation(@CurrentUserId Long userId) {}
         void withoutAnnotation(Long userId) {}
+        void withAnnotationStr(@CurrentUserId String userId) {}
     }
 }
