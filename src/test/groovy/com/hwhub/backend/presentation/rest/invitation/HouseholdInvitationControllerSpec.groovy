@@ -3,7 +3,6 @@ package com.hwhub.backend.presentation.rest.invitation
 import com.hwhub.backend.application.service.HouseholdInvitationService
 import com.hwhub.backend.domain.model.HouseholdInvitationModel
 import com.hwhub.backend.presentation.rest.invitation.dto.InvitationResponce
-import org.springframework.security.core.Authentication
 import spock.lang.Specification
 
 import java.time.LocalDateTime
@@ -56,11 +55,10 @@ class HouseholdInvitationControllerSpec extends Specification {
     def "accept は 認証ユーザID を取得して service.acceptInvitation を呼ぶ"() {
         given:
         String token = "token-123"
-        Authentication auth = Mock()
-        auth.getName() >> "20"   // loginUserId = 20
+        Long loginUserId = 20L
 
         when:
-        controller.accept(token, auth)
+        controller.accept(token, loginUserId)
 
         then:
         1 * service.acceptInvitation(token, 20L)
@@ -72,11 +70,10 @@ class HouseholdInvitationControllerSpec extends Specification {
     def "decline は 認証ユーザID を取得して service.declineInvitation を呼ぶ"() {
         given:
         String token = "token-123"
-        Authentication auth = Mock()
-        auth.getName() >> "30"
+        Long loginUserId = 30L
 
         when:
-        controller.decline(token, auth)
+        controller.decline(token, loginUserId)
 
         then:
         1 * service.declineInvitation(token, 30L)
@@ -88,11 +85,10 @@ class HouseholdInvitationControllerSpec extends Specification {
     def "revoke は 認証ユーザID を取得して service.revokeInvitation を呼ぶ"() {
         given:
         String token = "token-123"
-        Authentication auth = Mock()
-        auth.getName() >> "40"
+        Long loginUserId = 40L
 
         when:
-        controller.revoke(token, auth)
+        controller.revoke(token, loginUserId)
 
         then:
         1 * service.revokeInvitation(token, 40L)

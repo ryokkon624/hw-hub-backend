@@ -9,7 +9,6 @@ import com.hwhub.backend.domain.model.inquiry.InquiryModel
 import com.hwhub.backend.domain.model.inquiry.InquirySummary
 import com.hwhub.backend.presentation.rest.inquiry.dto.InquiryCreateRequest
 import com.hwhub.backend.presentation.rest.inquiry.dto.InquiryMessageRequest
-import org.springframework.security.core.Authentication
 import spock.lang.Specification
 import spock.lang.Subject
 
@@ -22,11 +21,7 @@ class InquiryControllerSpec extends Specification {
     @Subject
     InquiryController controller = new InquiryController(inquiryService)
 
-    Authentication auth = Mock()
-
-    def setup() {
-        auth.getName() >> "1"
-    }
+    Long userId = 1L
 
     // ==================================
     // createInquiry
@@ -38,7 +33,7 @@ class InquiryControllerSpec extends Specification {
         def generatedId = new InquiryId(99L)
 
         when:
-        def result = controller.createInquiry(request, auth)
+        def result = controller.createInquiry(request, userId)
 
         then:
         1 * inquiryService.createInquiry(1L, InquiryCategory.GENERAL, "件名", "本文") >> generatedId
@@ -50,7 +45,7 @@ class InquiryControllerSpec extends Specification {
         def request = new InquiryCreateRequest(categoryCode, "件名", "本文")
 
         when:
-        controller.createInquiry(request, auth)
+        controller.createInquiry(request, userId)
 
         then:
         1 * inquiryService.createInquiry(1L, expectedCategory, "件名", "本文") >> new InquiryId(1L)
@@ -77,7 +72,7 @@ class InquiryControllerSpec extends Specification {
         ]
 
         when:
-        def result = controller.getInquiries(auth)
+        def result = controller.getInquiries(userId)
 
         then:
         1 * inquiryService.getInquiries(1L) >> summaries
@@ -90,7 +85,7 @@ class InquiryControllerSpec extends Specification {
 
     def "getInquiriesは問い合わせが空の場合は空リストを返す"() {
         when:
-        def result = controller.getInquiries(auth)
+        def result = controller.getInquiries(userId)
 
         then:
         1 * inquiryService.getInquiries(1L) >> []
@@ -106,7 +101,7 @@ class InquiryControllerSpec extends Specification {
         def model = InquiryModel.reconstruct(5L, 1L, "10", "00", "件名", [], LocalDateTime.now())
 
         when:
-        def result = controller.getInquiry(5L, auth)
+        def result = controller.getInquiry(5L, userId)
 
         then:
         1 * inquiryService.getInquiry(new InquiryId(5L), 1L) >> model
@@ -126,7 +121,7 @@ class InquiryControllerSpec extends Specification {
         def request = new InquiryMessageRequest("メッセージ本文")
 
         when:
-        controller.addMessage(5L, request, auth)
+        controller.addMessage(5L, request, userId)
 
         then:
         1 * inquiryService.addMessage(new InquiryId(5L), 1L, "メッセージ本文", SenderType.YOU)
@@ -138,7 +133,7 @@ class InquiryControllerSpec extends Specification {
 
     def "closeInquiryはサービスのcloseInquiryを呼ぶ"() {
         when:
-        controller.closeInquiry(5L, auth)
+        controller.closeInquiry(5L, userId)
 
         then:
         1 * inquiryService.closeInquiry(new InquiryId(5L), 1L)
@@ -150,7 +145,7 @@ class InquiryControllerSpec extends Specification {
 
     def "escalateToStaffはサービスのescalateToStaffを呼ぶ"() {
         when:
-        controller.escalateToStaff(5L, auth)
+        controller.escalateToStaff(5L, userId)
 
         then:
         1 * inquiryService.escalateToStaff(new InquiryId(5L), 1L)
