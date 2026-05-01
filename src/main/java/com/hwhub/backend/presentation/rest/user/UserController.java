@@ -111,8 +111,9 @@ public class UserController {
    * @return 204 No Content（成功時は返却なし）
    */
   @PutMapping("/me/password")
-  public ResponseEntity<Void> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
-    userService.changePassword(request.currentPassword(), request.newPassword());
+  public ResponseEntity<Void> changePassword(
+      @CurrentUserId Long userId, @Valid @RequestBody ChangePasswordRequest request) {
+    userService.changePassword(userId, request.currentPassword(), request.newPassword());
     return ResponseEntity.noContent().build();
   }
 

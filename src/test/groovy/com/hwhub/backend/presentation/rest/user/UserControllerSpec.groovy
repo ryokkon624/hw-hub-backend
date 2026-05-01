@@ -184,13 +184,14 @@ class UserControllerSpec extends Specification {
 
     def "changePassword はリクエストパラメータで UserService.changePassword を呼ぶ"() {
         given:
+        Long userId = 80L
         def req = new ChangePasswordRequest("old", "new")
 
         when:
-        def response = controller.changePassword(req)
+        def response = controller.changePassword(userId, req)
 
         then:
-        1 * userService.changePassword("old", "new")
+        1 * userService.changePassword(userId, "old", "new")
         response.statusCode == HttpStatus.NO_CONTENT
     }
 

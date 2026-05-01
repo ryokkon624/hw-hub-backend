@@ -33,7 +33,6 @@ public class UserService {
   private final UserIconService userIconService;
   private final HouseholdMemberRepository householdMemberRepository;
   private final PasswordEncoder passwordEncoder;
-  private final AuthUserResolver authUserResolver;
   private final GoogleOAuthService googleOAuthService;
 
   public List<HouseholdModel> getHouseholds(Long userId) {
@@ -99,9 +98,7 @@ public class UserService {
    * <p>重要： passwordChangedAt を更新して、既存JWTを（後段の検証で）無効化できるようにする。
    */
   @Transactional
-  public void changePassword(String currentPassword, String newPassword) {
-    Long userId = authUserResolver.requireUserId();
-
+  public void changePassword(Long userId, String currentPassword, String newPassword) {
     UserModel user =
         userRepository
             .findById(userId)

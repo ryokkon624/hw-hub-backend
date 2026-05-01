@@ -18,7 +18,6 @@ class UserServiceSpec extends Specification {
     UserIconService userIconService = Mock()
     com.hwhub.backend.domain.repository.HouseholdMemberRepository householdMemberRepository = Mock()
     org.springframework.security.crypto.password.PasswordEncoder passwordEncoder = Mock()
-    AuthUserResolver authUserResolver = Mock()
     com.hwhub.backend.application.service.oauth.GoogleOAuthService googleOAuthService = Mock()
 
     UserService service = new UserService(
@@ -27,7 +26,6 @@ class UserServiceSpec extends Specification {
             userIconService,
             householdMemberRepository,
             passwordEncoder,
-            authUserResolver,
             googleOAuthService
     )
 
@@ -231,10 +229,9 @@ class UserServiceSpec extends Specification {
         String newPass = "new"
 
         when:
-        service.changePassword(currentPass, newPass)
+        service.changePassword(userId, currentPass, newPass)
 
         then:
-        1 * authUserResolver.requireUserId() >> userId
         1 * userRepository.findById(userId) >> Optional.empty()
         thrown(IllegalArgumentException)
     }
@@ -247,10 +244,9 @@ class UserServiceSpec extends Specification {
         }
 
         when:
-        service.changePassword("wrong", "new")
+        service.changePassword(userId, "wrong", "new")
 
         then:
-        1 * authUserResolver.requireUserId() >> userId
         1 * userRepository.findById(userId) >> Optional.of(user)
         1 * passwordEncoder.matches("wrong", "hashedOld") >> false
         thrown(com.hwhub.backend.presentation.rest.common.CurrentPasswordInvalidException)
@@ -264,10 +260,9 @@ class UserServiceSpec extends Specification {
         }
 
         when:
-        service.changePassword("old", "old")
+        service.changePassword(userId, "old", "old")
 
         then:
-        1 * authUserResolver.requireUserId() >> userId
         1 * userRepository.findById(userId) >> Optional.of(user)
         1 * passwordEncoder.matches("old", "hashedOld") >> true
         // 2nd check
@@ -283,20 +278,19 @@ class UserServiceSpec extends Specification {
         }
 
         when:
-        service.changePassword("old", "new")
+        service.changePassword(userId, "old", "new")
 
         then:
-        1 * authUserResolver.requireUserId() >> userId
         1 * userRepository.findById(userId) >> Optional.of(user)
-        
+
         // 1. match current
         1 * passwordEncoder.matches("old", "hashedOld") >> true
         // 2. match new (should be false)
         1 * passwordEncoder.matches("new", "hashedOld") >> false
-        
+
         // 3. encode new
         1 * passwordEncoder.encode("new") >> "hashedNew"
-        
+
         1 * user.changePasswordHash("hashedNew", _)
         1 * userRepository.updatePassword(user, userId, ProgramType.ONL_USR.code)
     }
