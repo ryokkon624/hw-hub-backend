@@ -6,10 +6,10 @@ import com.hwhub.backend.presentation.rest.shopping.attachment.dto.CreateAttachm
 import com.hwhub.backend.presentation.rest.shopping.attachment.dto.CreateUploadUrlRequest;
 import com.hwhub.backend.presentation.rest.shopping.attachment.dto.CreateUploadUrlResponse;
 import com.hwhub.backend.presentation.rest.shopping.attachment.dto.ShoppingItemAttachmentResponse;
+import com.hwhub.backend.security.CurrentUserId;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,10 +29,7 @@ public class ShoppingItemAttachmentController {
   public CreateUploadUrlResponse createUploadUrl(
       @PathVariable("itemId") Long itemId,
       @Valid @RequestBody CreateUploadUrlRequest request,
-      Authentication authentication) {
-
-    long userId = Long.parseLong(authentication.getName());
-
+      @CurrentUserId Long userId) {
     var result =
         attachmentService.createUploadUrl(itemId, request.fileName(), request.mimeType(), userId);
 
@@ -43,10 +40,7 @@ public class ShoppingItemAttachmentController {
   public CreateAttachmentResponse createAttachment(
       @PathVariable("itemId") Long itemId,
       @Valid @RequestBody CreateAttachmentRequest request,
-      Authentication authentication) {
-
-    long userId = Long.parseLong(authentication.getName());
-
+      @CurrentUserId Long userId) {
     var attachment =
         attachmentService.createAttachment(
             itemId, request.fileKey(), request.fileName(), request.mimeType(), userId);
@@ -56,10 +50,7 @@ public class ShoppingItemAttachmentController {
 
   @GetMapping
   public List<ShoppingItemAttachmentResponse> listAttachments(
-      @PathVariable("itemId") Long itemId, Authentication authentication) {
-
-    long userId = Long.parseLong(authentication.getName());
-
+      @PathVariable("itemId") Long itemId, @CurrentUserId Long userId) {
     var list = attachmentService.listAttachments(itemId, userId);
     return list.stream()
         .map(
@@ -73,10 +64,7 @@ public class ShoppingItemAttachmentController {
   public void deleteAttachment(
       @PathVariable("itemId") Long itemId,
       @PathVariable("attachmentId") Long attachmentId,
-      Authentication authentication) {
-
-    long userId = Long.parseLong(authentication.getName());
-
+      @CurrentUserId Long userId) {
     attachmentService.deleteAttachment(itemId, attachmentId, userId);
   }
 }

@@ -5,10 +5,10 @@ import com.hwhub.backend.domain.enums.Permission;
 import com.hwhub.backend.domain.enums.UserRole;
 import com.hwhub.backend.presentation.rest.admin.dto.AssignRoleRequest;
 import com.hwhub.backend.presentation.rest.admin.dto.UserRoleResponse;
+import com.hwhub.backend.security.CurrentUserId;
 import com.hwhub.backend.security.RequiresPermission;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,8 +26,7 @@ public class AdminRoleController {
 
   /** 自分のロール・パーミッション取得（全認証済みユーザーが呼べる） */
   @GetMapping("/users/me/roles")
-  public UserRoleResponse getMyRoles(Authentication authentication) {
-    Long userId = Long.valueOf(authentication.getName());
+  public UserRoleResponse getMyRoles(@CurrentUserId Long userId) {
     return UserRoleResponse.from(userRoleService.getMyRolesAndPermissions(userId));
   }
 
@@ -37,8 +36,7 @@ public class AdminRoleController {
   public void assignRole(
       @PathVariable("userId") Long userId,
       @RequestBody @Valid AssignRoleRequest request,
-      Authentication authentication) {
-    Long operatorUserId = Long.valueOf(authentication.getName());
+      @CurrentUserId Long operatorUserId) {
     UserRole role = UserRole.fromCode(request.role());
     userRoleService.assignRole(userId, role, operatorUserId);
   }
@@ -49,8 +47,7 @@ public class AdminRoleController {
   public void removeRole(
       @PathVariable("userId") Long userId,
       @PathVariable("role") String role,
-      Authentication authentication) {
-    Long operatorUserId = Long.valueOf(authentication.getName());
+      @CurrentUserId Long operatorUserId) {
     UserRole userRole = UserRole.fromCode(role);
     userRoleService.removeRole(userId, userRole, operatorUserId);
   }

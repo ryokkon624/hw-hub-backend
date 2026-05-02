@@ -12,7 +12,6 @@ import com.hwhub.backend.presentation.rest.shopping.dto.UpdateFavoriteRequest
 import com.hwhub.backend.presentation.rest.shopping.dto.UpdateShoppingItemRequest
 import com.hwhub.backend.presentation.rest.shopping.dto.UpdateStatusRequest
 import org.springframework.http.HttpStatus
-import org.springframework.security.core.Authentication
 import spock.lang.Specification
 
 import java.time.LocalDate
@@ -30,9 +29,6 @@ class ShoppingItemControllerSpec extends Specification {
         given:
         Long householdId = 10L
         Long userId = 20L
-
-        Authentication auth = Mock()
-        auth.getName() >> userId.toString()
 
         def model1 = ShoppingItemModel.reconstruct(
                 1L, householdId, "牛乳", "メモ1", "1",
@@ -52,7 +48,7 @@ class ShoppingItemControllerSpec extends Specification {
         )
 
         when:
-        ShoppingItemListResponse response = controller.getShoppingItems(householdId, auth)
+        ShoppingItemListResponse response = controller.getShoppingItems(householdId, userId)
 
         then:
         1 * shoppingItemService.getShoppingItems(householdId, userId) >> [model1, model2]
@@ -73,9 +69,6 @@ class ShoppingItemControllerSpec extends Specification {
         Long householdId = 10L
         Long userId = 20L
 
-        Authentication auth = Mock()
-        auth.getName() >> userId.toString()
-
         def model1 = ShoppingItemModel.reconstruct(
                 1L, householdId, "牛乳", "メモ1", "1",
                 ShoppingItemStatus.NOT_PURCHASED.code,
@@ -86,7 +79,7 @@ class ShoppingItemControllerSpec extends Specification {
         )
 
         when:
-        ShoppingItemListResponse response = controller.getFavorites(householdId, auth)
+        ShoppingItemListResponse response = controller.getFavorites(householdId, userId)
 
         then:
         1 * shoppingItemService.getFavoriteShoppingItems(householdId, userId) >> [model1]
@@ -104,15 +97,12 @@ class ShoppingItemControllerSpec extends Specification {
     def "updateFavorite は ログインユーザIDとリクエストのfavoriteを使って service.updateFavorite を呼び 204 を返す"() {
         given:
         Long shoppingItemId = 100L
-        long userId = 30L
-        Authentication auth = Mock()
-        auth.getName() >> userId.toString()
+        Long userId = 30L
 
-        // UpdateFavoriteRequest は record UpdateFavoriteRequest(String favorite) を想定
         def request = new UpdateFavoriteRequest(FavoriteFlag.FAVORITE.code)
 
         when:
-        def response = controller.updateFavorite(shoppingItemId, request, auth)
+        def response = controller.updateFavorite(shoppingItemId, request, userId)
 
         then:
         1 * shoppingItemService.updateFavorite(shoppingItemId, FavoriteFlag.FAVORITE.code, userId)
@@ -126,15 +116,13 @@ class ShoppingItemControllerSpec extends Specification {
     // ------------------------------------------------------------------
     def "bulkUpdateStatus は リクエストのids・statusとログインユーザIDで service.bulkUpdateStatus を呼び 204 を返す"() {
         given:
-        long userId = 50L
-        Authentication auth = Mock()
-        auth.getName() >> userId.toString()
+        Long userId = 50L
 
         def ids = [1L, 2L, 3L]
         def request = new BulkUpdateStatusRequest(ids, ShoppingItemStatus.PURCHASED.code)
 
         when:
-        def response = controller.bulkUpdateStatus(request, auth)
+        def response = controller.bulkUpdateStatus(request, userId)
 
         then:
         1 * shoppingItemService.bulkUpdateStatus(ids, ShoppingItemStatus.PURCHASED.code, userId)
@@ -149,15 +137,12 @@ class ShoppingItemControllerSpec extends Specification {
     def "updateStatus は ログインユーザIDとリクエストのstatusを使って service.updateStatus を呼び 204 を返す"() {
         given:
         Long shoppingItemId = 200L
-        long userId = 40L
-        Authentication auth = Mock()
-        auth.getName() >> userId.toString()
+        Long userId = 40L
 
-        // UpdateStatusRequest は record UpdateStatusRequest(String status) を想定
         def request = new UpdateStatusRequest(ShoppingItemStatus.PURCHASED.code)
 
         when:
-        def response = controller.updateStatus(shoppingItemId, request, auth)
+        def response = controller.updateStatus(shoppingItemId, request, userId)
 
         then:
         1 * shoppingItemService.updateStatus(shoppingItemId, ShoppingItemStatus.PURCHASED.code, userId)
@@ -172,11 +157,8 @@ class ShoppingItemControllerSpec extends Specification {
     def "create は householdId とリクエスト内容から ShoppingItemModel.create を組み立てて service.create を呼び 201 を返す"() {
         given:
         Long householdId = 50L
-        long userId = 60L
-        Authentication auth = Mock()
-        auth.getName() >> userId.toString()
+        Long userId = 60L
 
-        // CreateShoppingItemRequest は Javaクラス想定（デフォルトコンストラクタ + プロパティ）
         def request = new CreateShoppingItemRequest()
         request.setName("卵")
         request.setMemo("10個入り")
@@ -184,7 +166,7 @@ class ShoppingItemControllerSpec extends Specification {
         request.setSourceShoppingItemId(999L)
 
         when:
-        def response = controller.create(householdId, request, auth)
+        def response = controller.create(householdId, request, userId)
 
         then:
         1 * shoppingItemService.create(_, 999L, userId) >> { ShoppingItemModel m, Long srcId, Long uid ->
@@ -224,12 +206,10 @@ class ShoppingItemControllerSpec extends Specification {
     def "delete は ログインユーザIDで service.delete を呼び 204 を返す"() {
         given:
         Long shoppingItemId = 300L
-        long userId = 50L
-        Authentication auth = Mock()
-        auth.getName() >> userId.toString()
+        Long userId = 50L
 
         when:
-        def response = controller.delete(shoppingItemId, auth)
+        def response = controller.delete(shoppingItemId, userId)
 
         then:
         1 * shoppingItemService.delete(shoppingItemId, userId)
@@ -245,16 +225,12 @@ class ShoppingItemControllerSpec extends Specification {
         given:
         Long householdId = 70L
         Long shoppingItemId = 80L
-        long userId = 90L
+        Long userId = 90L
 
-        Authentication auth = Mock()
-        auth.getName() >> userId.toString()
-
-        // UpdateShoppingItemRequest は record UpdateShoppingItemRequest(String name, String memo, String storeType) を想定
         def request = new UpdateShoppingItemRequest("牛乳", "成分無調整", "2", "0")
 
         when:
-        def response = controller.update(shoppingItemId, request, auth)
+        def response = controller.update(shoppingItemId, request, userId)
 
         then:
         1 * shoppingItemService.update(

@@ -6,18 +6,15 @@ import com.hwhub.backend.domain.enums.RecurrenceType
 import com.hwhub.backend.domain.model.houseworktemplate.HouseworkTemplateId
 import com.hwhub.backend.domain.model.houseworktemplate.HouseworkTemplateModel
 import com.hwhub.backend.presentation.rest.admin.dto.AdminHouseworkTemplateRequest
-import org.springframework.security.core.Authentication
 import spock.lang.Specification
 
 class AdminHouseworkTemplateControllerSpec extends Specification {
 
     HouseworkTemplateService service = Mock()
     AdminHouseworkTemplateController controller
-    Authentication authentication = Mock()
 
     def setup() {
         controller = new AdminHouseworkTemplateController(service)
-        authentication.getName() >> "100"
     }
 
     def "getAll: 全件取得してレスポンスDTOリストに変換すること"() {
@@ -40,6 +37,7 @@ class AdminHouseworkTemplateControllerSpec extends Specification {
 
     def "create: リクエストからモデルを生成し、サービスを呼び出すこと"() {
         given:
+        Long operatorUserId = 100L
         def request = new AdminHouseworkTemplateRequest(
                 "J", "E", "S",
                 null, null, null, null, null, null,
@@ -52,7 +50,7 @@ class AdminHouseworkTemplateControllerSpec extends Specification {
         )
 
         when:
-        def result = controller.create(request, authentication)
+        def result = controller.create(request, operatorUserId)
 
         then:
         1 * service.create(_ as HouseworkTemplateModel, 100L) >> createdModel
@@ -61,6 +59,7 @@ class AdminHouseworkTemplateControllerSpec extends Specification {
 
     def "update: パスパラメータのIDを含めてモデルを生成し、サービスを呼び出すこと"() {
         given:
+        Long operatorUserId = 100L
         def request = new AdminHouseworkTemplateRequest(
                 "J", "E", "S",
                 null, null, null, null, null, null,
@@ -68,15 +67,18 @@ class AdminHouseworkTemplateControllerSpec extends Specification {
         )
 
         when:
-        controller.update(20L, request, authentication)
+        controller.update(20L, request, operatorUserId)
 
         then:
         1 * service.update({ it.houseworkTemplateId.value() == 20L }, 100L)
     }
 
     def "delete: IDをラップしてサービスを呼び出すこと"() {
+        given:
+        Long operatorUserId = 100L
+
         when:
-        controller.delete(30L, authentication)
+        controller.delete(30L, operatorUserId)
 
         then:
         1 * service.delete(new HouseworkTemplateId(30L), 100L)

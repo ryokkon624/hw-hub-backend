@@ -7,12 +7,12 @@ import com.hwhub.backend.presentation.rest.housework.dto.BulkUpdateStatusRequest
 import com.hwhub.backend.presentation.rest.housework.dto.HouseworkTaskResponse;
 import com.hwhub.backend.presentation.rest.housework.dto.UpdateAssigneeRequest;
 import com.hwhub.backend.presentation.rest.housework.dto.UpdateStatusRequest;
+import com.hwhub.backend.security.CurrentUserId;
 import com.hwhub.backend.validation.annotation.EnumValue;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,7 +28,7 @@ public class HouseworkTaskController {
    *
    * @param householdId 家事タスクを検索する世帯ID
    * @param status 検索対象とするタスクの状態（例: 0=未完了）。デフォルトは未完了。
-   * @param authentication 認証情報。ログインユーザーのIDを取得するために使用。
+   * @param userId 認証済みユーザーID
    * @return 該当する家事タスクのレスポンスオブジェクトのリスト
    */
   @GetMapping
@@ -36,10 +36,7 @@ public class HouseworkTaskController {
       @RequestParam("householdId") Long householdId,
       @RequestParam(name = "status", defaultValue = "0") @EnumValue(enumClass = TaskStatus.class)
           String status,
-      Authentication authentication) {
-
-    Long userId = Long.valueOf(authentication.getName());
-
+      @CurrentUserId Long userId) {
     List<HouseworkTask4AssignModel> models =
         houseworkTaskService.findForAssign(householdId, status, userId);
     return models.stream().map(HouseworkTaskResponse::fromModel).toList();
@@ -50,15 +47,14 @@ public class HouseworkTaskController {
    *
    * @param taskId 担当者を変更する対象の家事タスクID
    * @param request 担当者として割り当てるユーザーIDと、割り当て理由を含むリクエストボディ
-   * @param authentication 認証情報。操作を実行したログインユーザーのIDを取得するために使用。
+   * @param loginUserId 認証済みユーザーID
    */
   @PatchMapping("/{taskId}/assign")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void updateAssignee(
       @PathVariable("taskId") Long taskId,
       @Valid @RequestBody UpdateAssigneeRequest request,
-      Authentication authentication) {
-    Long loginUserId = Long.valueOf(authentication.getName());
+      @CurrentUserId Long loginUserId) {
     houseworkTaskService.updateAssignee(
         taskId, request.assigneeUserId(), request.assignReasonType(), loginUserId);
   }
@@ -68,15 +64,14 @@ public class HouseworkTaskController {
    *
    * @param taskId 状態を更新する対象の家事タスクID
    * @param request 変更するステータスと、スキップの場合の理由を含むリクエストボディ
-   * @param authentication 認証情報。操作を実行したログインユーザーのIDを取得するために使用。
+   * @param loginUserId 認証済みユーザーID
    */
   @PatchMapping("/{taskId}/status")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void updateStatus(
       @PathVariable("taskId") Long taskId,
       @Valid @RequestBody UpdateStatusRequest request,
-      Authentication authentication) {
-    Long loginUserId = Long.valueOf(authentication.getName());
+      @CurrentUserId Long loginUserId) {
     houseworkTaskService.updateStatus(
         taskId, request.status(), request.skippedReason(), loginUserId);
   }
@@ -85,13 +80,12 @@ public class HouseworkTaskController {
    * 指定された家事タスクIDリストのタスクのステータスを一括で更新します。
    *
    * @param request タスクIDリスト、変更するステータス、スキップ理由を含むリクエストボディ
-   * @param authentication 認証情報。操作を実行したログインユーザーのIDを取得するために使用。
+   * @param loginUserId 認証済みユーザーID
    */
   @PatchMapping("/bulk-status")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void bulkUpdateStatus(
-      @Valid @RequestBody BulkUpdateStatusRequest request, Authentication authentication) {
-    Long loginUserId = Long.valueOf(authentication.getName());
+      @Valid @RequestBody BulkUpdateStatusRequest request, @CurrentUserId Long loginUserId) {
     houseworkTaskService.bulkUpdateStatus(
         request.taskIds(), request.status(), request.skippedReason(), loginUserId);
   }

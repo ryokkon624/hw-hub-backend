@@ -10,13 +10,13 @@ import com.hwhub.backend.presentation.rest.admin.dto.DailyInquiryMessageResponse
 import com.hwhub.backend.presentation.rest.admin.dto.DailyInquiryStatusResponse;
 import com.hwhub.backend.presentation.rest.admin.dto.InquiryStatusSummaryResponse;
 import com.hwhub.backend.presentation.rest.inquiry.dto.InquiryDetailResponse;
+import com.hwhub.backend.security.CurrentUserId;
 import com.hwhub.backend.security.RequiresPermission;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -114,8 +114,7 @@ public class AdminInquiryController {
   public void reply(
       @PathVariable("inquiryId") Long inquiryId,
       @RequestBody @Valid AdminInquiryReplyRequest request,
-      Authentication authentication) {
-    Long operatorUserId = Long.valueOf(authentication.getName());
+      @CurrentUserId Long operatorUserId) {
     adminInquiryService.replyAsStaff(inquiryId, request.body(), operatorUserId);
   }
 }

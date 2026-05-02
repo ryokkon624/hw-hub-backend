@@ -3,7 +3,6 @@ package com.hwhub.backend.presentation.rest.shopping.history
 import com.hwhub.backend.application.service.ShoppingItemService
 import com.hwhub.backend.domain.model.ShoppingItemHistorySuggestionModel
 import com.hwhub.backend.presentation.rest.shopping.history.dto.ShoppingItemHistorySuggestionResponse
-import org.springframework.security.core.Authentication
 import spock.lang.Specification
 
 import java.time.LocalDate
@@ -17,13 +16,10 @@ class ShoppingItemHistoryControllerSpec extends Specification {
     def "listHistorySuggestions は service.listHistorySuggestions の結果をレスポンスDTOにマッピングして返す"() {
         given:
         Long householdId = 10L
-        long userId = 20L
+        Long userId = 20L
         String keyword = "milk"
         String storeTypeParam = "1"
         int limit = 30
-
-        Authentication auth = Mock()
-        auth.getName() >> String.valueOf(userId)
 
         def m1 = Mock(ShoppingItemHistorySuggestionModel) {
             getName() >> "牛乳"
@@ -47,7 +43,7 @@ class ShoppingItemHistoryControllerSpec extends Specification {
 
         when:
         List<ShoppingItemHistorySuggestionResponse> result =
-                controller.listHistorySuggestions(householdId, keyword, storeTypeParam, limit, auth)
+                controller.listHistorySuggestions(householdId, keyword, storeTypeParam, limit, userId)
 
         then:
         1 * shoppingItemService.listHistorySuggestions(
@@ -84,14 +80,12 @@ class ShoppingItemHistoryControllerSpec extends Specification {
     def "listHistorySuggestions は keyword, storeType, limitがnull/デフォルトでもそのまま引き渡す"() {
         given:
         Long householdId = 99L
-        long userId = 30L
+        Long userId = 30L
         // keyword = null, storeType = null, limit = デフォルト(20)
-        Authentication auth = Mock()
-        auth.getName() >> String.valueOf(userId)
 
         when:
         List<ShoppingItemHistorySuggestionResponse> result =
-                controller.listHistorySuggestions(householdId, null, null, 20, auth)
+                controller.listHistorySuggestions(householdId, null, null, 20, userId)
 
         then:
         1 * shoppingItemService.listHistorySuggestions(

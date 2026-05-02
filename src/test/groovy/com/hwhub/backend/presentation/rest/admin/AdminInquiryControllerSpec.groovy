@@ -8,7 +8,6 @@ import com.hwhub.backend.domain.model.inquiry.DailyInquiryStatus
 import com.hwhub.backend.domain.model.inquiry.DailyInquiryMessage
 import com.hwhub.backend.domain.model.inquiry.InquiryStatusSummary
 import com.hwhub.backend.presentation.rest.admin.dto.AdminInquiryReplyRequest
-import org.springframework.security.core.Authentication
 import spock.lang.Specification
 import spock.lang.Subject
 
@@ -21,12 +20,6 @@ class AdminInquiryControllerSpec extends Specification {
 
     @Subject
     AdminInquiryController controller = new AdminInquiryController(adminInquiryService)
-
-    Authentication auth = Mock()
-
-    def setup() {
-        auth.getName() >> "10"
-    }
 
     // テスト用ファクトリ
     private static InquiryAdmin makeInquiryAdmin(Long inquiryId) {
@@ -175,12 +168,13 @@ class AdminInquiryControllerSpec extends Specification {
     // reply
     // ==================================
 
-    def "replyはauthからoperatorUserIdを取得してreplyAsStaffを呼び出す"() {
+    def "replyはoperatorUserIdを取得してreplyAsStaffを呼び出す"() {
         given:
         def request = new AdminInquiryReplyRequest("スタッフ返信内容")
+        Long operatorUserId = 10L
 
         when:
-        controller.reply(5L, request, auth)
+        controller.reply(5L, request, operatorUserId)
 
         then:
         1 * adminInquiryService.replyAsStaff(5L, "スタッフ返信内容", 10L)
@@ -188,16 +182,16 @@ class AdminInquiryControllerSpec extends Specification {
 
     def "replyは別の問い合わせIDとユーザーでも正しく呼び出す"() {
         given:
-        def authOther = Mock(Authentication)
-        authOther.getName() >> "99"
         def request = new AdminInquiryReplyRequest("別スタッフの返信")
+        Long operatorUserId = 99L
 
         when:
-        controller.reply(100L, request, authOther)
+        controller.reply(100L, request, operatorUserId)
 
         then:
         1 * adminInquiryService.replyAsStaff(100L, "別スタッフの返信", 99L)
     }
+
     // ==================================
     // status-summary
     // ==================================

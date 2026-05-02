@@ -3,10 +3,10 @@ package com.hwhub.backend.presentation.rest.invitation;
 import com.hwhub.backend.application.service.HouseholdInvitationService;
 import com.hwhub.backend.domain.model.HouseholdInvitationModel;
 import com.hwhub.backend.presentation.rest.invitation.dto.InvitationResponce;
+import com.hwhub.backend.security.CurrentUserId;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -25,23 +25,19 @@ public class HouseholdInvitationController {
 
   @PostMapping("/{token}/accept")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void accept(@PathVariable("token") String token, Authentication authentication) {
-
-    Long loginUserId = Long.valueOf(authentication.getName());
+  public void accept(@PathVariable("token") String token, @CurrentUserId Long loginUserId) {
     service.acceptInvitation(token, loginUserId);
   }
 
   @PostMapping("/{token}/decline")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void decline(@PathVariable("token") String token, Authentication authentication) {
-    Long loginUserId = Long.valueOf(authentication.getName());
+  public void decline(@PathVariable("token") String token, @CurrentUserId Long loginUserId) {
     service.declineInvitation(token, loginUserId);
   }
 
   @PostMapping("/{token}/revoke")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void revoke(@PathVariable("token") String token, Authentication authentication) {
-    Long loginUserId = Long.valueOf(authentication.getName());
+  public void revoke(@PathVariable("token") String token, @CurrentUserId Long loginUserId) {
     service.revokeInvitation(token, loginUserId);
   }
 }

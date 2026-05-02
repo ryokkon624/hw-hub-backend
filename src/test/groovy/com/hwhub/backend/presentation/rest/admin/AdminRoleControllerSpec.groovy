@@ -3,8 +3,11 @@ package com.hwhub.backend.presentation.rest.admin
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.hwhub.backend.application.service.UserRoleService
 import com.hwhub.backend.domain.enums.UserRole
+import com.hwhub.backend.security.CurrentUserIdArgumentResolver
 import org.springframework.http.MediaType
 import org.springframework.security.core.Authentication
+import org.springframework.security.core.context.SecurityContext
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import spock.lang.Specification
@@ -23,7 +26,22 @@ class AdminRoleControllerSpec extends Specification {
     ObjectMapper objectMapper = new ObjectMapper()
 
     def setup() {
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build()
+        mockMvc = MockMvcBuilders.standaloneSetup(controller)
+                .setCustomArgumentResolvers(new CurrentUserIdArgumentResolver())
+                .build()
+    }
+
+    def cleanup() {
+        SecurityContextHolder.clearContext()
+    }
+
+    /** SecurityContext に認証情報をセットするヘルパー */
+    private void setAuthentication(String userId) {
+        def auth = Mock(Authentication)
+        auth.getName() >> userId
+        def ctx = Mock(SecurityContext)
+        ctx.getAuthentication() >> auth
+        SecurityContextHolder.setContext(ctx)
     }
 
     // -------------------------------------------------
@@ -31,12 +49,11 @@ class AdminRoleControllerSpec extends Specification {
     // -------------------------------------------------
     def "GET /api/users/me/roles: ロールとパーミッションのリストを返す"() {
         given:
-        def auth = Mock(Authentication)
-        auth.getName() >> "1"
+        setAuthentication("1")
         def serviceResult = new UserRoleService.UserRoleResult(["ADMIN"], ["11", "10"])
 
         when:
-        def result = mockMvc.perform(get("/api/users/me/roles").principal(auth))
+        def result = mockMvc.perform(get("/api/users/me/roles"))
 
         then:
         1 * userRoleService.getMyRolesAndPermissions(1L) >> serviceResult
@@ -47,12 +64,11 @@ class AdminRoleControllerSpec extends Specification {
 
     def "GET /api/users/me/roles: ロールなしユーザーは空リストを返す"() {
         given:
-        def auth = Mock(Authentication)
-        auth.getName() >> "99"
+        setAuthentication("99")
         def serviceResult = new UserRoleService.UserRoleResult([], [])
 
         when:
-        def result = mockMvc.perform(get("/api/users/me/roles").principal(auth))
+        def result = mockMvc.perform(get("/api/users/me/roles"))
 
         then:
         1 * userRoleService.getMyRolesAndPermissions(99L) >> serviceResult
@@ -66,14 +82,12 @@ class AdminRoleControllerSpec extends Specification {
     // -------------------------------------------------
     def "POST /api/admin/roles/{userId}: ロールを付与して 200 を返す"() {
         given:
-        def auth = Mock(Authentication)
-        auth.getName() >> "1"
+        setAuthentication("1")
         def body = objectMapper.writeValueAsString([role: "ADMIN"])
 
         when:
         def result = mockMvc.perform(
             post("/api/admin/roles/10")
-                .principal(auth)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body)
         )
@@ -85,14 +99,12 @@ class AdminRoleControllerSpec extends Specification {
 
     def "POST /api/admin/roles/{userId}: SUPPORT ロールを付与できる"() {
         given:
-        def auth = Mock(Authentication)
-        auth.getName() >> "1"
+        setAuthentication("1")
         def body = objectMapper.writeValueAsString([role: "SPPRT"])
 
         when:
         def result = mockMvc.perform(
             post("/api/admin/roles/20")
-                .principal(auth)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body)
         )
@@ -104,14 +116,12 @@ class AdminRoleControllerSpec extends Specification {
 
     def "POST /api/admin/roles/{userId}: role が空文字の場合 400 を返す"() {
         given:
-        def auth = Mock(Authentication)
-        auth.getName() >> "1"
+        setAuthentication("1")
         def body = objectMapper.writeValueAsString([role: ""])
 
         when:
         def result = mockMvc.perform(
             post("/api/admin/roles/10")
-                .principal(auth)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body)
         )
@@ -126,12 +136,11 @@ class AdminRoleControllerSpec extends Specification {
     // -------------------------------------------------
     def "DELETE /api/admin/roles/{userId}/{role}: ロールを削除して 200 を返す"() {
         given:
-        def auth = Mock(Authentication)
-        auth.getName() >> "1"
+        setAuthentication("1")
 
         when:
         def result = mockMvc.perform(
-            delete("/api/admin/roles/10/ADMIN").principal(auth)
+            delete("/api/admin/roles/10/ADMIN")
         )
 
         then:
@@ -141,12 +150,11 @@ class AdminRoleControllerSpec extends Specification {
 
     def "DELETE /api/admin/roles/{userId}/{role}: SUPPORT ロールを削除できる"() {
         given:
-        def auth = Mock(Authentication)
-        auth.getName() >> "1"
+        setAuthentication("1")
 
         when:
         def result = mockMvc.perform(
-            delete("/api/admin/roles/20/SPPRT").principal(auth)
+            delete("/api/admin/roles/20/SPPRT")
         )
 
         then:

@@ -5,8 +5,6 @@ import com.hwhub.backend.application.service.HouseworkService
 import com.hwhub.backend.domain.model.HouseworkModel
 import com.hwhub.backend.presentation.rest.housework.dto.HouseworkDto
 import com.hwhub.backend.presentation.rest.housework.dto.HouseworkSaveRequest
-import org.springframework.http.HttpStatus
-import org.springframework.security.core.Authentication
 import spock.lang.Specification
 
 import java.time.LocalDate
@@ -25,8 +23,7 @@ class HouseworkControllerSpec extends Specification {
     def "list は認可チェックを行い HouseworkService.listByHousehold の結果を DTO に変換して返す"() {
         given:
         Long householdId = 1L
-        Authentication auth = Mock()
-        auth.getName() >> "10" // loginUserId=10
+        Long loginUserId = 10L
 
         def model = HouseworkModel.reconstruct(
                 100L,
@@ -45,7 +42,7 @@ class HouseworkControllerSpec extends Specification {
         )
 
         when:
-        List<HouseworkDto> result = controller.list(householdId, auth)
+        List<HouseworkDto> result = controller.list(householdId, loginUserId)
 
         then:
         1 * householdAuthorizationService.assertUserBelongsToHousehold(householdId, 10L)
@@ -63,8 +60,7 @@ class HouseworkControllerSpec extends Specification {
         given:
         Long houseworkId = 100L
         Long householdId = 1L
-        Authentication auth = Mock()
-        auth.getName() >> "10"
+        Long loginUserId = 10L
 
         def model = HouseworkModel.reconstruct(
                 houseworkId,
@@ -83,7 +79,7 @@ class HouseworkControllerSpec extends Specification {
         )
 
         when:
-        HouseworkDto dto = controller.getOne(houseworkId, auth)
+        HouseworkDto dto = controller.getOne(houseworkId, loginUserId)
 
         then:
         1 * houseworkService.findById(houseworkId) >> model
@@ -98,8 +94,7 @@ class HouseworkControllerSpec extends Specification {
     // -------------------------------------------------
     def "createHousework は request.toModelForCreate で Model を作り HouseworkService.createHousework を呼んで 201 を返す"() {
         given:
-        Authentication auth = Mock()
-        auth.getName() >> "10"
+        Long loginUserId = 10L
 
         // request は Mock にして toModelForCreate の戻りだけ制御する
         HouseworkSaveRequest request = Mock()
@@ -136,7 +131,7 @@ class HouseworkControllerSpec extends Specification {
         )
 
         when:
-        HouseworkDto dto = controller.createHousework(request, auth)
+        HouseworkDto dto = controller.createHousework(request, loginUserId)
 
         then:
         1 * request.toModelForCreate() >> inputModel
@@ -153,8 +148,7 @@ class HouseworkControllerSpec extends Specification {
     def "updateHousework は認可チェック後 HouseworkService.updateHousework を呼び DTO を返す"() {
         given:
         Long houseworkId = 300L
-        Authentication auth = Mock()
-        auth.getName() >> "10"
+        Long loginUserId = 10L
 
         HouseworkSaveRequest request = Mock()
 
@@ -193,7 +187,7 @@ class HouseworkControllerSpec extends Specification {
         )
 
         when:
-        HouseworkDto dto = controller.updateHousework(houseworkId, request, auth)
+        HouseworkDto dto = controller.updateHousework(houseworkId, request, loginUserId)
 
         then:
         1 * householdAuthorizationService.assertUserBelongsToHousehold(1L, 10L)

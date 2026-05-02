@@ -5,13 +5,13 @@ import com.hwhub.backend.application.service.HouseworkService;
 import com.hwhub.backend.domain.model.HouseworkModel;
 import com.hwhub.backend.presentation.rest.housework.dto.HouseworkDto;
 import com.hwhub.backend.presentation.rest.housework.dto.HouseworkSaveRequest;
+import com.hwhub.backend.security.CurrentUserId;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,9 +28,8 @@ public class HouseworkController {
   @GetMapping
   public List<HouseworkDto> list(
       @RequestParam("householdId") @NotNull @Positive Long householdId,
-      Authentication authentication) {
+      @CurrentUserId Long loginUserId) {
     // 認可チェック
-    Long loginUserId = Long.valueOf(authentication.getName());
     householdAuthorizationService.assertUserBelongsToHousehold(householdId, loginUserId);
 
     return houseworkService.listByHousehold(householdId).stream()
@@ -42,10 +41,7 @@ public class HouseworkController {
   // GET /api/houseworks/{houseworkId}
   @GetMapping("/{houseworkId}")
   public HouseworkDto getOne(
-      @PathVariable("houseworkId") Long houseworkId, Authentication authentication) {
-
-    Long loginUserId = Long.valueOf(authentication.getName());
-
+      @PathVariable("houseworkId") Long houseworkId, @CurrentUserId Long loginUserId) {
     HouseworkModel model = houseworkService.findById(houseworkId);
     householdAuthorizationService.assertUserBelongsToHousehold(model.getHouseholdId(), loginUserId);
 
@@ -56,9 +52,7 @@ public class HouseworkController {
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   public HouseworkDto createHousework(
-      @Valid @RequestBody HouseworkSaveRequest request, Authentication authentication) {
-
-    Long loginUserId = Long.valueOf(authentication.getName());
+      @Valid @RequestBody HouseworkSaveRequest request, @CurrentUserId Long loginUserId) {
     HouseworkModel model = request.toModelForCreate();
     HouseworkModel created = houseworkService.createHousework(model, loginUserId);
     return HouseworkDto.fromModel(created);
@@ -69,9 +63,7 @@ public class HouseworkController {
   public HouseworkDto updateHousework(
       @PathVariable("houseworkId") Long houseworkId,
       @Valid @RequestBody HouseworkSaveRequest request,
-      Authentication authentication) {
-
-    Long loginUserId = Long.valueOf(authentication.getName());
+      @CurrentUserId Long loginUserId) {
     // 認可チェック
     householdAuthorizationService.assertUserBelongsToHousehold(
         request.getHouseholdId(), loginUserId);

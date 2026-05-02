@@ -11,11 +11,11 @@ import com.hwhub.backend.presentation.rest.household.dto.HouseholdInvitationDto;
 import com.hwhub.backend.presentation.rest.household.dto.HouseholdMemberDto;
 import com.hwhub.backend.presentation.rest.household.dto.UpdateHouseholdRequest;
 import com.hwhub.backend.presentation.rest.household.dto.UpdateMyNicknameRequest;
+import com.hwhub.backend.security.CurrentUserId;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,9 +37,7 @@ public class HouseholdMemberController {
 
   @GetMapping("/{householdId}/members")
   public List<HouseholdMemberDto> getMembers(
-      @PathVariable("householdId") Long householdId, Authentication authentication) {
-    Long loginUserId = Long.valueOf(authentication.getName());
-
+      @PathVariable("householdId") Long householdId, @CurrentUserId Long loginUserId) {
     // 認可チェック
     authService.assertUserBelongsToHousehold(householdId, loginUserId);
 
@@ -52,9 +50,7 @@ public class HouseholdMemberController {
   public ResponseEntity<Void> updateMyNickname(
       @PathVariable("householdId") Long householdId,
       @Valid @RequestBody UpdateMyNicknameRequest request,
-      Authentication authentication) {
-    Long loginUserId = Long.valueOf(authentication.getName());
-
+      @CurrentUserId Long loginUserId) {
     memberService.updateMyNickname(householdId, loginUserId, request.nickname());
 
     // 特に返すものがなないため、 204 No Content
@@ -65,9 +61,7 @@ public class HouseholdMemberController {
   public ResponseEntity<Void> updateHouseholdName(
       @PathVariable("householdId") Long householdId,
       @Valid @RequestBody UpdateHouseholdRequest request,
-      Authentication authentication) {
-    Long userId = Long.valueOf(authentication.getName());
-
+      @CurrentUserId Long userId) {
     householdService.updateHouseholdName(householdId, userId, request.name());
 
     // 特に返すものがなないため、 204 No Content
@@ -76,10 +70,7 @@ public class HouseholdMemberController {
 
   @GetMapping("/{householdId}/invitations")
   public List<HouseholdInvitationDto> getInvitations(
-      @PathVariable("householdId") Long householdId, Authentication authentication) {
-
-    Long userId = Long.valueOf(authentication.getName());
-
+      @PathVariable("householdId") Long householdId, @CurrentUserId Long userId) {
     List<HouseholdInvitationModel> list = invService.getInvitations(householdId, userId);
 
     return list.stream()
@@ -103,10 +94,7 @@ public class HouseholdMemberController {
   public HouseholdInvitationDto createInvitation(
       @PathVariable("householdId") Long householdId,
       @Valid @RequestBody CreateInvitationRequest request,
-      Authentication authentication) {
-
-    Long userId = Long.valueOf(authentication.getName());
-
+      @CurrentUserId Long userId) {
     HouseholdInvitationModel model =
         invService.createInvitation(householdId, request.invitedEmail(), userId);
 
@@ -125,9 +113,7 @@ public class HouseholdMemberController {
 
   @DeleteMapping("/{householdId}/members/me")
   public ResponseEntity<Void> deleteMyself(
-      @PathVariable("householdId") Long householdId, Authentication authentication) {
-    Long userId = Long.valueOf(authentication.getName());
-
+      @PathVariable("householdId") Long householdId, @CurrentUserId Long userId) {
     memberService.deleteMyself(householdId, userId);
 
     // 特に返すものがなないため、 204 No Content
@@ -138,9 +124,7 @@ public class HouseholdMemberController {
   public ResponseEntity<Void> deleteMember(
       @PathVariable("householdId") Long householdId,
       @PathVariable("userId") Long userId,
-      Authentication authentication) {
-    Long loginUserId = Long.valueOf(authentication.getName());
-
+      @CurrentUserId Long loginUserId) {
     memberService.deleteMember(householdId, userId, loginUserId);
 
     return ResponseEntity.noContent().build();

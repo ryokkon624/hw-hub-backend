@@ -5,10 +5,10 @@ import com.hwhub.backend.domain.model.HouseholdModel;
 import com.hwhub.backend.presentation.rest.household.dto.CreateHouseholdRequest;
 import com.hwhub.backend.presentation.rest.household.dto.HouseholdDto;
 import com.hwhub.backend.presentation.rest.household.dto.TransferOwnerRequest;
+import com.hwhub.backend.security.CurrentUserId;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,18 +27,14 @@ public class HouseholdController {
 
   @PostMapping
   public HouseholdDto create(
-      @Valid @RequestBody CreateHouseholdRequest request, Authentication authentication) {
-    Long userId = Long.valueOf(authentication.getName());
-
+      @Valid @RequestBody CreateHouseholdRequest request, @CurrentUserId Long userId) {
     HouseholdModel model = householdService.createHousehold(userId, request.getName());
-
     return HouseholdDto.fromModel(model);
   }
 
   @DeleteMapping("/{householdId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void delete(@PathVariable("householdId") Long householdId, Authentication authentication) {
-    Long userId = Long.valueOf(authentication.getName());
+  public void delete(@PathVariable("householdId") Long householdId, @CurrentUserId Long userId) {
     householdService.deleteHousehold(householdId, userId);
   }
 
@@ -46,8 +42,7 @@ public class HouseholdController {
   public void transferOwner(
       @PathVariable("householdId") Long householdId,
       @Valid @RequestBody TransferOwnerRequest request,
-      Authentication authentication) {
-    Long currentUserId = Long.valueOf(authentication.getName());
-    householdService.transferOwnership(householdId, currentUserId, request.getNewOwnerUserId());
+      @CurrentUserId Long userId) {
+    householdService.transferOwnership(householdId, userId, request.getNewOwnerUserId());
   }
 }

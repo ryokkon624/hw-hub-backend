@@ -3,7 +3,6 @@ package com.hwhub.backend.presentation.rest.shopping.attachment
 import com.hwhub.backend.application.service.ShoppingItemAttachmentService
 import com.hwhub.backend.domain.model.ShoppingItemAttachment
 import com.hwhub.backend.presentation.rest.shopping.attachment.dto.*
-import org.springframework.security.core.Authentication
 import spock.lang.Specification
 
 class ShoppingItemAttachmentControllerSpec extends Specification {
@@ -18,15 +17,12 @@ class ShoppingItemAttachmentControllerSpec extends Specification {
     def "createUploadUrl は ログインユーザIDを使って service.createUploadUrl を呼び DTO を返す"() {
         given:
         Long itemId = 10L
-        long userId = 20L
-
-        Authentication auth = Mock()
-        auth.getName() >> userId.toString()
+        Long userId = 20L
 
         def request = new CreateUploadUrlRequest("photo.png", "image/png")
 
         when:
-        CreateUploadUrlResponse response = controller.createUploadUrl(itemId, request, auth)
+        CreateUploadUrlResponse response = controller.createUploadUrl(itemId, request, userId)
 
         then:
         1 * attachmentService.createUploadUrl(itemId, "photo.png", "image/png", userId) >>
@@ -47,10 +43,7 @@ class ShoppingItemAttachmentControllerSpec extends Specification {
     def "createAttachment は service.createAttachment を呼び 戻り値のIDを CreateAttachmentResponse に詰めて返す"() {
         given:
         Long itemId = 11L
-        long userId = 30L
-
-        Authentication auth = Mock()
-        auth.getName() >> userId.toString()
+        Long userId = 30L
 
         def request = new CreateAttachmentRequest(
                 "shopping-item/11/100/uuid.jpg",
@@ -59,7 +52,7 @@ class ShoppingItemAttachmentControllerSpec extends Specification {
         )
 
         when:
-        CreateAttachmentResponse response = controller.createAttachment(itemId, request, auth)
+        CreateAttachmentResponse response = controller.createAttachment(itemId, request, userId)
 
         then:
         1 * attachmentService.createAttachment(
@@ -88,10 +81,7 @@ class ShoppingItemAttachmentControllerSpec extends Specification {
     def "listAttachments は service.listAttachments の結果を ShoppingItemAttachmentResponse にマッピングして返す"() {
         given:
         Long itemId = 12L
-        long userId = 40L
-
-        Authentication auth = Mock()
-        auth.getName() >> userId.toString()
+        Long userId = 40L
 
         def a1 = ShoppingItemAttachment.reconstruct(
                 1L, itemId, "key1", "file1.png", "image/png", 1
@@ -104,7 +94,7 @@ class ShoppingItemAttachmentControllerSpec extends Specification {
 
         when:
         List<ShoppingItemAttachmentResponse> responses =
-                controller.listAttachments(itemId, auth)
+                controller.listAttachments(itemId, userId)
 
         then:
         1 * attachmentService.listAttachments(itemId, userId) >> [a1, a2]
@@ -133,13 +123,10 @@ class ShoppingItemAttachmentControllerSpec extends Specification {
         given:
         Long itemId = 13L
         Long attachmentId = 99L
-        long userId = 50L
-
-        Authentication auth = Mock()
-        auth.getName() >> userId.toString()
+        Long userId = 50L
 
         when:
-        controller.deleteAttachment(itemId, attachmentId, auth)
+        controller.deleteAttachment(itemId, attachmentId, userId)
 
         then:
         1 * attachmentService.deleteAttachment(itemId, attachmentId, userId)

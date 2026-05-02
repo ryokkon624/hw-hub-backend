@@ -7,7 +7,6 @@ import com.hwhub.backend.application.service.HouseholdService
 import com.hwhub.backend.domain.model.HouseholdInvitationModel
 import com.hwhub.backend.domain.model.HouseholdMemberModel
 import com.hwhub.backend.presentation.rest.household.dto.*
-import org.springframework.security.core.Authentication
 import spock.lang.Specification
 
 import java.time.LocalDateTime
@@ -28,13 +27,12 @@ class HouseholdMemberControllerSpec extends Specification {
     def "getMembers は認可チェックを行い HouseholdMembersDto を返す"() {
         given:
         Long householdId = 1L
-        Authentication auth = Mock()
-        auth.getName() >> "10"   // loginUserId = 10
+        Long loginUserId = 10L
 
         def member = HouseholdMemberModel.create(householdId, 10L, "Taro")
 
         when:
-        List<HouseholdMemberDto> result = controller.getMembers(householdId, auth)
+        List<HouseholdMemberDto> result = controller.getMembers(householdId, loginUserId)
 
         then:
         1 * authService.assertUserBelongsToHousehold(householdId, 10L)
@@ -51,12 +49,11 @@ class HouseholdMemberControllerSpec extends Specification {
     def "updateMyNickname はログインユーザIDを使って HouseholdMemberService.updateMyNickname を呼び 204 を返す"() {
         given:
         Long householdId = 1L
-        Authentication auth = Mock()
-        auth.getName() >> "10"
+        Long loginUserId = 10L
         def request = new UpdateMyNicknameRequest("new-nick")
 
         when:
-        def response = controller.updateMyNickname(householdId, request, auth)
+        def response = controller.updateMyNickname(householdId, request, loginUserId)
 
         then:
         1 * memberService.updateMyNickname(householdId, 10L, "new-nick")
@@ -71,12 +68,11 @@ class HouseholdMemberControllerSpec extends Specification {
     def "updateHouseholdName は HouseholdService.updateHouseholdName を呼び 204 を返す"() {
         given:
         Long householdId = 1L
-        Authentication auth = Mock()
-        auth.getName() >> "10"
+        Long userId = 10L
         def request = new UpdateHouseholdRequest("New Name")
 
         when:
-        def response = controller.updateHouseholdName(householdId, request, auth)
+        def response = controller.updateHouseholdName(householdId, request, userId)
 
         then:
         1 * householdService.updateHouseholdName(householdId, 10L, "New Name")
@@ -91,8 +87,7 @@ class HouseholdMemberControllerSpec extends Specification {
     def "getInvitations は HouseholdInvitationService.getInvitations を呼び DTO に変換したリストを返す"() {
         given:
         Long householdId = 1L
-        Authentication auth = Mock()
-        auth.getName() >> "10"
+        Long userId = 10L
 
         def now = LocalDateTime.now()
 
@@ -111,7 +106,7 @@ class HouseholdMemberControllerSpec extends Specification {
         )
 
         when:
-        List<HouseholdInvitationDto> result = controller.getInvitations(householdId, auth)
+        List<HouseholdInvitationDto> result = controller.getInvitations(householdId, userId)
 
         then:
         1 * invService.getInvitations(householdId, 10L) >> [model]
@@ -137,8 +132,7 @@ class HouseholdMemberControllerSpec extends Specification {
     def "createInvitation は HouseholdInvitationService.createInvitation を呼び DTO を返す"() {
         given:
         Long householdId = 1L
-        Authentication auth = Mock()
-        auth.getName() >> "10"
+        Long userId = 10L
 
         def request = new CreateInvitationRequest("invited@example.com")
 
@@ -159,7 +153,7 @@ class HouseholdMemberControllerSpec extends Specification {
         )
 
         when:
-        HouseholdInvitationDto dto = controller.createInvitation(householdId, request, auth)
+        HouseholdInvitationDto dto = controller.createInvitation(householdId, request, userId)
 
         then:
         1 * invService.createInvitation(householdId, "invited@example.com", 10L) >> model
@@ -183,11 +177,10 @@ class HouseholdMemberControllerSpec extends Specification {
     def "deleteMyself は HouseholdMemberService.deleteMyself を呼び 204 を返す"() {
         given:
         Long householdId = 1L
-        Authentication auth = Mock()
-        auth.getName() >> "10"
+        Long userId = 10L
 
         when:
-        def response = controller.deleteMyself(householdId, auth)
+        def response = controller.deleteMyself(householdId, userId)
 
         then:
         1 * memberService.deleteMyself(householdId, 10L)
@@ -203,11 +196,10 @@ class HouseholdMemberControllerSpec extends Specification {
         given:
         Long householdId = 1L
         Long targetUserId = 20L
-        Authentication auth = Mock()
-        auth.getName() >> "10"   // loginUserId = 10
+        Long loginUserId = 10L
 
         when:
-        def response = controller.deleteMember(householdId, targetUserId, auth)
+        def response = controller.deleteMember(householdId, targetUserId, loginUserId)
 
         then:
         1 * memberService.deleteMember(householdId, targetUserId, 10L)

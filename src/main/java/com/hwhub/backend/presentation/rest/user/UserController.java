@@ -16,6 +16,7 @@ import com.hwhub.backend.presentation.rest.user.dto.UpdateNotificationSettingsRe
 import com.hwhub.backend.presentation.rest.user.dto.UpdateUserProfileRequest;
 import com.hwhub.backend.presentation.rest.user.dto.UserHouseholdDto;
 import com.hwhub.backend.presentation.rest.user.dto.UserProfileResponse;
+import com.hwhub.backend.security.CurrentUserId;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.util.LinkedHashMap;
@@ -24,7 +25,6 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,7 +33,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 /**
  * ユーザー関連の操作（プロフィール管理、所属世帯情報の取得など）を行うAPIコントローラです。
@@ -52,30 +51,22 @@ public class UserController {
   /**
    * 認証ユーザーが所属する全ての世帯（Household）の情報を取得します。
    *
-   * <p>ユーザーが未認証の場合、例外をスローします。
-   *
-   * @param authentication Spring Securityによる認証情報
+   * @param userId 認証済みユーザーID
    * @return ユーザーが所属する世帯情報（IDと名称）のリスト
-   * @throws ResponseStatusException 認証情報がない場合 (HttpStatus.UNAUTHORIZED)
    */
   @GetMapping("/me/households")
-  public List<UserHouseholdDto> getUserHouseholds(Authentication authentication) {
-    if (authentication == null) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthenticated");
-    }
-    Long userId = Long.parseLong(authentication.getName());
+  public List<UserHouseholdDto> getUserHouseholds(@CurrentUserId Long userId) {
     return userService.getHouseholds(userId).stream().map(UserHouseholdDto::fromModel).toList();
   }
 
   /**
    * 認証ユーザーの現在のプロフィール情報（表示名、言語設定など）を取得します。
    *
-   * @param authentication Spring Securityによる認証情報
+   * @param userId 認証済みユーザーID
    * @return 認証ユーザーのプロフィール情報を含むレスポンスオブジェクト
    */
   @GetMapping("/me/profile")
-  public UserProfileResponse getProfile(Authentication authentication) {
-    Long userId = Long.parseLong(authentication.getName());
+  public UserProfileResponse getProfile(@CurrentUserId Long userId) {
     UserModel user = userService.getProfile(userId);
     return UserProfileResponse.fromModel(user);
   }
@@ -83,37 +74,33 @@ public class UserController {
   /**
    * 認証ユーザーのプロフィール情報（表示名、言語設定など）を更新します。
    *
-   * @param authentication Spring Securityによる認証情報
+   * @param userId 認証済みユーザーID
    * @param request 更新するプロフィール情報（displayName, locale）
    * @return 更新後のプロフィール情報を含むレスポンスオブジェクト
    */
   @PutMapping("/me/profile")
   public UserProfileResponse updateProfile(
-      Authentication authentication, @Valid @RequestBody UpdateUserProfileRequest request) {
-    Long userId = Long.parseLong(authentication.getName());
+      @CurrentUserId Long userId, @Valid @RequestBody UpdateUserProfileRequest request) {
     UserModel updated = userService.updateProfile(userId, request.displayName(), request.locale());
     return UserProfileResponse.fromModel(updated);
   }
 
   @PostMapping("/me/icon/upload-url")
   public CreateIconUploadUrlResponse createIconUploadUrl(
-      @Valid @RequestBody CreateIconUploadUrlRequest request, Authentication authentication) {
-    Long userId = Long.parseLong(authentication.getName());
+      @Valid @RequestBody CreateIconUploadUrlRequest request, @CurrentUserId Long userId) {
     var result = userIconService.createUploadUrl(userId, request.fileName(), request.mimeType());
     return new CreateIconUploadUrlResponse(result.uploadUrl(), result.fileKey());
   }
 
   @PostMapping("/me/icon")
   public void updateIcon(
-      @Valid @RequestBody UpdateIconRequest request, Authentication authentication) {
-    Long userId = Long.parseLong(authentication.getName());
+      @Valid @RequestBody UpdateIconRequest request, @CurrentUserId Long userId) {
     userIconService.updateUserIcon(userId, request.fileKey());
   }
 
   @DeleteMapping("/me")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void deleteAccount(Authentication authentication) {
-    Long userId = Long.parseLong(authentication.getName());
+  public void deleteAccount(@CurrentUserId Long userId) {
     userService.deleteAccount(userId);
   }
 
@@ -124,17 +111,16 @@ public class UserController {
    * @return 204 No Content（成功時は返却なし）
    */
   @PutMapping("/me/password")
-  public ResponseEntity<Void> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
-    userService.changePassword(request.currentPassword(), request.newPassword());
+  public ResponseEntity<Void> changePassword(
+      @CurrentUserId Long userId, @Valid @RequestBody ChangePasswordRequest request) {
+    userService.changePassword(userId, request.currentPassword(), request.newPassword());
     return ResponseEntity.noContent().build();
   }
 
   /** Googleアカウント連携開始（ログイン中ユーザーのみ） GET /api/users/me/google/link/start */
   @GetMapping("/me/google/link/start")
   public ResponseEntity<OAuthStartResponse> startGoogleLink(
-      Authentication authentication, HttpServletResponse response) {
-    Long userId = requireUserId(authentication);
-
+      @CurrentUserId Long userId, HttpServletResponse response) {
     String state = linkHelper.generateStateForLink(userId);
     linkHelper.setStateCookie(response, state);
 
@@ -143,19 +129,14 @@ public class UserController {
   }
 
   @GetMapping("/me/notification-settings")
-  public NotificationSettingsResponse getNotificationSettings(Authentication authentication) {
-
-    Long userId = requireUserId(authentication);
+  public NotificationSettingsResponse getNotificationSettings(@CurrentUserId Long userId) {
     NotificationSettingsResult result = userService.getSettings(userId);
-
     return toNotificationSettingsResponse(result);
   }
 
   @PutMapping("/me/notification-settings")
   public NotificationSettingsResponse updateNotificationSettings(
-      @RequestBody UpdateNotificationSettingsRequest req, Authentication authentication) {
-    Long userId = requireUserId(authentication);
-
+      @RequestBody UpdateNotificationSettingsRequest req, @CurrentUserId Long userId) {
     // Mapの詰め替え(Request -> Service)
     Map<NotificationGroup, Boolean> groupSettings = new LinkedHashMap<>();
     if (req.groupSettings() != null) {
@@ -186,12 +167,5 @@ public class UserController {
     }
 
     return new NotificationSettingsResponse(result.notificationEnabled(), responseGroupSettings);
-  }
-
-  private Long requireUserId(Authentication authentication) {
-    if (authentication == null || authentication.getName() == null) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthenticated");
-    }
-    return Long.parseLong(authentication.getName());
   }
 }

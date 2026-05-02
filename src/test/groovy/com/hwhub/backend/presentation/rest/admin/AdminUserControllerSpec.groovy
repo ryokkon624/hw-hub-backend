@@ -1,11 +1,16 @@
 package com.hwhub.backend.presentation.rest.admin
 
+import com.hwhub.backend.application.service.AdminUserService
 import com.hwhub.backend.application.service.UserRoleService
-import com.hwhub.backend.presentation.rest.admin.dto.AdminUserResponse
 import com.hwhub.backend.domain.enums.UserRole
+import com.hwhub.backend.domain.model.AdminUserSearchCondition
 import com.hwhub.backend.domain.model.UserModel
 import com.hwhub.backend.domain.model.UserRoleModel
+import com.hwhub.backend.presentation.rest.admin.dto.AdminUserResponse
+import com.hwhub.backend.security.CurrentUserIdArgumentResolver
 import org.springframework.security.core.Authentication
+import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.core.context.SecurityContext
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import spock.lang.Specification
@@ -17,12 +22,27 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class AdminUserControllerSpec extends Specification {
 
     def userRoleService = Mock(UserRoleService)
-    def adminUserService = Mock(com.hwhub.backend.application.service.AdminUserService)
+    def adminUserService = Mock(AdminUserService)
     def controller = new AdminUserController(userRoleService, adminUserService)
     MockMvc mockMvc
 
     def setup() {
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build()
+        mockMvc = MockMvcBuilders.standaloneSetup(controller)
+                .setCustomArgumentResolvers(new CurrentUserIdArgumentResolver())
+                .build()
+    }
+
+    def cleanup() {
+        SecurityContextHolder.clearContext()
+    }
+
+    /** SecurityContext に認証情報をセットするヘルパー */
+    private void setAuthentication(String userId) {
+        def auth = Mock(Authentication)
+        auth.getName() >> userId
+        def ctx = Mock(SecurityContext)
+        ctx.getAuthentication() >> auth
+        SecurityContextHolder.setContext(ctx)
     }
 
     // -------------------------------------------------
@@ -30,8 +50,7 @@ class AdminUserControllerSpec extends Specification {
     // -------------------------------------------------
     def "GET /api/admin/users: メールで検索してユーザーリストを返す"() {
         given:
-        def auth = Mock(Authentication)
-        auth.getName() >> "1"
+        setAuthentication("1")
         def userModel = UserModel.reconstruct(100L, "test@example.com", null, null, "LOCAL", null, "Taro", "ja", true, null, null, true, null, null)
         def roleModel = UserRoleModel.reconstruct(10L, 100L, UserRole.ADMIN)
         def response = new UserRoleService.SearchUserResult(userModel, [roleModel])
@@ -40,7 +59,6 @@ class AdminUserControllerSpec extends Specification {
         def result = mockMvc.perform(
             get("/api/admin/users")
                 .param("email", "test@example.com")
-                .principal(auth)
         )
 
         then:
@@ -56,14 +74,12 @@ class AdminUserControllerSpec extends Specification {
 
     def "GET /api/admin/users: 該当ユーザーがいない場合は空リストを返す"() {
         given:
-        def auth = Mock(Authentication)
-        auth.getName() >> "1"
+        setAuthentication("1")
 
         when:
         def result = mockMvc.perform(
             get("/api/admin/users")
                 .param("email", "nobody@example.com")
-                .principal(auth)
         )
 
         then:
@@ -75,8 +91,7 @@ class AdminUserControllerSpec extends Specification {
 
     def "GET /api/admin/users: 複数ユーザーがマッチした場合全件返す"() {
         given:
-        def auth = Mock(Authentication)
-        auth.getName() >> "1"
+        setAuthentication("1")
         def userModel1 = UserModel.reconstruct(1L, "alice@example.com", null, null, "LOCAL", null, "Alice", "en", true, null, null, true, null, null)
         def roleModel1 = UserRoleModel.reconstruct(11L, 1L, UserRole.ADMIN)
         def user1 = new UserRoleService.SearchUserResult(userModel1, [roleModel1])
@@ -87,7 +102,6 @@ class AdminUserControllerSpec extends Specification {
         def result = mockMvc.perform(
             get("/api/admin/users")
                 .param("email", "example.com")
-                .principal(auth)
         )
 
         then:
@@ -101,24 +115,24 @@ class AdminUserControllerSpec extends Specification {
 
     def "GET /api/admin/users: email パラメータがない場合 400 を返す"() {
         given:
-        def auth = Mock(Authentication)
-        auth.getName() >> "1"
+        setAuthentication("1")
 
         when:
         def result = mockMvc.perform(
-            get("/api/admin/users").principal(auth)
+            get("/api/admin/users")
         )
 
         then:
         0 * userRoleService.searchUsers(_)
         result.andExpect(status().isBadRequest())
     }
+
     // -------------------------------------------------
     // GET /api/admin/users/search
     // -------------------------------------------------
     def "GET /api/admin/users/search: 各種条件で検索して結果を返す"() {
         given:
-        def auth = Mock(Authentication)
+        setAuthentication("1")
         def user = UserModel.reconstruct(1L, "test@example.com", null, null, "LOCAL", null, "Taro", "ja", true, null, null, true, null, null)
 
         when:
@@ -127,11 +141,10 @@ class AdminUserControllerSpec extends Specification {
                 .param("email", "test@example.com")
                 .param("isActive", "true")
                 .param("locale", "ja")
-                .principal(auth)
         )
 
         then:
-        1 * adminUserService.searchUsers(_ as com.hwhub.backend.domain.model.AdminUserSearchCondition) >> [user]
+        1 * adminUserService.searchUsers(_ as AdminUserSearchCondition) >> [user]
         result.andExpect(status().isOk())
               .andExpect(jsonPath('$[0].userId').value(1))
     }
@@ -141,10 +154,9 @@ class AdminUserControllerSpec extends Specification {
     // -------------------------------------------------
     def "POST /api/admin/users: ユーザーを新規登録して登録結果を返す"() {
         given:
-        def auth = Mock(Authentication)
-        auth.getName() >> "99"
+        setAuthentication("99")
         def user = UserModel.reconstruct(10L, "new@example.com", null, null, "LOCAL", null, "New", "ja", true, null, null, true, null, null)
-        
+
         def json = '{"email":"new@example.com", "password":"password", "displayName":"New", "locale":"ja"}'
 
         when:
@@ -152,7 +164,6 @@ class AdminUserControllerSpec extends Specification {
             org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/api/admin/users")
                 .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
                 .content(json)
-                .principal(auth)
         )
 
         then:
@@ -166,8 +177,7 @@ class AdminUserControllerSpec extends Specification {
     // -------------------------------------------------
     def "PUT /api/admin/users/{userId}: ユーザー情報を更新して更新結果を返す"() {
         given:
-        def auth = Mock(Authentication)
-        auth.getName() >> "99"
+        setAuthentication("99")
         def user = UserModel.reconstruct(10L, "test@example.com", null, null, "LOCAL", null, "Updated", "en", true, null, null, true, null, null)
 
         def json = '{"displayName":"Updated", "locale":"en", "password":"new-pass", "isActive":true}'
@@ -177,7 +187,6 @@ class AdminUserControllerSpec extends Specification {
             org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/api/admin/users/10")
                 .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
                 .content(json)
-                .principal(auth)
         )
 
         then:

@@ -3,12 +3,12 @@ package com.hwhub.backend.presentation.rest.shopping;
 import com.hwhub.backend.application.service.ShoppingItemService;
 import com.hwhub.backend.domain.model.ShoppingItemModel;
 import com.hwhub.backend.presentation.rest.shopping.dto.*;
+import com.hwhub.backend.security.CurrentUserId;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -29,18 +29,15 @@ public class ShoppingItemController {
    * GET /api/households/{householdId}/shopping-items
    *
    * @param householdId 世帯ID。パス変数として指定します。
-   * @param authentication Spring Securityによる認証情報（ユーザーID取得用）
+   * @param userId 認証済みユーザーID
    * @return 指定された世帯IDの買い物アイテムリスト
    * @throws com.hwhub.backend.domain.exception.ResourceNotFoundException
    *     指定された世帯IDが存在しない、またはユーザーが所属していない場合（404/403）
    */
   @GetMapping("/households/{householdId}/shopping-items")
   public ShoppingItemListResponse getShoppingItems(
-      @PathVariable("householdId") Long householdId, Authentication authentication) {
-    Long userId = Long.parseLong(authentication.getName());
-
+      @PathVariable("householdId") Long householdId, @CurrentUserId Long userId) {
     List<ShoppingItemModel> models = shoppingItemService.getShoppingItems(householdId, userId);
-
     return ShoppingItemListResponse.fromModelList(models);
   }
 
@@ -49,19 +46,16 @@ public class ShoppingItemController {
    * GET /api/households/{householdId}/shopping-items/favorites
    *
    * @param householdId 世帯ID。パス変数として指定します。
-   * @param authentication Spring Securityによる認証情報（ユーザーID取得用）
+   * @param userId 認証済みユーザーID
    * @return 指定された世帯IDのお気に入り買い物アイテムリスト
    * @throws com.hwhub.backend.domain.exception.ResourceNotFoundException
    *     指定された世帯IDが存在しない、またはユーザーが所属していない場合（404/403）
    */
   @GetMapping("/households/{householdId}/shopping-items/favorites")
   public ShoppingItemListResponse getFavorites(
-      @PathVariable("householdId") Long householdId, Authentication authentication) {
-    Long userId = Long.parseLong(authentication.getName());
-
+      @PathVariable("householdId") Long householdId, @CurrentUserId Long userId) {
     List<ShoppingItemModel> models =
         shoppingItemService.getFavoriteShoppingItems(householdId, userId);
-
     return ShoppingItemListResponse.fromModelList(models);
   }
 
@@ -71,7 +65,7 @@ public class ShoppingItemController {
    *
    * @param shoppingItemId 買い物アイテムのID
    * @param request お気に入り状態（True/False）を含むリクエストボディ
-   * @param authentication 認証ユーザー情報
+   * @param userId 認証済みユーザーID
    * @return HTTPステータス 204 No Content（更新成功）
    * @throws com.hwhub.backend.domain.exception.ResourceNotFoundException アイテムが存在しない場合（404）
    * @throws org.springframework.web.server.ResponseStatusException ユーザーに更新権限がない場合（403 Forbidden）
@@ -80,11 +74,8 @@ public class ShoppingItemController {
   public ResponseEntity<Void> updateFavorite(
       @PathVariable("shoppingItemId") Long shoppingItemId,
       @RequestBody @Valid UpdateFavoriteRequest request,
-      Authentication authentication) {
-    long userId = Long.parseLong(authentication.getName());
-
+      @CurrentUserId Long userId) {
     shoppingItemService.updateFavorite(shoppingItemId, request.favorite(), userId);
-
     return ResponseEntity.noContent().build(); // 204
   }
 
@@ -93,16 +84,13 @@ public class ShoppingItemController {
    * PATCH /api/shopping-items/bulk-status
    *
    * @param request 更新するアイテムIDリストと更新後のステータスを含むリクエストボディ
-   * @param authentication 認証ユーザー情報
+   * @param userId 認証済みユーザーID
    * @return HTTPステータス 204 No Content（更新成功）
    */
   @PatchMapping("/shopping-items/bulk-status")
   public ResponseEntity<Void> bulkUpdateStatus(
-      @RequestBody @Valid BulkUpdateStatusRequest request, Authentication authentication) {
-    long userId = Long.parseLong(authentication.getName());
-
+      @RequestBody @Valid BulkUpdateStatusRequest request, @CurrentUserId Long userId) {
     shoppingItemService.bulkUpdateStatus(request.ids(), request.status(), userId);
-
     return ResponseEntity.noContent().build();
   }
 
@@ -112,7 +100,7 @@ public class ShoppingItemController {
    *
    * @param shoppingItemId 買い物アイテムのID
    * @param request 更新後のステータスコードを含むリクエストボディ
-   * @param authentication 認証ユーザー情報
+   * @param userId 認証済みユーザーID
    * @return HTTPステータス 204 No Content（更新成功）
    * @throws com.hwhub.backend.domain.exception.ResourceNotFoundException アイテムが存在しない場合（404）
    */
@@ -120,11 +108,8 @@ public class ShoppingItemController {
   public ResponseEntity<Void> updateStatus(
       @PathVariable("shoppingItemId") Long shoppingItemId,
       @RequestBody @Valid UpdateStatusRequest request,
-      Authentication authentication) {
-    long userId = Long.parseLong(authentication.getName());
-
+      @CurrentUserId Long userId) {
     shoppingItemService.updateStatus(shoppingItemId, request.status(), userId);
-
     return ResponseEntity.noContent().build();
   }
 
@@ -134,17 +119,14 @@ public class ShoppingItemController {
    *
    * @param householdId アイテムを作成する世帯ID
    * @param request 作成するアイテムの情報（名前、数量など）を含むリクエストボディ
-   * @param authentication 認証ユーザー情報
+   * @param userId 認証済みユーザーID
    * @return HTTPステータス 201 Created と共に、作成されたアイテムのDTO
    */
   @PostMapping("/households/{householdId}/shopping-items")
   public ResponseEntity<ShoppingItemDto> create(
       @PathVariable("householdId") Long householdId,
       @RequestBody @Valid CreateShoppingItemRequest request,
-      Authentication authentication) {
-
-    long userId = Long.parseLong(authentication.getName());
-
+      @CurrentUserId Long userId) {
     ShoppingItemModel inserted =
         shoppingItemService.create(
             ShoppingItemModel.create(
@@ -161,16 +143,13 @@ public class ShoppingItemController {
    * DELETE /api/shopping-items/{shoppingItemId}
    *
    * @param shoppingItemId 買い物アイテムのID
-   * @param authentication 認証ユーザー情報
+   * @param userId 認証済みユーザーID
    * @return HTTPステータス 204 No Content（削除成功）
    */
   @DeleteMapping("/shopping-items/{shoppingItemId}")
   public ResponseEntity<Void> delete(
-      @PathVariable("shoppingItemId") Long shoppingItemId, Authentication authentication) {
-    long userId = Long.parseLong(authentication.getName());
-
+      @PathVariable("shoppingItemId") Long shoppingItemId, @CurrentUserId Long userId) {
     shoppingItemService.delete(shoppingItemId, userId);
-
     return ResponseEntity.noContent().build();
   }
 
@@ -180,17 +159,14 @@ public class ShoppingItemController {
    *
    * @param shoppingItemId 更新する買い物アイテムのID
    * @param request 更新内容を含むリクエストボディ
-   * @param authentication 認証ユーザー情報
+   * @param userId 認証済みユーザーID
    * @return HTTPステータス 200 OK と共に、更新後のアイテムのDTO
    */
   @PutMapping("/shopping-items/{shoppingItemId}")
   public ResponseEntity<ShoppingItemDto> update(
       @PathVariable("shoppingItemId") Long shoppingItemId,
       @Valid @RequestBody UpdateShoppingItemRequest request,
-      Authentication authentication) {
-
-    long userId = Long.parseLong(authentication.getName());
-
+      @CurrentUserId Long userId) {
     ShoppingItemModel updated =
         shoppingItemService.update(
             shoppingItemId, request.name(), request.memo(), request.storeType(), userId);
