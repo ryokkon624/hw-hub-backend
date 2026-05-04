@@ -38,6 +38,6 @@ class ThemeModeSpec extends Specification {
         ThemeMode.fromCode(null)
 
         then:
-        thrown(Exception)
+        thrown(IllegalArgumentException)
     }
 }
