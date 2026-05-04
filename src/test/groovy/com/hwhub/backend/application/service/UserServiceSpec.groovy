@@ -536,7 +536,7 @@ class UserServiceSpec extends Specification {
         themeMode << [ThemeMode.SYSTEM, ThemeMode.LIGHT, ThemeMode.DARK]
     }
 
-    def "updateThemeModeはenabled=nullのグループ設定をスキップする"() {
+    def "updateNotificationEnabledはenabled=nullのグループ設定をスキップする"() {
         given:
         Long userId = 82L
         def groupSettings = new LinkedHashMap()
