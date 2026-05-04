@@ -5,21 +5,21 @@ import com.hwhub.backend.infrastructure.mybatis.generated.entity.TNotificationEx
 import java.util.List;
 
 public interface TNotificationMapper {
-  int deleteByPrimaryKey(Long notificationId);
+    int deleteByPrimaryKey(Long notificationId);
 
-  int insert(TNotification row);
+    int insert(TNotification row);
 
-  int insertSelective(TNotification row);
+    int insertSelective(TNotification row);
 
-  List<TNotification> selectByExampleWithBLOBs(TNotificationExample example);
+    List<TNotification> selectByExampleWithBLOBs(TNotificationExample example);
 
-  List<TNotification> selectByExample(TNotificationExample example);
+    List<TNotification> selectByExample(TNotificationExample example);
 
-  TNotification selectByPrimaryKey(Long notificationId);
+    TNotification selectByPrimaryKey(Long notificationId);
 
-  int updateByPrimaryKeySelective(TNotification row);
+    int updateByPrimaryKeySelective(TNotification row);
 
-  int updateByPrimaryKeyWithBLOBs(TNotification row);
+    int updateByPrimaryKeyWithBLOBs(TNotification row);
 
-  int updateByPrimaryKey(TNotification row);
+    int updateByPrimaryKey(TNotification row);
 }

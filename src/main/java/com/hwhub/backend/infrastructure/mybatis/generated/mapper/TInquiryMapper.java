@@ -5,17 +5,17 @@ import com.hwhub.backend.infrastructure.mybatis.generated.entity.TInquiryExample
 import java.util.List;
 
 public interface TInquiryMapper {
-  int deleteByPrimaryKey(Long inquiryId);
+    int deleteByPrimaryKey(Long inquiryId);
 
-  int insert(TInquiry row);
+    int insert(TInquiry row);
 
-  int insertSelective(TInquiry row);
+    int insertSelective(TInquiry row);
 
-  List<TInquiry> selectByExample(TInquiryExample example);
+    List<TInquiry> selectByExample(TInquiryExample example);
 
-  TInquiry selectByPrimaryKey(Long inquiryId);
+    TInquiry selectByPrimaryKey(Long inquiryId);
 
-  int updateByPrimaryKeySelective(TInquiry row);
+    int updateByPrimaryKeySelective(TInquiry row);
 
-  int updateByPrimaryKey(TInquiry row);
+    int updateByPrimaryKey(TInquiry row);
 }

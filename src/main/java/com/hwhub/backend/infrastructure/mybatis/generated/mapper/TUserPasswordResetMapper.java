@@ -5,21 +5,21 @@ import com.hwhub.backend.infrastructure.mybatis.generated.entity.TUserPasswordRe
 import java.util.List;
 
 public interface TUserPasswordResetMapper {
-  int deleteByPrimaryKey(Long userPasswordResetId);
+    int deleteByPrimaryKey(Long userPasswordResetId);
 
-  int insert(TUserPasswordReset row);
+    int insert(TUserPasswordReset row);
 
-  int insertSelective(TUserPasswordReset row);
+    int insertSelective(TUserPasswordReset row);
 
-  List<TUserPasswordReset> selectByExampleWithBLOBs(TUserPasswordResetExample example);
+    List<TUserPasswordReset> selectByExampleWithBLOBs(TUserPasswordResetExample example);
 
-  List<TUserPasswordReset> selectByExample(TUserPasswordResetExample example);
+    List<TUserPasswordReset> selectByExample(TUserPasswordResetExample example);
 
-  TUserPasswordReset selectByPrimaryKey(Long userPasswordResetId);
+    TUserPasswordReset selectByPrimaryKey(Long userPasswordResetId);
 
-  int updateByPrimaryKeySelective(TUserPasswordReset row);
+    int updateByPrimaryKeySelective(TUserPasswordReset row);
 
-  int updateByPrimaryKeyWithBLOBs(TUserPasswordReset row);
+    int updateByPrimaryKeyWithBLOBs(TUserPasswordReset row);
 
-  int updateByPrimaryKey(TUserPasswordReset row);
+    int updateByPrimaryKey(TUserPasswordReset row);
 }

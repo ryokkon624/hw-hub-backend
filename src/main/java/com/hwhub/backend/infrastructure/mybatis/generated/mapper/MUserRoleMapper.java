@@ -5,17 +5,17 @@ import com.hwhub.backend.infrastructure.mybatis.generated.entity.MUserRoleExampl
 import java.util.List;
 
 public interface MUserRoleMapper {
-  int deleteByPrimaryKey(Long userRoleId);
+    int deleteByPrimaryKey(Long userRoleId);
 
-  int insert(MUserRole row);
+    int insert(MUserRole row);
 
-  int insertSelective(MUserRole row);
+    int insertSelective(MUserRole row);
 
-  List<MUserRole> selectByExample(MUserRoleExample example);
+    List<MUserRole> selectByExample(MUserRoleExample example);
 
-  MUserRole selectByPrimaryKey(Long userRoleId);
+    MUserRole selectByPrimaryKey(Long userRoleId);
 
-  int updateByPrimaryKeySelective(MUserRole row);
+    int updateByPrimaryKeySelective(MUserRole row);
 
-  int updateByPrimaryKey(MUserRole row);
+    int updateByPrimaryKey(MUserRole row);
 }

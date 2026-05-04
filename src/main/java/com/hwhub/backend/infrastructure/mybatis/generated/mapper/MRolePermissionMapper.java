@@ -5,17 +5,17 @@ import com.hwhub.backend.infrastructure.mybatis.generated.entity.MRolePermission
 import java.util.List;
 
 public interface MRolePermissionMapper {
-  int deleteByPrimaryKey(Long rolePermissionId);
+    int deleteByPrimaryKey(Long rolePermissionId);
 
-  int insert(MRolePermission row);
+    int insert(MRolePermission row);
 
-  int insertSelective(MRolePermission row);
+    int insertSelective(MRolePermission row);
 
-  List<MRolePermission> selectByExample(MRolePermissionExample example);
+    List<MRolePermission> selectByExample(MRolePermissionExample example);
 
-  MRolePermission selectByPrimaryKey(Long rolePermissionId);
+    MRolePermission selectByPrimaryKey(Long rolePermissionId);
 
-  int updateByPrimaryKeySelective(MRolePermission row);
+    int updateByPrimaryKeySelective(MRolePermission row);
 
-  int updateByPrimaryKey(MRolePermission row);
+    int updateByPrimaryKey(MRolePermission row);
 }

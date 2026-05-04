@@ -298,4 +298,301 @@
       updated_at = #{updatedAt,jdbcType=TIMESTAMP}
     where announcement_id = #{announcementId,jdbcType=BIGINT}
   </update>
+  <resultMap id="BaseResultMap" type="com.hwhub.backend.infrastructure.mybatis.generated.entity.MAnnouncement">
+    <id column="announcement_id" jdbcType="BIGINT" property="announcementId" />
+    <result column="title_ja" jdbcType="VARCHAR" property="titleJa" />
+    <result column="title_en" jdbcType="VARCHAR" property="titleEn" />
+    <result column="title_es" jdbcType="VARCHAR" property="titleEs" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
+    <result column="publish_start_at" jdbcType="TIMESTAMP" property="publishStartAt" />
+    <result column="publish_end_at" jdbcType="TIMESTAMP" property="publishEndAt" />
+    <result column="create_user_id" jdbcType="BIGINT" property="createUserId" />
+    <result column="create_program" jdbcType="VARCHAR" property="createProgram" />
+    <result column="created_at" jdbcType="TIMESTAMP" property="createdAt" />
+    <result column="update_user_id" jdbcType="BIGINT" property="updateUserId" />
+    <result column="update_program" jdbcType="VARCHAR" property="updateProgram" />
+    <result column="updated_at" jdbcType="TIMESTAMP" property="updatedAt" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.hwhub.backend.infrastructure.mybatis.generated.entity.MAnnouncement">
+    <result column="body_ja" jdbcType="LONGVARCHAR" property="bodyJa" />
+    <result column="body_en" jdbcType="LONGVARCHAR" property="bodyEn" />
+    <result column="body_es" jdbcType="LONGVARCHAR" property="bodyEs" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    announcement_id, title_ja, title_en, title_es, `status`, publish_start_at, publish_end_at, 
+    create_user_id, create_program, created_at, update_user_id, update_program, updated_at
+  </sql>
+  <sql id="Blob_Column_List">
+    body_ja, body_en, body_es
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.MAnnouncementExample" resultMap="ResultMapWithBLOBs">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    'false' as QUERYID,
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from m_announcement
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.MAnnouncementExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    'false' as QUERYID,
+    <include refid="Base_Column_List" />
+    from m_announcement
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from m_announcement
+    where announcement_id = #{announcementId,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from m_announcement
+    where announcement_id = #{announcementId,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" keyColumn="announcement_id" keyProperty="announcementId" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.MAnnouncement" useGeneratedKeys="true">
+    insert into m_announcement (title_ja, title_en, title_es, 
+      `status`, publish_start_at, publish_end_at, 
+      create_user_id, create_program, created_at, 
+      update_user_id, update_program, updated_at, 
+      body_ja, body_en, body_es
+      )
+    values (#{titleJa,jdbcType=VARCHAR}, #{titleEn,jdbcType=VARCHAR}, #{titleEs,jdbcType=VARCHAR}, 
+      #{status,jdbcType=VARCHAR}, #{publishStartAt,jdbcType=TIMESTAMP}, #{publishEndAt,jdbcType=TIMESTAMP}, 
+      #{createUserId,jdbcType=BIGINT}, #{createProgram,jdbcType=VARCHAR}, #{createdAt,jdbcType=TIMESTAMP}, 
+      #{updateUserId,jdbcType=BIGINT}, #{updateProgram,jdbcType=VARCHAR}, #{updatedAt,jdbcType=TIMESTAMP}, 
+      #{bodyJa,jdbcType=LONGVARCHAR}, #{bodyEn,jdbcType=LONGVARCHAR}, #{bodyEs,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" keyColumn="announcement_id" keyProperty="announcementId" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.MAnnouncement" useGeneratedKeys="true">
+    insert into m_announcement
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="titleJa != null">
+        title_ja,
+      </if>
+      <if test="titleEn != null">
+        title_en,
+      </if>
+      <if test="titleEs != null">
+        title_es,
+      </if>
+      <if test="status != null">
+        `status`,
+      </if>
+      <if test="publishStartAt != null">
+        publish_start_at,
+      </if>
+      <if test="publishEndAt != null">
+        publish_end_at,
+      </if>
+      <if test="createUserId != null">
+        create_user_id,
+      </if>
+      <if test="createProgram != null">
+        create_program,
+      </if>
+      <if test="createdAt != null">
+        created_at,
+      </if>
+      <if test="updateUserId != null">
+        update_user_id,
+      </if>
+      <if test="updateProgram != null">
+        update_program,
+      </if>
+      <if test="updatedAt != null">
+        updated_at,
+      </if>
+      <if test="bodyJa != null">
+        body_ja,
+      </if>
+      <if test="bodyEn != null">
+        body_en,
+      </if>
+      <if test="bodyEs != null">
+        body_es,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="titleJa != null">
+        #{titleJa,jdbcType=VARCHAR},
+      </if>
+      <if test="titleEn != null">
+        #{titleEn,jdbcType=VARCHAR},
+      </if>
+      <if test="titleEs != null">
+        #{titleEs,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="publishStartAt != null">
+        #{publishStartAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="publishEndAt != null">
+        #{publishEndAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserId != null">
+        #{createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="createProgram != null">
+        #{createProgram,jdbcType=VARCHAR},
+      </if>
+      <if test="createdAt != null">
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUserId != null">
+        #{updateUserId,jdbcType=BIGINT},
+      </if>
+      <if test="updateProgram != null">
+        #{updateProgram,jdbcType=VARCHAR},
+      </if>
+      <if test="updatedAt != null">
+        #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="bodyJa != null">
+        #{bodyJa,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="bodyEn != null">
+        #{bodyEn,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="bodyEs != null">
+        #{bodyEs,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.MAnnouncement">
+    update m_announcement
+    <set>
+      <if test="titleJa != null">
+        title_ja = #{titleJa,jdbcType=VARCHAR},
+      </if>
+      <if test="titleEn != null">
+        title_en = #{titleEn,jdbcType=VARCHAR},
+      </if>
+      <if test="titleEs != null">
+        title_es = #{titleEs,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        `status` = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="publishStartAt != null">
+        publish_start_at = #{publishStartAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="publishEndAt != null">
+        publish_end_at = #{publishEndAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserId != null">
+        create_user_id = #{createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="createProgram != null">
+        create_program = #{createProgram,jdbcType=VARCHAR},
+      </if>
+      <if test="createdAt != null">
+        created_at = #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUserId != null">
+        update_user_id = #{updateUserId,jdbcType=BIGINT},
+      </if>
+      <if test="updateProgram != null">
+        update_program = #{updateProgram,jdbcType=VARCHAR},
+      </if>
+      <if test="updatedAt != null">
+        updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="bodyJa != null">
+        body_ja = #{bodyJa,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="bodyEn != null">
+        body_en = #{bodyEn,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="bodyEs != null">
+        body_es = #{bodyEs,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where announcement_id = #{announcementId,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.MAnnouncement">
+    update m_announcement
+    set title_ja = #{titleJa,jdbcType=VARCHAR},
+      title_en = #{titleEn,jdbcType=VARCHAR},
+      title_es = #{titleEs,jdbcType=VARCHAR},
+      `status` = #{status,jdbcType=VARCHAR},
+      publish_start_at = #{publishStartAt,jdbcType=TIMESTAMP},
+      publish_end_at = #{publishEndAt,jdbcType=TIMESTAMP},
+      create_user_id = #{createUserId,jdbcType=BIGINT},
+      create_program = #{createProgram,jdbcType=VARCHAR},
+      created_at = #{createdAt,jdbcType=TIMESTAMP},
+      update_user_id = #{updateUserId,jdbcType=BIGINT},
+      update_program = #{updateProgram,jdbcType=VARCHAR},
+      updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+      body_ja = #{bodyJa,jdbcType=LONGVARCHAR},
+      body_en = #{bodyEn,jdbcType=LONGVARCHAR},
+      body_es = #{bodyEs,jdbcType=LONGVARCHAR}
+    where announcement_id = #{announcementId,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.MAnnouncement">
+    update m_announcement
+    set title_ja = #{titleJa,jdbcType=VARCHAR},
+      title_en = #{titleEn,jdbcType=VARCHAR},
+      title_es = #{titleEs,jdbcType=VARCHAR},
+      `status` = #{status,jdbcType=VARCHAR},
+      publish_start_at = #{publishStartAt,jdbcType=TIMESTAMP},
+      publish_end_at = #{publishEndAt,jdbcType=TIMESTAMP},
+      create_user_id = #{createUserId,jdbcType=BIGINT},
+      create_program = #{createProgram,jdbcType=VARCHAR},
+      created_at = #{createdAt,jdbcType=TIMESTAMP},
+      update_user_id = #{updateUserId,jdbcType=BIGINT},
+      update_program = #{updateProgram,jdbcType=VARCHAR},
+      updated_at = #{updatedAt,jdbcType=TIMESTAMP}
+    where announcement_id = #{announcementId,jdbcType=BIGINT}
+  </update>
 </mapper>

@@ -5,17 +5,17 @@ import com.hwhub.backend.infrastructure.mybatis.generated.entity.THouseworkTaskR
 import java.util.List;
 
 public interface THouseworkTaskRecalcRequestMapper {
-  int deleteByPrimaryKey(Long requestId);
+    int deleteByPrimaryKey(Long requestId);
 
-  int insert(THouseworkTaskRecalcRequest row);
+    int insert(THouseworkTaskRecalcRequest row);
 
-  int insertSelective(THouseworkTaskRecalcRequest row);
+    int insertSelective(THouseworkTaskRecalcRequest row);
 
-  List<THouseworkTaskRecalcRequest> selectByExample(THouseworkTaskRecalcRequestExample example);
+    List<THouseworkTaskRecalcRequest> selectByExample(THouseworkTaskRecalcRequestExample example);
 
-  THouseworkTaskRecalcRequest selectByPrimaryKey(Long requestId);
+    THouseworkTaskRecalcRequest selectByPrimaryKey(Long requestId);
 
-  int updateByPrimaryKeySelective(THouseworkTaskRecalcRequest row);
+    int updateByPrimaryKeySelective(THouseworkTaskRecalcRequest row);
 
-  int updateByPrimaryKey(THouseworkTaskRecalcRequest row);
+    int updateByPrimaryKey(THouseworkTaskRecalcRequest row);
 }

@@ -6,19 +6,17 @@ import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 public interface MUserNotificationSettingMapper {
-  int deleteByPrimaryKey(
-      @Param("userId") Long userId, @Param("notificationGroup") String notificationGroup);
+    int deleteByPrimaryKey(@Param("userId") Long userId, @Param("notificationGroup") String notificationGroup);
 
-  int insert(MUserNotificationSetting row);
+    int insert(MUserNotificationSetting row);
 
-  int insertSelective(MUserNotificationSetting row);
+    int insertSelective(MUserNotificationSetting row);
 
-  List<MUserNotificationSetting> selectByExample(MUserNotificationSettingExample example);
+    List<MUserNotificationSetting> selectByExample(MUserNotificationSettingExample example);
 
-  MUserNotificationSetting selectByPrimaryKey(
-      @Param("userId") Long userId, @Param("notificationGroup") String notificationGroup);
+    MUserNotificationSetting selectByPrimaryKey(@Param("userId") Long userId, @Param("notificationGroup") String notificationGroup);
 
-  int updateByPrimaryKeySelective(MUserNotificationSetting row);
+    int updateByPrimaryKeySelective(MUserNotificationSetting row);
 
-  int updateByPrimaryKey(MUserNotificationSetting row);
+    int updateByPrimaryKey(MUserNotificationSetting row);
 }

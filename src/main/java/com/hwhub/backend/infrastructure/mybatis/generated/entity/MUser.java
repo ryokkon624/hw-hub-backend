@@ -3,183 +3,193 @@ package com.hwhub.backend.infrastructure.mybatis.generated.entity;
 import java.util.Date;
 
 public class MUser {
-  private Long userId;
+    private Long userId;
 
-  private String email;
+    private String email;
 
-  private String passwordHash;
+    private String passwordHash;
 
-  private Date passwordChangedAt;
+    private Date passwordChangedAt;
 
-  private String authProvider;
+    private String authProvider;
 
-  private String authProviderId;
+    private String authProviderId;
 
-  private String displayName;
+    private String displayName;
 
-  private String profileImageKey;
+    private String profileImageKey;
 
-  private String locale;
+    private String locale;
 
-  private Boolean notificationEnabled;
+    private String themeMode;
 
-  private Date emailVerifiedAt;
+    private Boolean notificationEnabled;
 
-  private Boolean isActive;
+    private Date emailVerifiedAt;
 
-  private Long createUserId;
+    private Boolean isActive;
 
-  private String createProgram;
+    private Long createUserId;
 
-  private Date createdAt;
+    private String createProgram;
 
-  private Long updateUserId;
+    private Date createdAt;
 
-  private String updateProgram;
+    private Long updateUserId;
 
-  private Date updatedAt;
+    private String updateProgram;
 
-  public Long getUserId() {
-    return userId;
-  }
+    private Date updatedAt;
 
-  public void setUserId(Long userId) {
-    this.userId = userId;
-  }
+    public Long getUserId() {
+        return userId;
+    }
 
-  public String getEmail() {
-    return email;
-  }
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
 
-  public void setEmail(String email) {
-    this.email = email == null ? null : email.trim();
-  }
+    public String getEmail() {
+        return email;
+    }
 
-  public String getPasswordHash() {
-    return passwordHash;
-  }
+    public void setEmail(String email) {
+        this.email = email == null ? null : email.trim();
+    }
 
-  public void setPasswordHash(String passwordHash) {
-    this.passwordHash = passwordHash == null ? null : passwordHash.trim();
-  }
+    public String getPasswordHash() {
+        return passwordHash;
+    }
 
-  public Date getPasswordChangedAt() {
-    return passwordChangedAt;
-  }
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash == null ? null : passwordHash.trim();
+    }
 
-  public void setPasswordChangedAt(Date passwordChangedAt) {
-    this.passwordChangedAt = passwordChangedAt;
-  }
+    public Date getPasswordChangedAt() {
+        return passwordChangedAt;
+    }
 
-  public String getAuthProvider() {
-    return authProvider;
-  }
+    public void setPasswordChangedAt(Date passwordChangedAt) {
+        this.passwordChangedAt = passwordChangedAt;
+    }
 
-  public void setAuthProvider(String authProvider) {
-    this.authProvider = authProvider == null ? null : authProvider.trim();
-  }
+    public String getAuthProvider() {
+        return authProvider;
+    }
 
-  public String getAuthProviderId() {
-    return authProviderId;
-  }
+    public void setAuthProvider(String authProvider) {
+        this.authProvider = authProvider == null ? null : authProvider.trim();
+    }
 
-  public void setAuthProviderId(String authProviderId) {
-    this.authProviderId = authProviderId == null ? null : authProviderId.trim();
-  }
+    public String getAuthProviderId() {
+        return authProviderId;
+    }
 
-  public String getDisplayName() {
-    return displayName;
-  }
+    public void setAuthProviderId(String authProviderId) {
+        this.authProviderId = authProviderId == null ? null : authProviderId.trim();
+    }
 
-  public void setDisplayName(String displayName) {
-    this.displayName = displayName == null ? null : displayName.trim();
-  }
+    public String getDisplayName() {
+        return displayName;
+    }
 
-  public String getProfileImageKey() {
-    return profileImageKey;
-  }
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName == null ? null : displayName.trim();
+    }
 
-  public void setProfileImageKey(String profileImageKey) {
-    this.profileImageKey = profileImageKey == null ? null : profileImageKey.trim();
-  }
+    public String getProfileImageKey() {
+        return profileImageKey;
+    }
 
-  public String getLocale() {
-    return locale;
-  }
+    public void setProfileImageKey(String profileImageKey) {
+        this.profileImageKey = profileImageKey == null ? null : profileImageKey.trim();
+    }
 
-  public void setLocale(String locale) {
-    this.locale = locale == null ? null : locale.trim();
-  }
+    public String getLocale() {
+        return locale;
+    }
 
-  public Boolean getNotificationEnabled() {
-    return notificationEnabled;
-  }
+    public void setLocale(String locale) {
+        this.locale = locale == null ? null : locale.trim();
+    }
 
-  public void setNotificationEnabled(Boolean notificationEnabled) {
-    this.notificationEnabled = notificationEnabled;
-  }
+    public String getThemeMode() {
+        return themeMode;
+    }
 
-  public Date getEmailVerifiedAt() {
-    return emailVerifiedAt;
-  }
+    public void setThemeMode(String themeMode) {
+        this.themeMode = themeMode == null ? null : themeMode.trim();
+    }
 
-  public void setEmailVerifiedAt(Date emailVerifiedAt) {
-    this.emailVerifiedAt = emailVerifiedAt;
-  }
+    public Boolean getNotificationEnabled() {
+        return notificationEnabled;
+    }
 
-  public Boolean getIsActive() {
-    return isActive;
-  }
+    public void setNotificationEnabled(Boolean notificationEnabled) {
+        this.notificationEnabled = notificationEnabled;
+    }
 
-  public void setIsActive(Boolean isActive) {
-    this.isActive = isActive;
-  }
+    public Date getEmailVerifiedAt() {
+        return emailVerifiedAt;
+    }
 
-  public Long getCreateUserId() {
-    return createUserId;
-  }
+    public void setEmailVerifiedAt(Date emailVerifiedAt) {
+        this.emailVerifiedAt = emailVerifiedAt;
+    }
 
-  public void setCreateUserId(Long createUserId) {
-    this.createUserId = createUserId;
-  }
+    public Boolean getIsActive() {
+        return isActive;
+    }
 
-  public String getCreateProgram() {
-    return createProgram;
-  }
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
+    }
 
-  public void setCreateProgram(String createProgram) {
-    this.createProgram = createProgram == null ? null : createProgram.trim();
-  }
+    public Long getCreateUserId() {
+        return createUserId;
+    }
 
-  public Date getCreatedAt() {
-    return createdAt;
-  }
+    public void setCreateUserId(Long createUserId) {
+        this.createUserId = createUserId;
+    }
 
-  public void setCreatedAt(Date createdAt) {
-    this.createdAt = createdAt;
-  }
+    public String getCreateProgram() {
+        return createProgram;
+    }
 
-  public Long getUpdateUserId() {
-    return updateUserId;
-  }
+    public void setCreateProgram(String createProgram) {
+        this.createProgram = createProgram == null ? null : createProgram.trim();
+    }
 
-  public void setUpdateUserId(Long updateUserId) {
-    this.updateUserId = updateUserId;
-  }
+    public Date getCreatedAt() {
+        return createdAt;
+    }
 
-  public String getUpdateProgram() {
-    return updateProgram;
-  }
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
 
-  public void setUpdateProgram(String updateProgram) {
-    this.updateProgram = updateProgram == null ? null : updateProgram.trim();
-  }
+    public Long getUpdateUserId() {
+        return updateUserId;
+    }
 
-  public Date getUpdatedAt() {
-    return updatedAt;
-  }
+    public void setUpdateUserId(Long updateUserId) {
+        this.updateUserId = updateUserId;
+    }
 
-  public void setUpdatedAt(Date updatedAt) {
-    this.updatedAt = updatedAt;
-  }
+    public String getUpdateProgram() {
+        return updateProgram;
+    }
+
+    public void setUpdateProgram(String updateProgram) {
+        this.updateProgram = updateProgram == null ? null : updateProgram.trim();
+    }
+
+    public Date getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 }

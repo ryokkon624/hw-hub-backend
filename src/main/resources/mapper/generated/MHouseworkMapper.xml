@@ -294,4 +294,297 @@
       updated_at = #{updatedAt,jdbcType=TIMESTAMP}
     where housework_id = #{houseworkId,jdbcType=BIGINT}
   </update>
+  <resultMap id="BaseResultMap" type="com.hwhub.backend.infrastructure.mybatis.generated.entity.MHousework">
+    <id column="housework_id" jdbcType="BIGINT" property="houseworkId" />
+    <result column="household_id" jdbcType="BIGINT" property="householdId" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="description" jdbcType="VARCHAR" property="description" />
+    <result column="category" jdbcType="VARCHAR" property="category" />
+    <result column="recurrence_type" jdbcType="VARCHAR" property="recurrenceType" />
+    <result column="weekly_days" jdbcType="INTEGER" property="weeklyDays" />
+    <result column="day_of_month" jdbcType="INTEGER" property="dayOfMonth" />
+    <result column="nth_week" jdbcType="INTEGER" property="nthWeek" />
+    <result column="weekday" jdbcType="INTEGER" property="weekday" />
+    <result column="start_date" jdbcType="DATE" property="startDate" />
+    <result column="end_date" jdbcType="DATE" property="endDate" />
+    <result column="default_assignee_user_id" jdbcType="BIGINT" property="defaultAssigneeUserId" />
+    <result column="create_user_id" jdbcType="BIGINT" property="createUserId" />
+    <result column="create_program" jdbcType="VARCHAR" property="createProgram" />
+    <result column="created_at" jdbcType="TIMESTAMP" property="createdAt" />
+    <result column="update_user_id" jdbcType="BIGINT" property="updateUserId" />
+    <result column="update_program" jdbcType="VARCHAR" property="updateProgram" />
+    <result column="updated_at" jdbcType="TIMESTAMP" property="updatedAt" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    housework_id, household_id, `name`, description, category, recurrence_type, weekly_days, 
+    day_of_month, nth_week, weekday, start_date, end_date, default_assignee_user_id, 
+    create_user_id, create_program, created_at, update_user_id, update_program, updated_at
+  </sql>
+  <select id="selectByExample" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.MHouseworkExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    'false' as QUERYID,
+    <include refid="Base_Column_List" />
+    from m_housework
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from m_housework
+    where housework_id = #{houseworkId,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from m_housework
+    where housework_id = #{houseworkId,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" keyColumn="housework_id" keyProperty="houseworkId" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.MHousework" useGeneratedKeys="true">
+    insert into m_housework (household_id, `name`, description, 
+      category, recurrence_type, weekly_days, 
+      day_of_month, nth_week, weekday, 
+      start_date, end_date, default_assignee_user_id, 
+      create_user_id, create_program, created_at, 
+      update_user_id, update_program, updated_at
+      )
+    values (#{householdId,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 
+      #{category,jdbcType=VARCHAR}, #{recurrenceType,jdbcType=VARCHAR}, #{weeklyDays,jdbcType=INTEGER}, 
+      #{dayOfMonth,jdbcType=INTEGER}, #{nthWeek,jdbcType=INTEGER}, #{weekday,jdbcType=INTEGER}, 
+      #{startDate,jdbcType=DATE}, #{endDate,jdbcType=DATE}, #{defaultAssigneeUserId,jdbcType=BIGINT}, 
+      #{createUserId,jdbcType=BIGINT}, #{createProgram,jdbcType=VARCHAR}, #{createdAt,jdbcType=TIMESTAMP}, 
+      #{updateUserId,jdbcType=BIGINT}, #{updateProgram,jdbcType=VARCHAR}, #{updatedAt,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" keyColumn="housework_id" keyProperty="houseworkId" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.MHousework" useGeneratedKeys="true">
+    insert into m_housework
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="householdId != null">
+        household_id,
+      </if>
+      <if test="name != null">
+        `name`,
+      </if>
+      <if test="description != null">
+        description,
+      </if>
+      <if test="category != null">
+        category,
+      </if>
+      <if test="recurrenceType != null">
+        recurrence_type,
+      </if>
+      <if test="weeklyDays != null">
+        weekly_days,
+      </if>
+      <if test="dayOfMonth != null">
+        day_of_month,
+      </if>
+      <if test="nthWeek != null">
+        nth_week,
+      </if>
+      <if test="weekday != null">
+        weekday,
+      </if>
+      <if test="startDate != null">
+        start_date,
+      </if>
+      <if test="endDate != null">
+        end_date,
+      </if>
+      <if test="defaultAssigneeUserId != null">
+        default_assignee_user_id,
+      </if>
+      <if test="createUserId != null">
+        create_user_id,
+      </if>
+      <if test="createProgram != null">
+        create_program,
+      </if>
+      <if test="createdAt != null">
+        created_at,
+      </if>
+      <if test="updateUserId != null">
+        update_user_id,
+      </if>
+      <if test="updateProgram != null">
+        update_program,
+      </if>
+      <if test="updatedAt != null">
+        updated_at,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="householdId != null">
+        #{householdId,jdbcType=BIGINT},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null">
+        #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="category != null">
+        #{category,jdbcType=VARCHAR},
+      </if>
+      <if test="recurrenceType != null">
+        #{recurrenceType,jdbcType=VARCHAR},
+      </if>
+      <if test="weeklyDays != null">
+        #{weeklyDays,jdbcType=INTEGER},
+      </if>
+      <if test="dayOfMonth != null">
+        #{dayOfMonth,jdbcType=INTEGER},
+      </if>
+      <if test="nthWeek != null">
+        #{nthWeek,jdbcType=INTEGER},
+      </if>
+      <if test="weekday != null">
+        #{weekday,jdbcType=INTEGER},
+      </if>
+      <if test="startDate != null">
+        #{startDate,jdbcType=DATE},
+      </if>
+      <if test="endDate != null">
+        #{endDate,jdbcType=DATE},
+      </if>
+      <if test="defaultAssigneeUserId != null">
+        #{defaultAssigneeUserId,jdbcType=BIGINT},
+      </if>
+      <if test="createUserId != null">
+        #{createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="createProgram != null">
+        #{createProgram,jdbcType=VARCHAR},
+      </if>
+      <if test="createdAt != null">
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUserId != null">
+        #{updateUserId,jdbcType=BIGINT},
+      </if>
+      <if test="updateProgram != null">
+        #{updateProgram,jdbcType=VARCHAR},
+      </if>
+      <if test="updatedAt != null">
+        #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.MHousework">
+    update m_housework
+    <set>
+      <if test="householdId != null">
+        household_id = #{householdId,jdbcType=BIGINT},
+      </if>
+      <if test="name != null">
+        `name` = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null">
+        description = #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="category != null">
+        category = #{category,jdbcType=VARCHAR},
+      </if>
+      <if test="recurrenceType != null">
+        recurrence_type = #{recurrenceType,jdbcType=VARCHAR},
+      </if>
+      <if test="weeklyDays != null">
+        weekly_days = #{weeklyDays,jdbcType=INTEGER},
+      </if>
+      <if test="dayOfMonth != null">
+        day_of_month = #{dayOfMonth,jdbcType=INTEGER},
+      </if>
+      <if test="nthWeek != null">
+        nth_week = #{nthWeek,jdbcType=INTEGER},
+      </if>
+      <if test="weekday != null">
+        weekday = #{weekday,jdbcType=INTEGER},
+      </if>
+      <if test="startDate != null">
+        start_date = #{startDate,jdbcType=DATE},
+      </if>
+      <if test="endDate != null">
+        end_date = #{endDate,jdbcType=DATE},
+      </if>
+      <if test="defaultAssigneeUserId != null">
+        default_assignee_user_id = #{defaultAssigneeUserId,jdbcType=BIGINT},
+      </if>
+      <if test="createUserId != null">
+        create_user_id = #{createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="createProgram != null">
+        create_program = #{createProgram,jdbcType=VARCHAR},
+      </if>
+      <if test="createdAt != null">
+        created_at = #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUserId != null">
+        update_user_id = #{updateUserId,jdbcType=BIGINT},
+      </if>
+      <if test="updateProgram != null">
+        update_program = #{updateProgram,jdbcType=VARCHAR},
+      </if>
+      <if test="updatedAt != null">
+        updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where housework_id = #{houseworkId,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.MHousework">
+    update m_housework
+    set household_id = #{householdId,jdbcType=BIGINT},
+      `name` = #{name,jdbcType=VARCHAR},
+      description = #{description,jdbcType=VARCHAR},
+      category = #{category,jdbcType=VARCHAR},
+      recurrence_type = #{recurrenceType,jdbcType=VARCHAR},
+      weekly_days = #{weeklyDays,jdbcType=INTEGER},
+      day_of_month = #{dayOfMonth,jdbcType=INTEGER},
+      nth_week = #{nthWeek,jdbcType=INTEGER},
+      weekday = #{weekday,jdbcType=INTEGER},
+      start_date = #{startDate,jdbcType=DATE},
+      end_date = #{endDate,jdbcType=DATE},
+      default_assignee_user_id = #{defaultAssigneeUserId,jdbcType=BIGINT},
+      create_user_id = #{createUserId,jdbcType=BIGINT},
+      create_program = #{createProgram,jdbcType=VARCHAR},
+      created_at = #{createdAt,jdbcType=TIMESTAMP},
+      update_user_id = #{updateUserId,jdbcType=BIGINT},
+      update_program = #{updateProgram,jdbcType=VARCHAR},
+      updated_at = #{updatedAt,jdbcType=TIMESTAMP}
+    where housework_id = #{houseworkId,jdbcType=BIGINT}
+  </update>
 </mapper>

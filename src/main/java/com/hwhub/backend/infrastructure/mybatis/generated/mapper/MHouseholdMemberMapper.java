@@ -6,18 +6,17 @@ import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 public interface MHouseholdMemberMapper {
-  int deleteByPrimaryKey(@Param("householdId") Long householdId, @Param("userId") Long userId);
+    int deleteByPrimaryKey(@Param("householdId") Long householdId, @Param("userId") Long userId);
 
-  int insert(MHouseholdMember row);
+    int insert(MHouseholdMember row);
 
-  int insertSelective(MHouseholdMember row);
+    int insertSelective(MHouseholdMember row);
 
-  List<MHouseholdMember> selectByExample(MHouseholdMemberExample example);
+    List<MHouseholdMember> selectByExample(MHouseholdMemberExample example);
 
-  MHouseholdMember selectByPrimaryKey(
-      @Param("householdId") Long householdId, @Param("userId") Long userId);
+    MHouseholdMember selectByPrimaryKey(@Param("householdId") Long householdId, @Param("userId") Long userId);
 
-  int updateByPrimaryKeySelective(MHouseholdMember row);
+    int updateByPrimaryKeySelective(MHouseholdMember row);
 
-  int updateByPrimaryKey(MHouseholdMember row);
+    int updateByPrimaryKey(MHouseholdMember row);
 }

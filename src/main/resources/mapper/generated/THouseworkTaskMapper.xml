@@ -281,4 +281,284 @@
       updated_at = #{updatedAt,jdbcType=TIMESTAMP}
     where housework_task_id = #{houseworkTaskId,jdbcType=BIGINT}
   </update>
+  <resultMap id="BaseResultMap" type="com.hwhub.backend.infrastructure.mybatis.generated.entity.THouseworkTask">
+    <id column="housework_task_id" jdbcType="BIGINT" property="houseworkTaskId" />
+    <result column="household_id" jdbcType="BIGINT" property="householdId" />
+    <result column="housework_id" jdbcType="BIGINT" property="houseworkId" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="description" jdbcType="VARCHAR" property="description" />
+    <result column="category" jdbcType="VARCHAR" property="category" />
+    <result column="target_date" jdbcType="DATE" property="targetDate" />
+    <result column="assignee_user_id" jdbcType="BIGINT" property="assigneeUserId" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
+    <result column="assign_reason_type" jdbcType="VARCHAR" property="assignReasonType" />
+    <result column="done_at" jdbcType="DATE" property="doneAt" />
+    <result column="skipped_reason" jdbcType="VARCHAR" property="skippedReason" />
+    <result column="create_user_id" jdbcType="BIGINT" property="createUserId" />
+    <result column="create_program" jdbcType="VARCHAR" property="createProgram" />
+    <result column="created_at" jdbcType="TIMESTAMP" property="createdAt" />
+    <result column="update_user_id" jdbcType="BIGINT" property="updateUserId" />
+    <result column="update_program" jdbcType="VARCHAR" property="updateProgram" />
+    <result column="updated_at" jdbcType="TIMESTAMP" property="updatedAt" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    housework_task_id, household_id, housework_id, `name`, description, category, target_date, 
+    assignee_user_id, `status`, assign_reason_type, done_at, skipped_reason, create_user_id, 
+    create_program, created_at, update_user_id, update_program, updated_at
+  </sql>
+  <select id="selectByExample" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.THouseworkTaskExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    'false' as QUERYID,
+    <include refid="Base_Column_List" />
+    from t_housework_task
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_housework_task
+    where housework_task_id = #{houseworkTaskId,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from t_housework_task
+    where housework_task_id = #{houseworkTaskId,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" keyColumn="housework_task_id" keyProperty="houseworkTaskId" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.THouseworkTask" useGeneratedKeys="true">
+    insert into t_housework_task (household_id, housework_id, `name`, 
+      description, category, target_date, 
+      assignee_user_id, `status`, assign_reason_type, 
+      done_at, skipped_reason, create_user_id, 
+      create_program, created_at, update_user_id, 
+      update_program, updated_at)
+    values (#{householdId,jdbcType=BIGINT}, #{houseworkId,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, 
+      #{description,jdbcType=VARCHAR}, #{category,jdbcType=VARCHAR}, #{targetDate,jdbcType=DATE}, 
+      #{assigneeUserId,jdbcType=BIGINT}, #{status,jdbcType=VARCHAR}, #{assignReasonType,jdbcType=VARCHAR}, 
+      #{doneAt,jdbcType=DATE}, #{skippedReason,jdbcType=VARCHAR}, #{createUserId,jdbcType=BIGINT}, 
+      #{createProgram,jdbcType=VARCHAR}, #{createdAt,jdbcType=TIMESTAMP}, #{updateUserId,jdbcType=BIGINT}, 
+      #{updateProgram,jdbcType=VARCHAR}, #{updatedAt,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" keyColumn="housework_task_id" keyProperty="houseworkTaskId" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.THouseworkTask" useGeneratedKeys="true">
+    insert into t_housework_task
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="householdId != null">
+        household_id,
+      </if>
+      <if test="houseworkId != null">
+        housework_id,
+      </if>
+      <if test="name != null">
+        `name`,
+      </if>
+      <if test="description != null">
+        description,
+      </if>
+      <if test="category != null">
+        category,
+      </if>
+      <if test="targetDate != null">
+        target_date,
+      </if>
+      <if test="assigneeUserId != null">
+        assignee_user_id,
+      </if>
+      <if test="status != null">
+        `status`,
+      </if>
+      <if test="assignReasonType != null">
+        assign_reason_type,
+      </if>
+      <if test="doneAt != null">
+        done_at,
+      </if>
+      <if test="skippedReason != null">
+        skipped_reason,
+      </if>
+      <if test="createUserId != null">
+        create_user_id,
+      </if>
+      <if test="createProgram != null">
+        create_program,
+      </if>
+      <if test="createdAt != null">
+        created_at,
+      </if>
+      <if test="updateUserId != null">
+        update_user_id,
+      </if>
+      <if test="updateProgram != null">
+        update_program,
+      </if>
+      <if test="updatedAt != null">
+        updated_at,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="householdId != null">
+        #{householdId,jdbcType=BIGINT},
+      </if>
+      <if test="houseworkId != null">
+        #{houseworkId,jdbcType=BIGINT},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null">
+        #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="category != null">
+        #{category,jdbcType=VARCHAR},
+      </if>
+      <if test="targetDate != null">
+        #{targetDate,jdbcType=DATE},
+      </if>
+      <if test="assigneeUserId != null">
+        #{assigneeUserId,jdbcType=BIGINT},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="assignReasonType != null">
+        #{assignReasonType,jdbcType=VARCHAR},
+      </if>
+      <if test="doneAt != null">
+        #{doneAt,jdbcType=DATE},
+      </if>
+      <if test="skippedReason != null">
+        #{skippedReason,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserId != null">
+        #{createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="createProgram != null">
+        #{createProgram,jdbcType=VARCHAR},
+      </if>
+      <if test="createdAt != null">
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUserId != null">
+        #{updateUserId,jdbcType=BIGINT},
+      </if>
+      <if test="updateProgram != null">
+        #{updateProgram,jdbcType=VARCHAR},
+      </if>
+      <if test="updatedAt != null">
+        #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.THouseworkTask">
+    update t_housework_task
+    <set>
+      <if test="householdId != null">
+        household_id = #{householdId,jdbcType=BIGINT},
+      </if>
+      <if test="houseworkId != null">
+        housework_id = #{houseworkId,jdbcType=BIGINT},
+      </if>
+      <if test="name != null">
+        `name` = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null">
+        description = #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="category != null">
+        category = #{category,jdbcType=VARCHAR},
+      </if>
+      <if test="targetDate != null">
+        target_date = #{targetDate,jdbcType=DATE},
+      </if>
+      <if test="assigneeUserId != null">
+        assignee_user_id = #{assigneeUserId,jdbcType=BIGINT},
+      </if>
+      <if test="status != null">
+        `status` = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="assignReasonType != null">
+        assign_reason_type = #{assignReasonType,jdbcType=VARCHAR},
+      </if>
+      <if test="doneAt != null">
+        done_at = #{doneAt,jdbcType=DATE},
+      </if>
+      <if test="skippedReason != null">
+        skipped_reason = #{skippedReason,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserId != null">
+        create_user_id = #{createUserId,jdbcType=BIGINT},
+      </if>
+      <if test="createProgram != null">
+        create_program = #{createProgram,jdbcType=VARCHAR},
+      </if>
+      <if test="createdAt != null">
+        created_at = #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUserId != null">
+        update_user_id = #{updateUserId,jdbcType=BIGINT},
+      </if>
+      <if test="updateProgram != null">
+        update_program = #{updateProgram,jdbcType=VARCHAR},
+      </if>
+      <if test="updatedAt != null">
+        updated_at = #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where housework_task_id = #{houseworkTaskId,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.THouseworkTask">
+    update t_housework_task
+    set household_id = #{householdId,jdbcType=BIGINT},
+      housework_id = #{houseworkId,jdbcType=BIGINT},
+      `name` = #{name,jdbcType=VARCHAR},
+      description = #{description,jdbcType=VARCHAR},
+      category = #{category,jdbcType=VARCHAR},
+      target_date = #{targetDate,jdbcType=DATE},
+      assignee_user_id = #{assigneeUserId,jdbcType=BIGINT},
+      `status` = #{status,jdbcType=VARCHAR},
+      assign_reason_type = #{assignReasonType,jdbcType=VARCHAR},
+      done_at = #{doneAt,jdbcType=DATE},
+      skipped_reason = #{skippedReason,jdbcType=VARCHAR},
+      create_user_id = #{createUserId,jdbcType=BIGINT},
+      create_program = #{createProgram,jdbcType=VARCHAR},
+      created_at = #{createdAt,jdbcType=TIMESTAMP},
+      update_user_id = #{updateUserId,jdbcType=BIGINT},
+      update_program = #{updateProgram,jdbcType=VARCHAR},
+      updated_at = #{updatedAt,jdbcType=TIMESTAMP}
+    where housework_task_id = #{houseworkTaskId,jdbcType=BIGINT}
+  </update>
 </mapper>

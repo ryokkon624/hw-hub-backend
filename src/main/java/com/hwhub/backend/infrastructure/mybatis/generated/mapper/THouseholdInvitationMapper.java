@@ -5,17 +5,17 @@ import com.hwhub.backend.infrastructure.mybatis.generated.entity.THouseholdInvit
 import java.util.List;
 
 public interface THouseholdInvitationMapper {
-  int deleteByPrimaryKey(String invitationToken);
+    int deleteByPrimaryKey(String invitationToken);
 
-  int insert(THouseholdInvitation row);
+    int insert(THouseholdInvitation row);
 
-  int insertSelective(THouseholdInvitation row);
+    int insertSelective(THouseholdInvitation row);
 
-  List<THouseholdInvitation> selectByExample(THouseholdInvitationExample example);
+    List<THouseholdInvitation> selectByExample(THouseholdInvitationExample example);
 
-  THouseholdInvitation selectByPrimaryKey(String invitationToken);
+    THouseholdInvitation selectByPrimaryKey(String invitationToken);
 
-  int updateByPrimaryKeySelective(THouseholdInvitation row);
+    int updateByPrimaryKeySelective(THouseholdInvitation row);
 
-  int updateByPrimaryKey(THouseholdInvitation row);
+    int updateByPrimaryKey(THouseholdInvitation row);
 }

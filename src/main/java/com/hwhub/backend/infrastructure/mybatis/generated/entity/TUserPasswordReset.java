@@ -3,133 +3,133 @@ package com.hwhub.backend.infrastructure.mybatis.generated.entity;
 import java.util.Date;
 
 public class TUserPasswordReset {
-  private Long userPasswordResetId;
+    private Long userPasswordResetId;
 
-  private Long userId;
+    private Long userId;
 
-  private Date expiresAt;
+    private Date expiresAt;
 
-  private Date usedAt;
+    private Date usedAt;
 
-  private Date requestedAt;
+    private Date requestedAt;
 
-  private Integer requestCount;
+    private Integer requestCount;
 
-  private Long createUserId;
+    private Long createUserId;
 
-  private String createProgram;
+    private String createProgram;
 
-  private Date createdAt;
+    private Date createdAt;
 
-  private Long updateUserId;
+    private Long updateUserId;
 
-  private String updateProgram;
+    private String updateProgram;
 
-  private Date updatedAt;
+    private Date updatedAt;
 
-  private byte[] tokenHash;
+    private byte[] tokenHash;
 
-  public Long getUserPasswordResetId() {
-    return userPasswordResetId;
-  }
+    public Long getUserPasswordResetId() {
+        return userPasswordResetId;
+    }
 
-  public void setUserPasswordResetId(Long userPasswordResetId) {
-    this.userPasswordResetId = userPasswordResetId;
-  }
+    public void setUserPasswordResetId(Long userPasswordResetId) {
+        this.userPasswordResetId = userPasswordResetId;
+    }
 
-  public Long getUserId() {
-    return userId;
-  }
+    public Long getUserId() {
+        return userId;
+    }
 
-  public void setUserId(Long userId) {
-    this.userId = userId;
-  }
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
 
-  public Date getExpiresAt() {
-    return expiresAt;
-  }
+    public Date getExpiresAt() {
+        return expiresAt;
+    }
 
-  public void setExpiresAt(Date expiresAt) {
-    this.expiresAt = expiresAt;
-  }
+    public void setExpiresAt(Date expiresAt) {
+        this.expiresAt = expiresAt;
+    }
 
-  public Date getUsedAt() {
-    return usedAt;
-  }
+    public Date getUsedAt() {
+        return usedAt;
+    }
 
-  public void setUsedAt(Date usedAt) {
-    this.usedAt = usedAt;
-  }
+    public void setUsedAt(Date usedAt) {
+        this.usedAt = usedAt;
+    }
 
-  public Date getRequestedAt() {
-    return requestedAt;
-  }
+    public Date getRequestedAt() {
+        return requestedAt;
+    }
 
-  public void setRequestedAt(Date requestedAt) {
-    this.requestedAt = requestedAt;
-  }
+    public void setRequestedAt(Date requestedAt) {
+        this.requestedAt = requestedAt;
+    }
 
-  public Integer getRequestCount() {
-    return requestCount;
-  }
+    public Integer getRequestCount() {
+        return requestCount;
+    }
 
-  public void setRequestCount(Integer requestCount) {
-    this.requestCount = requestCount;
-  }
+    public void setRequestCount(Integer requestCount) {
+        this.requestCount = requestCount;
+    }
 
-  public Long getCreateUserId() {
-    return createUserId;
-  }
+    public Long getCreateUserId() {
+        return createUserId;
+    }
 
-  public void setCreateUserId(Long createUserId) {
-    this.createUserId = createUserId;
-  }
+    public void setCreateUserId(Long createUserId) {
+        this.createUserId = createUserId;
+    }
 
-  public String getCreateProgram() {
-    return createProgram;
-  }
+    public String getCreateProgram() {
+        return createProgram;
+    }
 
-  public void setCreateProgram(String createProgram) {
-    this.createProgram = createProgram == null ? null : createProgram.trim();
-  }
+    public void setCreateProgram(String createProgram) {
+        this.createProgram = createProgram == null ? null : createProgram.trim();
+    }
 
-  public Date getCreatedAt() {
-    return createdAt;
-  }
+    public Date getCreatedAt() {
+        return createdAt;
+    }
 
-  public void setCreatedAt(Date createdAt) {
-    this.createdAt = createdAt;
-  }
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
 
-  public Long getUpdateUserId() {
-    return updateUserId;
-  }
+    public Long getUpdateUserId() {
+        return updateUserId;
+    }
 
-  public void setUpdateUserId(Long updateUserId) {
-    this.updateUserId = updateUserId;
-  }
+    public void setUpdateUserId(Long updateUserId) {
+        this.updateUserId = updateUserId;
+    }
 
-  public String getUpdateProgram() {
-    return updateProgram;
-  }
+    public String getUpdateProgram() {
+        return updateProgram;
+    }
 
-  public void setUpdateProgram(String updateProgram) {
-    this.updateProgram = updateProgram == null ? null : updateProgram.trim();
-  }
+    public void setUpdateProgram(String updateProgram) {
+        this.updateProgram = updateProgram == null ? null : updateProgram.trim();
+    }
 
-  public Date getUpdatedAt() {
-    return updatedAt;
-  }
+    public Date getUpdatedAt() {
+        return updatedAt;
+    }
 
-  public void setUpdatedAt(Date updatedAt) {
-    this.updatedAt = updatedAt;
-  }
+    public void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 
-  public byte[] getTokenHash() {
-    return tokenHash;
-  }
+    public byte[] getTokenHash() {
+        return tokenHash;
+    }
 
-  public void setTokenHash(byte[] tokenHash) {
-    this.tokenHash = tokenHash;
-  }
+    public void setTokenHash(byte[] tokenHash) {
+        this.tokenHash = tokenHash;
+    }
 }

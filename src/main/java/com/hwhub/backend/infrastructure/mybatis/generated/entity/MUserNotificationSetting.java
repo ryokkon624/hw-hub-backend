@@ -3,93 +3,93 @@ package com.hwhub.backend.infrastructure.mybatis.generated.entity;
 import java.util.Date;
 
 public class MUserNotificationSetting {
-  private Long userId;
+    private Long userId;
 
-  private String notificationGroup;
+    private String notificationGroup;
 
-  private Boolean enabled;
+    private Boolean enabled;
 
-  private Long createUserId;
+    private Long createUserId;
 
-  private String createProgram;
+    private String createProgram;
 
-  private Date createdAt;
+    private Date createdAt;
 
-  private Long updateUserId;
+    private Long updateUserId;
 
-  private String updateProgram;
+    private String updateProgram;
 
-  private Date updatedAt;
+    private Date updatedAt;
 
-  public Long getUserId() {
-    return userId;
-  }
+    public Long getUserId() {
+        return userId;
+    }
 
-  public void setUserId(Long userId) {
-    this.userId = userId;
-  }
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
 
-  public String getNotificationGroup() {
-    return notificationGroup;
-  }
+    public String getNotificationGroup() {
+        return notificationGroup;
+    }
 
-  public void setNotificationGroup(String notificationGroup) {
-    this.notificationGroup = notificationGroup == null ? null : notificationGroup.trim();
-  }
+    public void setNotificationGroup(String notificationGroup) {
+        this.notificationGroup = notificationGroup == null ? null : notificationGroup.trim();
+    }
 
-  public Boolean getEnabled() {
-    return enabled;
-  }
+    public Boolean getEnabled() {
+        return enabled;
+    }
 
-  public void setEnabled(Boolean enabled) {
-    this.enabled = enabled;
-  }
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
+    }
 
-  public Long getCreateUserId() {
-    return createUserId;
-  }
+    public Long getCreateUserId() {
+        return createUserId;
+    }
 
-  public void setCreateUserId(Long createUserId) {
-    this.createUserId = createUserId;
-  }
+    public void setCreateUserId(Long createUserId) {
+        this.createUserId = createUserId;
+    }
 
-  public String getCreateProgram() {
-    return createProgram;
-  }
+    public String getCreateProgram() {
+        return createProgram;
+    }
 
-  public void setCreateProgram(String createProgram) {
-    this.createProgram = createProgram == null ? null : createProgram.trim();
-  }
+    public void setCreateProgram(String createProgram) {
+        this.createProgram = createProgram == null ? null : createProgram.trim();
+    }
 
-  public Date getCreatedAt() {
-    return createdAt;
-  }
+    public Date getCreatedAt() {
+        return createdAt;
+    }
 
-  public void setCreatedAt(Date createdAt) {
-    this.createdAt = createdAt;
-  }
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
 
-  public Long getUpdateUserId() {
-    return updateUserId;
-  }
+    public Long getUpdateUserId() {
+        return updateUserId;
+    }
 
-  public void setUpdateUserId(Long updateUserId) {
-    this.updateUserId = updateUserId;
-  }
+    public void setUpdateUserId(Long updateUserId) {
+        this.updateUserId = updateUserId;
+    }
 
-  public String getUpdateProgram() {
-    return updateProgram;
-  }
+    public String getUpdateProgram() {
+        return updateProgram;
+    }
 
-  public void setUpdateProgram(String updateProgram) {
-    this.updateProgram = updateProgram == null ? null : updateProgram.trim();
-  }
+    public void setUpdateProgram(String updateProgram) {
+        this.updateProgram = updateProgram == null ? null : updateProgram.trim();
+    }
 
-  public Date getUpdatedAt() {
-    return updatedAt;
-  }
+    public Date getUpdatedAt() {
+        return updatedAt;
+    }
 
-  public void setUpdatedAt(Date updatedAt) {
-    this.updatedAt = updatedAt;
-  }
+    public void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 }
