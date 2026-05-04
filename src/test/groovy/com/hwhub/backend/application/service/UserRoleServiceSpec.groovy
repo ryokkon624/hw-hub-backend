@@ -82,7 +82,7 @@ class UserRoleServiceSpec extends Specification {
     def "searchUsers: メールで検索してロール情報を付与したレスポンスを返す"() {
         given:
         String email = "test@example.com"
-        def user = UserModel.reconstruct(100L, email, null, null, "LOCAL", null, "Taro", "ja", true, null, null, true, null, null)
+        def user = UserModel.reconstruct(100L, email, null, null, "LOCAL", null, "Taro", "ja", com.hwhub.backend.domain.enums.ThemeMode.SYSTEM, true, null, null, true, null, null)
         def roleModel = UserRoleModel.reconstruct(10L, 100L, UserRole.ADMIN)
 
         when:
@@ -120,7 +120,7 @@ class UserRoleServiceSpec extends Specification {
     def "searchUsers: ロールなしユーザーは roles が空リストで返る"() {
         given:
         String email = "norole@example.com"
-        def user = UserModel.reconstruct(200L, email, null, null, "LOCAL", null, "Norole", "en", true, null, null, true, null, null)
+        def user = UserModel.reconstruct(200L, email, null, null, "LOCAL", null, "Norole", "en", com.hwhub.backend.domain.enums.ThemeMode.SYSTEM, true, null, null, true, null, null)
 
         when:
         def result = service.searchUsers(email)

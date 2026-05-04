@@ -5,21 +5,21 @@ import com.hwhub.backend.infrastructure.mybatis.generated.entity.TInquiryMessage
 import java.util.List;
 
 public interface TInquiryMessageMapper {
-    int deleteByPrimaryKey(Long messageId);
+  int deleteByPrimaryKey(Long messageId);
 
-    int insert(TInquiryMessage row);
+  int insert(TInquiryMessage row);
 
-    int insertSelective(TInquiryMessage row);
+  int insertSelective(TInquiryMessage row);
 
-    List<TInquiryMessage> selectByExampleWithBLOBs(TInquiryMessageExample example);
+  List<TInquiryMessage> selectByExampleWithBLOBs(TInquiryMessageExample example);
 
-    List<TInquiryMessage> selectByExample(TInquiryMessageExample example);
+  List<TInquiryMessage> selectByExample(TInquiryMessageExample example);
 
-    TInquiryMessage selectByPrimaryKey(Long messageId);
+  TInquiryMessage selectByPrimaryKey(Long messageId);
 
-    int updateByPrimaryKeySelective(TInquiryMessage row);
+  int updateByPrimaryKeySelective(TInquiryMessage row);
 
-    int updateByPrimaryKeyWithBLOBs(TInquiryMessage row);
+  int updateByPrimaryKeyWithBLOBs(TInquiryMessage row);
 
-    int updateByPrimaryKey(TInquiryMessage row);
+  int updateByPrimaryKey(TInquiryMessage row);
 }

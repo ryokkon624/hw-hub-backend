@@ -3,6 +3,7 @@ package com.hwhub.backend.presentation.rest.user
 
 import com.hwhub.backend.application.service.UserIconService
 import com.hwhub.backend.application.service.UserService
+import com.hwhub.backend.domain.enums.ThemeMode
 import com.hwhub.backend.domain.model.HouseholdModel
 import com.hwhub.backend.domain.model.UserModel
 import com.hwhub.backend.domain.enums.AuthProvider
@@ -10,6 +11,7 @@ import com.hwhub.backend.presentation.rest.user.dto.ChangePasswordRequest
 import com.hwhub.backend.presentation.rest.user.dto.CreateIconUploadUrlRequest
 import com.hwhub.backend.presentation.rest.user.dto.CreateIconUploadUrlResponse
 import com.hwhub.backend.presentation.rest.user.dto.UpdateIconRequest
+import com.hwhub.backend.presentation.rest.user.dto.UpdateThemeRequest
 import com.hwhub.backend.presentation.rest.user.dto.UpdateUserProfileRequest
 import org.springframework.http.HttpStatus
 import spock.lang.Specification
@@ -63,6 +65,7 @@ class UserControllerSpec extends Specification {
                 null,
                 "Taro",
                 "ja",
+                com.hwhub.backend.domain.enums.ThemeMode.SYSTEM,
                 true,
                 "icon-key",
                 null,
@@ -101,6 +104,7 @@ class UserControllerSpec extends Specification {
                 null,
                 "Hanako",
                 "en",
+                com.hwhub.backend.domain.enums.ThemeMode.SYSTEM,
                 true,
                 "icon-key",
                 null,
@@ -271,6 +275,42 @@ class UserControllerSpec extends Specification {
         result.notificationEnabled() == true
         result.groupSettings().get("100") == true
         result.groupSettings().get("200") == false
+    }
+
+    // ----------------------------------------------------
+    // updateTheme
+    // ----------------------------------------------------
+
+    def "updateTheme はリクエストのthemeModeでUserService.updateThemeModeを呼びNO_CONTENTを返す"() {
+        given:
+        Long userId = 90L
+        def req = new UpdateThemeRequest("DARK")
+
+        when:
+        def response = controller.updateTheme(userId, req)
+
+        then:
+        1 * userService.updateThemeMode(userId, ThemeMode.DARK)
+        response.statusCode == HttpStatus.NO_CONTENT
+    }
+
+    def "updateTheme はthemeModeがSYSTEM/LIGHT/DARKすべてに対応する"() {
+        given:
+        Long userId = 91L
+        def req = new UpdateThemeRequest(themeCode)
+
+        when:
+        def response = controller.updateTheme(userId, req)
+
+        then:
+        1 * userService.updateThemeMode(userId, expectedMode)
+        response.statusCode == HttpStatus.NO_CONTENT
+
+        where:
+        themeCode | expectedMode
+        "SYSTEM"  | ThemeMode.SYSTEM
+        "LIGHT"   | ThemeMode.LIGHT
+        "DARK"    | ThemeMode.DARK
     }
 
     def "updateNotificationSettingsはgroupSettingsがnullの場合も正常に動作する"() {

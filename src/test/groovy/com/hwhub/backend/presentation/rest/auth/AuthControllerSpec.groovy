@@ -34,6 +34,7 @@ class AuthControllerSpec extends Specification {
                 null,
                 "Taro",
                 "ja",
+                com.hwhub.backend.domain.enums.ThemeMode.SYSTEM,
                 true,
                 "profile-key",
                 null, // emailVerifiedAt
@@ -82,6 +83,7 @@ class AuthControllerSpec extends Specification {
                 null,
                 "Hanako",
                 "ja",
+                com.hwhub.backend.domain.enums.ThemeMode.SYSTEM,
                 true,
                 null,
                 null, // verification
@@ -121,7 +123,7 @@ class AuthControllerSpec extends Specification {
     def "registerは認証が必要な場合、認証情報を返す"() {
         given:
         def request = new RegisterRequest("verify@example.com", "pw", "Verify", "ja", null)
-        def user = UserModel.reconstruct(100L, "verify@example.com", "hash", null, AuthProvider.LOCAL.code, null, "Verify", "ja", true, null, null, true, null, null)
+        def user = UserModel.reconstruct(100L, "verify@example.com", "hash", null, AuthProvider.LOCAL.code, null, "Verify", "ja", com.hwhub.backend.domain.enums.ThemeMode.SYSTEM, true, null, null, true, null, null)
 
         when:
         def response = controller.register(request)

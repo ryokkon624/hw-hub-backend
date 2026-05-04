@@ -2,6 +2,7 @@ package com.hwhub.backend.infrastructure.mybatis.converter
 
 import com.hwhub.backend.domain.model.UserModel
 import com.hwhub.backend.domain.enums.AuthProvider
+import com.hwhub.backend.domain.enums.ThemeMode
 import com.hwhub.backend.infrastructure.mybatis.generated.entity.MUser
 import spock.lang.Specification
 
@@ -64,6 +65,7 @@ class UserConverterSpec extends Specification{
                 null,                    // authProviderId
                 "別ユーザ",               // displayName
                 "en",                    // locale
+                ThemeMode.DARK,          // themeMode
                 true,                    // notificationEnabled
                 "profile/key/002",       // profileImageKey
                 now,                     // emailVerifiedAt

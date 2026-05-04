@@ -12,6 +12,7 @@ public class LoginUserDto {
   private String authProvider;
   private String displayName;
   private String locale;
+  private String themeMode;
   private boolean notificationEnabled;
   private String iconUrl;
 
@@ -25,6 +26,7 @@ public class LoginUserDto {
         model.getAuthProvider(),
         model.getDisplayName(),
         model.getLocale(),
+        model.getThemeMode() != null ? model.getThemeMode().getCode() : null,
         model.isNotificationEnabled(),
         model.getIconUrl());
   }
