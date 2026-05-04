@@ -84,8 +84,4 @@ public class HouseworkService {
 
     return updated;
   }
-
-  public void deleteHousework(Long id) {
-    houseworkRepository.delete(id);
-  }
 }

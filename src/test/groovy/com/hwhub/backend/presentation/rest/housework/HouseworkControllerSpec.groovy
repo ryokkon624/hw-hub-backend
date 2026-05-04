@@ -198,18 +198,4 @@ class HouseworkControllerSpec extends Specification {
         dto != null
     }
 
-    // -------------------------------------------------
-    // deleteHousework
-    // -------------------------------------------------
-    def "deleteHousework は HouseworkService.deleteHousework を呼び 204 を返す"() {
-        given:
-        Long houseworkId = 400L
-
-        when:
-        controller.deleteHousework(houseworkId)
-
-        then:
-        1 * houseworkService.deleteHousework(houseworkId)
-        // @ResponseStatus(NO_CONTENT) なので戻り値は void
-    }
 }

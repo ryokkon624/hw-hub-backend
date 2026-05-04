@@ -55,11 +55,6 @@ public class MyBatisHouseworkRepository implements HouseworkRepository {
   }
 
   @Override
-  public void delete(Long houseworkId) {
-    mapper.deleteByPrimaryKey(houseworkId);
-  }
-
-  @Override
   public void clearAssignee(Long householdId, Long userId, Long loginUserId, String program) {
     customMapper.clearDefaultAssignee(householdId, userId, loginUserId, program);
   }
