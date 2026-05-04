@@ -5,6 +5,7 @@ import com.hwhub.backend.domain.enums.AuthProvider
 import com.hwhub.backend.domain.enums.ThemeMode
 import com.hwhub.backend.infrastructure.mybatis.generated.entity.MUser
 import spock.lang.Specification
+import spock.lang.Unroll
 
 class UserConverterSpec extends Specification{
 
@@ -21,6 +22,7 @@ class UserConverterSpec extends Specification{
         entity.setPasswordHash("hashed-password")
         entity.setDisplayName("テストユーザ")
         entity.setLocale("ja")
+        entity.setThemeMode("DARK")
         entity.setNotificationEnabled(true)
         entity.setProfileImageKey("profile/key/001")
         entity.setIsActive(true)
@@ -37,6 +39,7 @@ class UserConverterSpec extends Specification{
             passwordHash == "hashed-password"
             displayName == "テストユーザ"
             locale == "ja"
+            themeMode == ThemeMode.DARK
             notificationEnabled == true
             profileImageKey == "profile/key/001"
             isActive == true
@@ -46,6 +49,45 @@ class UserConverterSpec extends Specification{
         and: "reconstructの仕様どおりpasswordとiconUrlはnullのままである"
         model.password == null
         model.iconUrl == null
+    }
+
+    def "toModelはthemeModeがnullの場合SYSTEMにフォールバックする"() {
+        given: "themeModeがnullのMUserエンティティ"
+        def entity = new MUser()
+        entity.setUserId(1L)
+        entity.setEmail("user@example.com")
+        entity.setNotificationEnabled(false)
+        entity.setIsActive(true)
+        entity.setThemeMode(null)
+
+        when: "toModelでドメインモデルに変換する"
+        def model = UserConverter.toModel(entity)
+
+        then: "themeModeはSYSTEMになる"
+        model.themeMode == ThemeMode.SYSTEM
+    }
+
+    @Unroll
+    def "toModelはthemeModeコード'#code'をEnum '#expected' に変換する"() {
+        given: "themeModeが指定されたMUserエンティティ"
+        def entity = new MUser()
+        entity.setUserId(1L)
+        entity.setEmail("user@example.com")
+        entity.setNotificationEnabled(false)
+        entity.setIsActive(true)
+        entity.setThemeMode(code)
+
+        when: "toModelでドメインモデルに変換する"
+        def model = UserConverter.toModel(entity)
+
+        then: "themeModeが正しく変換される"
+        model.themeMode == expected
+
+        where:
+        code     || expected
+        "DARK"   || ThemeMode.DARK
+        "LIGHT"  || ThemeMode.LIGHT
+        "SYSTEM" || ThemeMode.SYSTEM
     }
 
     def "toEntityは引数がnullのときnullを返す"() {
