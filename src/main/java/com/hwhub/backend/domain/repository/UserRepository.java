@@ -57,4 +57,7 @@ public interface UserRepository {
 
   /** 管理者専用更新（is_active / password_hash の更新も含む） */
   void updateByAdmin(UserModel user, Long operatorUserId, String program);
+
+  /** テーマモードを更新する */
+  void updateThemeMode(UserModel user, Long updateUserId, String program);
 }

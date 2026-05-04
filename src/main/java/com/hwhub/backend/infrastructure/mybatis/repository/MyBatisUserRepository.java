@@ -245,4 +245,15 @@ public class MyBatisUserRepository implements UserRepository {
 
     mapper.updateByPrimaryKeySelective(update);
   }
+
+  @Override
+  public void updateThemeMode(UserModel user, Long updateUserId, String program) {
+    MUser update = new MUser();
+    update.setUserId(user.getUserId());
+    update.setThemeMode(user.getThemeMode().getCode());
+    update.setUpdateUserId(updateUserId);
+    update.setUpdateProgram(program);
+
+    mapper.updateByPrimaryKeySelective(update);
+  }
 }

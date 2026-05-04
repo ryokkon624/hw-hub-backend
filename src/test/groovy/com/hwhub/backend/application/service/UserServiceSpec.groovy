@@ -1,6 +1,7 @@
 package com.hwhub.backend.application.service
 
 import com.hwhub.backend.domain.enums.ProgramType
+import com.hwhub.backend.domain.enums.ThemeMode
 import com.hwhub.backend.domain.model.HouseholdModel
 import com.hwhub.backend.domain.model.UserModel
 import com.hwhub.backend.domain.repository.UserRepository
@@ -486,6 +487,53 @@ class UserServiceSpec extends Specification {
 
         and:
         result.notificationEnabled() == false
+    }
+
+    // ==================================
+    // updateThemeMode
+    // ==================================
+
+    def "updateThemeModeはユーザが存在しない場合ResourceNotFoundExceptionを投げる"() {
+        given:
+        Long userId = 90L
+
+        when:
+        service.updateThemeMode(userId, ThemeMode.DARK)
+
+        then:
+        1 * userRepository.findById(userId) >> Optional.empty()
+        thrown(ResourceNotFoundException)
+    }
+
+    def "updateThemeModeはテーマモードを変更してDBに保存する"() {
+        given:
+        Long userId = 91L
+        def user = Mock(UserModel)
+
+        when:
+        service.updateThemeMode(userId, ThemeMode.DARK)
+
+        then:
+        1 * userRepository.findById(userId) >> Optional.of(user)
+        1 * user.changeThemeMode(ThemeMode.DARK)
+        1 * userRepository.updateThemeMode(user, userId, ProgramType.ONL_USR.code)
+    }
+
+    def "updateThemeModeはSYSTEM/LIGHT/DARKすべてのテーマモードに対応する"() {
+        given:
+        Long userId = 92L
+        def user = Mock(UserModel)
+        1 * userRepository.findById(userId) >> Optional.of(user)
+
+        when:
+        service.updateThemeMode(userId, themeMode)
+
+        then:
+        1 * user.changeThemeMode(themeMode)
+        1 * userRepository.updateThemeMode(user, userId, ProgramType.ONL_USR.code)
+
+        where:
+        themeMode << [ThemeMode.SYSTEM, ThemeMode.LIGHT, ThemeMode.DARK]
     }
 
     def "updateNotificationEnabledはenabled=nullのグループ設定をスキップする"() {

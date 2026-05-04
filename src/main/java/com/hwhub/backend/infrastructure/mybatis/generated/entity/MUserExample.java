@@ -715,6 +715,76 @@ public class MUserExample {
       return (Criteria) this;
     }
 
+    public Criteria andThemeModeIsNull() {
+      addCriterion("theme_mode is null");
+      return (Criteria) this;
+    }
+
+    public Criteria andThemeModeIsNotNull() {
+      addCriterion("theme_mode is not null");
+      return (Criteria) this;
+    }
+
+    public Criteria andThemeModeEqualTo(String value) {
+      addCriterion("theme_mode =", value, "themeMode");
+      return (Criteria) this;
+    }
+
+    public Criteria andThemeModeNotEqualTo(String value) {
+      addCriterion("theme_mode <>", value, "themeMode");
+      return (Criteria) this;
+    }
+
+    public Criteria andThemeModeGreaterThan(String value) {
+      addCriterion("theme_mode >", value, "themeMode");
+      return (Criteria) this;
+    }
+
+    public Criteria andThemeModeGreaterThanOrEqualTo(String value) {
+      addCriterion("theme_mode >=", value, "themeMode");
+      return (Criteria) this;
+    }
+
+    public Criteria andThemeModeLessThan(String value) {
+      addCriterion("theme_mode <", value, "themeMode");
+      return (Criteria) this;
+    }
+
+    public Criteria andThemeModeLessThanOrEqualTo(String value) {
+      addCriterion("theme_mode <=", value, "themeMode");
+      return (Criteria) this;
+    }
+
+    public Criteria andThemeModeLike(String value) {
+      addCriterion("theme_mode like", value, "themeMode");
+      return (Criteria) this;
+    }
+
+    public Criteria andThemeModeNotLike(String value) {
+      addCriterion("theme_mode not like", value, "themeMode");
+      return (Criteria) this;
+    }
+
+    public Criteria andThemeModeIn(List<String> values) {
+      addCriterion("theme_mode in", values, "themeMode");
+      return (Criteria) this;
+    }
+
+    public Criteria andThemeModeNotIn(List<String> values) {
+      addCriterion("theme_mode not in", values, "themeMode");
+      return (Criteria) this;
+    }
+
+    public Criteria andThemeModeBetween(String value1, String value2) {
+      addCriterion("theme_mode between", value1, value2, "themeMode");
+      return (Criteria) this;
+    }
+
+    public Criteria andThemeModeNotBetween(String value1, String value2) {
+      addCriterion("theme_mode not between", value1, value2, "themeMode");
+      return (Criteria) this;
+    }
+
     public Criteria andNotificationEnabledIsNull() {
       addCriterion("notification_enabled is null");
       return (Criteria) this;

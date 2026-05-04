@@ -1,5 +1,6 @@
 package com.hwhub.backend.infrastructure.mybatis.converter;
 
+import com.hwhub.backend.domain.enums.ThemeMode;
 import com.hwhub.backend.domain.model.UserModel;
 import com.hwhub.backend.infrastructure.mybatis.generated.entity.MUser;
 
@@ -12,6 +13,11 @@ public final class UserConverter {
       return null;
     }
 
+    ThemeMode themeMode =
+        entity.getThemeMode() != null
+            ? ThemeMode.fromCode(entity.getThemeMode())
+            : ThemeMode.SYSTEM;
+
     return UserModel.reconstruct(
         entity.getUserId(),
         entity.getEmail(),
@@ -21,6 +27,7 @@ public final class UserConverter {
         entity.getAuthProviderId(),
         entity.getDisplayName(),
         entity.getLocale(),
+        themeMode,
         entity.getNotificationEnabled(),
         entity.getProfileImageKey(),
         DateConverter.toLocalDateTime(entity.getEmailVerifiedAt()),

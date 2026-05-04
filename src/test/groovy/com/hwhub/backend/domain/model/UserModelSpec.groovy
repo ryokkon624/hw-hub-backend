@@ -3,6 +3,7 @@ package com.hwhub.backend.domain.model
 import spock.lang.Specification
 import java.time.LocalDateTime
 import com.hwhub.backend.domain.enums.AuthProvider
+import com.hwhub.backend.domain.enums.ThemeMode
 
 class UserModelSpec extends Specification {
 
@@ -26,6 +27,7 @@ class UserModelSpec extends Specification {
                 null,
                 displayName,
                 locale,
+                ThemeMode.SYSTEM,
                 true,
                 profileImageKey,
                 null,
@@ -42,6 +44,7 @@ class UserModelSpec extends Specification {
         model.passwordChangedAt == null // added
         model.displayName == displayName
         model.locale == locale
+        model.themeMode == ThemeMode.SYSTEM
         model.profileImageKey == profileImageKey
         model.iconUrl == null
         model.emailVerifiedAt == null // added
@@ -67,6 +70,7 @@ class UserModelSpec extends Specification {
         model.passwordHash == null
         model.displayName == displayName
         model.locale == locale
+        model.themeMode == ThemeMode.SYSTEM
         model.profileImageKey == null
         model.iconUrl == null
         model.isActive == true
@@ -91,7 +95,7 @@ class UserModelSpec extends Specification {
     def "changePasswordHash updates passwordHash and passwordChangedAt"() {
         given:
         def model = UserModel.reconstruct(
-                1L, "test@example.com", "old", null, AuthProvider.LOCAL.code, null, "User", "en", true, null, null, true, null, null
+                1L, "test@example.com", "old", null, AuthProvider.LOCAL.code, null, "User", "en", ThemeMode.SYSTEM, true, null, null, true, null, null
         )
         def newHash = "new-hash"
         def changedAt = LocalDateTime.now()
@@ -115,6 +119,7 @@ class UserModelSpec extends Specification {
                 null,
                 "テストユーザ",
                 "ja",
+                ThemeMode.SYSTEM,
                 true,
                 "icon/key.png",
                 null,
@@ -141,6 +146,7 @@ class UserModelSpec extends Specification {
                 null,
                 "旧表示名",
                 "ja",
+                ThemeMode.SYSTEM,
                 true,
                 null,
                 null,
@@ -168,6 +174,7 @@ class UserModelSpec extends Specification {
                 null,
                 "テストユーザ",
                 "ja",
+                ThemeMode.SYSTEM,
                 true,
                 "old/key.png",
                 null,
@@ -194,6 +201,7 @@ class UserModelSpec extends Specification {
                 null,
                 "退会ユーザ",
                 "ja",
+                ThemeMode.SYSTEM,
                 true,
                 null,
                 null,
@@ -220,6 +228,7 @@ class UserModelSpec extends Specification {
                 null,
                 "アクティブユーザ",
                 "ja",
+                ThemeMode.SYSTEM,
                 true,
                 null,
                 null,
@@ -233,6 +242,36 @@ class UserModelSpec extends Specification {
 
         then:
         model.isActive == false
+    }
+
+    def "changeThemeModeでthemeModeが更新される"() {
+        given:
+        def model = UserModel.reconstruct(
+                1L,
+                "test@example.com",
+                "hashed",
+                null,
+                AuthProvider.LOCAL.code,
+                null,
+                "テストユーザ",
+                "ja",
+                ThemeMode.SYSTEM,
+                true,
+                null,
+                null,
+                true,
+                null,
+                null
+        )
+
+        when:
+        model.changeThemeMode(themeMode)
+
+        then:
+        model.themeMode == themeMode
+
+        where:
+        themeMode << [ThemeMode.SYSTEM, ThemeMode.LIGHT, ThemeMode.DARK]
     }
 
     def "createGoogleUser initializes google user correctly"() {
@@ -252,6 +291,7 @@ class UserModelSpec extends Specification {
         user.authProviderId == sub
         user.displayName == name
         user.locale == "ja" // default as per impl
+        user.themeMode == ThemeMode.SYSTEM
         user.emailVerifiedAt == now
         user.isActive == true
     }

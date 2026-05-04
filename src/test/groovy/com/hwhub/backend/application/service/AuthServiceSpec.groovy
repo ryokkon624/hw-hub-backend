@@ -55,9 +55,10 @@ class AuthServiceSpec extends Specification{
                 null,
                 "テストユーザ",
                 "ja",
+                com.hwhub.backend.domain.enums.ThemeMode.SYSTEM,
                 true,
                 "icon/key/001",
-                null, 
+                null,
                 true, // Active
                 null,
                 null
@@ -123,6 +124,7 @@ class AuthServiceSpec extends Specification{
                 null,
                 "退会済みユーザ",
                 "ja",
+                com.hwhub.backend.domain.enums.ThemeMode.SYSTEM,
                 true,
                 null,
                 null,
@@ -194,6 +196,7 @@ class AuthServiceSpec extends Specification{
                 null,
                 "テストユーザ",
                 "ja",
+                com.hwhub.backend.domain.enums.ThemeMode.SYSTEM,
                 true,
                 null,
                 null,
@@ -229,6 +232,7 @@ class AuthServiceSpec extends Specification{
                 null,
                 "新規ユーザ",
                 "ja",
+                com.hwhub.backend.domain.enums.ThemeMode.SYSTEM,
                 true,
                 "icon/key/999",
                 null,
@@ -263,7 +267,7 @@ class AuthServiceSpec extends Specification{
                 "ja"
         )
         def existingUser = UserModel.reconstruct(
-                20L, "dup@example.com", "hash", null, AuthProvider.LOCAL.code, null, "Exist", "en", true, null, null, true, null, null
+                20L, "dup@example.com", "hash", null, AuthProvider.LOCAL.code, null, "Exist", "en", com.hwhub.backend.domain.enums.ThemeMode.SYSTEM, true, null, null, true, null, null
         )
 
         when:
@@ -278,7 +282,7 @@ class AuthServiceSpec extends Specification{
     def "registerはメール認証有効時にVerificationRequiredを返す"() {
         given:
         def model = UserModel.create("verify@example.com", "pw", "VerifyMe", "ja")
-        def inserted = UserModel.reconstruct(100L, "verify@example.com", "hash", null, AuthProvider.LOCAL.code, null, "VerifyMe", "ja", true, null, null, true, null, null)
+        def inserted = UserModel.reconstruct(100L, "verify@example.com", "hash", null, AuthProvider.LOCAL.code, null, "VerifyMe", "ja", com.hwhub.backend.domain.enums.ThemeMode.SYSTEM, true, null, null, true, null, null)
 
         // Re-init with enabled=true, sendMail=true
         def props = new EmailVerificationProperties(true, true, 30, 60, 5, "http://front", "/verify")

@@ -23,7 +23,7 @@ class AdminUserServiceSpec extends Specification {
         given:
         def condition = new AdminUserSearchCondition("test@example.com", null, null)
         def user = UserModel.reconstruct(
-                1L, "test@example.com", null, null, AuthProvider.LOCAL.code, null, "Taro", "ja", true, "icon-key", null, true, null, null
+                1L, "test@example.com", null, null, AuthProvider.LOCAL.code, null, "Taro", "ja", com.hwhub.backend.domain.enums.ThemeMode.SYSTEM, true, "icon-key", null, true, null, null
         )
         def users = [user]
 
@@ -48,7 +48,7 @@ class AdminUserServiceSpec extends Specification {
         Long operatorUserId = 99L
 
         def createdUser = UserModel.reconstruct(
-                10L, email, "hashed-password", null, AuthProvider.LOCAL.code, null, displayName, locale, true, null, null, true, null, null
+                10L, email, "hashed-password", null, AuthProvider.LOCAL.code, null, displayName, locale, com.hwhub.backend.domain.enums.ThemeMode.SYSTEM, true, null, null, true, null, null
         )
 
         when:
@@ -83,7 +83,7 @@ class AdminUserServiceSpec extends Specification {
         Long targetUserId = 1L
         Long operatorUserId = 99L
         def user = UserModel.reconstruct(
-                targetUserId, "test@example.com", "old-hash", null, AuthProvider.LOCAL.code, null, "Old Name", "ja", true, null, null, true, null, null
+                targetUserId, "test@example.com", "old-hash", null, AuthProvider.LOCAL.code, null, "Old Name", "ja", com.hwhub.backend.domain.enums.ThemeMode.SYSTEM, true, null, null, true, null, null
         )
 
         when:
@@ -106,7 +106,7 @@ class AdminUserServiceSpec extends Specification {
         given:
         Long targetUserId = 1L
         def user = UserModel.reconstruct(
-                targetUserId, "test@example.com", "old-hash", null, AuthProvider.LOCAL.code, null, "Old Name", "ja", true, null, null, true, null, null
+                targetUserId, "test@example.com", "old-hash", null, AuthProvider.LOCAL.code, null, "Old Name", "ja", com.hwhub.backend.domain.enums.ThemeMode.SYSTEM, true, null, null, true, null, null
         )
 
         when:
@@ -127,7 +127,7 @@ class AdminUserServiceSpec extends Specification {
         given:
         Long targetUserId = 1L
         def user = UserModel.reconstruct(
-                targetUserId, "test@example.com", "hash", null, AuthProvider.LOCAL.code, null, "Name", "ja", true, null, null, false, null, null
+                targetUserId, "test@example.com", "hash", null, AuthProvider.LOCAL.code, null, "Name", "ja", com.hwhub.backend.domain.enums.ThemeMode.SYSTEM, true, null, null, false, null, null
         )
 
         when:

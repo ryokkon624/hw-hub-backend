@@ -21,6 +21,8 @@ public class MUser {
 
   private String locale;
 
+  private String themeMode;
+
   private Boolean notificationEnabled;
 
   private Date emailVerifiedAt;
@@ -109,6 +111,14 @@ public class MUser {
 
   public void setLocale(String locale) {
     this.locale = locale == null ? null : locale.trim();
+  }
+
+  public String getThemeMode() {
+    return themeMode;
+  }
+
+  public void setThemeMode(String themeMode) {
+    this.themeMode = themeMode == null ? null : themeMode.trim();
   }
 
   public Boolean getNotificationEnabled() {

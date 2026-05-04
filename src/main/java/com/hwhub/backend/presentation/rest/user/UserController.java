@@ -4,6 +4,7 @@ import com.hwhub.backend.application.service.UserIconService;
 import com.hwhub.backend.application.service.UserService;
 import com.hwhub.backend.application.service.UserService.NotificationSettingsResult;
 import com.hwhub.backend.domain.enums.NotificationGroup;
+import com.hwhub.backend.domain.enums.ThemeMode;
 import com.hwhub.backend.domain.model.UserModel;
 import com.hwhub.backend.presentation.rest.auth.GoogleOAuthLinkHelper;
 import com.hwhub.backend.presentation.rest.user.dto.ChangePasswordRequest;
@@ -13,6 +14,7 @@ import com.hwhub.backend.presentation.rest.user.dto.NotificationSettingsResponse
 import com.hwhub.backend.presentation.rest.user.dto.OAuthStartResponse;
 import com.hwhub.backend.presentation.rest.user.dto.UpdateIconRequest;
 import com.hwhub.backend.presentation.rest.user.dto.UpdateNotificationSettingsRequest;
+import com.hwhub.backend.presentation.rest.user.dto.UpdateThemeRequest;
 import com.hwhub.backend.presentation.rest.user.dto.UpdateUserProfileRequest;
 import com.hwhub.backend.presentation.rest.user.dto.UserHouseholdDto;
 import com.hwhub.backend.presentation.rest.user.dto.UserProfileResponse;
@@ -27,6 +29,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -126,6 +129,21 @@ public class UserController {
 
     String url = linkHelper.buildAuthorizationUrl(state);
     return ResponseEntity.ok(new OAuthStartResponse(url));
+  }
+
+  /**
+   * ログイン中のユーザーのテーマモードを更新する。
+   *
+   * @param userId 認証済みユーザーID
+   * @param request テーマモード（SYSTEM / LIGHT / DARK）
+   * @return 204 No Content
+   */
+  @PatchMapping("/me/theme")
+  public ResponseEntity<Void> updateTheme(
+      @CurrentUserId Long userId, @Valid @RequestBody UpdateThemeRequest request) {
+    ThemeMode themeMode = ThemeMode.fromCode(request.themeMode());
+    userService.updateThemeMode(userId, themeMode);
+    return ResponseEntity.noContent().build();
   }
 
   @GetMapping("/me/notification-settings")

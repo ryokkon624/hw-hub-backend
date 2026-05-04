@@ -4,6 +4,7 @@ import com.hwhub.backend.application.service.oauth.GoogleOAuthService;
 import com.hwhub.backend.domain.enums.AuthProvider;
 import com.hwhub.backend.domain.enums.NotificationGroup;
 import com.hwhub.backend.domain.enums.ProgramType;
+import com.hwhub.backend.domain.enums.ThemeMode;
 import com.hwhub.backend.domain.model.HouseholdModel;
 import com.hwhub.backend.domain.model.UserModel;
 import com.hwhub.backend.domain.oauth.google.GoogleUserInfo;
@@ -209,6 +210,23 @@ public class UserService {
       map.put(g, gEnabled);
     }
     return map;
+  }
+
+  /**
+   * テーマモードを更新する。
+   *
+   * @param userId ユーザID
+   * @param themeMode 新しいテーマモード
+   */
+  @Transactional
+  public void updateThemeMode(Long userId, ThemeMode themeMode) {
+    UserModel user =
+        userRepository
+            .findById(userId)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found. userId=" + userId));
+
+    user.changeThemeMode(themeMode);
+    userRepository.updateThemeMode(user, userId, ProgramType.ONL_USR.getCode());
   }
 
   public record NotificationSettingsResult(

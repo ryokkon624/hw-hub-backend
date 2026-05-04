@@ -51,7 +51,7 @@ class AdminUserControllerSpec extends Specification {
     def "GET /api/admin/users: メールで検索してユーザーリストを返す"() {
         given:
         setAuthentication("1")
-        def userModel = UserModel.reconstruct(100L, "test@example.com", null, null, "LOCAL", null, "Taro", "ja", true, null, null, true, null, null)
+        def userModel = UserModel.reconstruct(100L, "test@example.com", null, null, "LOCAL", null, "Taro", "ja", com.hwhub.backend.domain.enums.ThemeMode.SYSTEM, true, null, null, true, null, null)
         def roleModel = UserRoleModel.reconstruct(10L, 100L, UserRole.ADMIN)
         def response = new UserRoleService.SearchUserResult(userModel, [roleModel])
 
@@ -92,10 +92,10 @@ class AdminUserControllerSpec extends Specification {
     def "GET /api/admin/users: 複数ユーザーがマッチした場合全件返す"() {
         given:
         setAuthentication("1")
-        def userModel1 = UserModel.reconstruct(1L, "alice@example.com", null, null, "LOCAL", null, "Alice", "en", true, null, null, true, null, null)
+        def userModel1 = UserModel.reconstruct(1L, "alice@example.com", null, null, "LOCAL", null, "Alice", "en", com.hwhub.backend.domain.enums.ThemeMode.SYSTEM, true, null, null, true, null, null)
         def roleModel1 = UserRoleModel.reconstruct(11L, 1L, UserRole.ADMIN)
         def user1 = new UserRoleService.SearchUserResult(userModel1, [roleModel1])
-        def userModel2 = UserModel.reconstruct(2L, "bob@example.com", null, null, "LOCAL", null, "Bob", "ja", true, null, null, true, null, null)
+        def userModel2 = UserModel.reconstruct(2L, "bob@example.com", null, null, "LOCAL", null, "Bob", "ja", com.hwhub.backend.domain.enums.ThemeMode.SYSTEM, true, null, null, true, null, null)
         def user2 = new UserRoleService.SearchUserResult(userModel2, [])
 
         when:
@@ -133,7 +133,7 @@ class AdminUserControllerSpec extends Specification {
     def "GET /api/admin/users/search: 各種条件で検索して結果を返す"() {
         given:
         setAuthentication("1")
-        def user = UserModel.reconstruct(1L, "test@example.com", null, null, "LOCAL", null, "Taro", "ja", true, null, null, true, null, null)
+        def user = UserModel.reconstruct(1L, "test@example.com", null, null, "LOCAL", null, "Taro", "ja", com.hwhub.backend.domain.enums.ThemeMode.SYSTEM, true, null, null, true, null, null)
 
         when:
         def result = mockMvc.perform(
@@ -155,7 +155,7 @@ class AdminUserControllerSpec extends Specification {
     def "POST /api/admin/users: ユーザーを新規登録して登録結果を返す"() {
         given:
         setAuthentication("99")
-        def user = UserModel.reconstruct(10L, "new@example.com", null, null, "LOCAL", null, "New", "ja", true, null, null, true, null, null)
+        def user = UserModel.reconstruct(10L, "new@example.com", null, null, "LOCAL", null, "New", "ja", com.hwhub.backend.domain.enums.ThemeMode.SYSTEM, true, null, null, true, null, null)
 
         def json = '{"email":"new@example.com", "password":"password", "displayName":"New", "locale":"ja"}'
 
@@ -178,7 +178,7 @@ class AdminUserControllerSpec extends Specification {
     def "PUT /api/admin/users/{userId}: ユーザー情報を更新して更新結果を返す"() {
         given:
         setAuthentication("99")
-        def user = UserModel.reconstruct(10L, "test@example.com", null, null, "LOCAL", null, "Updated", "en", true, null, null, true, null, null)
+        def user = UserModel.reconstruct(10L, "test@example.com", null, null, "LOCAL", null, "Updated", "en", com.hwhub.backend.domain.enums.ThemeMode.SYSTEM, true, null, null, true, null, null)
 
         def json = '{"displayName":"Updated", "locale":"en", "password":"new-pass", "isActive":true}'
 

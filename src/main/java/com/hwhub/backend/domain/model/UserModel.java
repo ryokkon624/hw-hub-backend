@@ -1,6 +1,7 @@
 package com.hwhub.backend.domain.model;
 
 import com.hwhub.backend.domain.enums.AuthProvider;
+import com.hwhub.backend.domain.enums.ThemeMode;
 import java.time.LocalDateTime;
 import lombok.Getter;
 
@@ -15,6 +16,7 @@ public class UserModel {
   private String authProviderId;
   private String displayName;
   private String locale;
+  private ThemeMode themeMode;
   private boolean notificationEnabled;
   private String profileImageKey;
   private String iconUrl;
@@ -35,6 +37,7 @@ public class UserModel {
    * @param authProviderId 認証提供者ID
    * @param displayName 表示名
    * @param locale 利用言語
+   * @param themeMode テーマモード
    * @param notificationEnabled 通知有効フラグ
    * @param profileImageKey プロフィール画像ストレージキー
    * @param iconUrl アイコンのURL
@@ -53,6 +56,7 @@ public class UserModel {
       String authProviderId,
       String displayName,
       String locale,
+      ThemeMode themeMode,
       boolean notificationEnabled,
       String profileImageKey,
       String iconUrl,
@@ -69,6 +73,7 @@ public class UserModel {
     this.authProviderId = authProviderId;
     this.displayName = displayName;
     this.locale = locale;
+    this.themeMode = themeMode;
     this.notificationEnabled = notificationEnabled;
     this.profileImageKey = profileImageKey;
     this.iconUrl = iconUrl;
@@ -89,6 +94,7 @@ public class UserModel {
    * @param authProviderId 認証提供者ID
    * @param displayName 表示名
    * @param locale 利用言語
+   * @param themeMode テーマモード
    * @param notificationEnabled 通知有効フラグ
    * @param profileImageKey プロフィール画像ストレージキー
    * @param emailVerifiedAt 認証完了日時
@@ -106,6 +112,7 @@ public class UserModel {
       String authProviderId,
       String displayName,
       String locale,
+      ThemeMode themeMode,
       boolean notificationEnabled,
       String profileImageKey,
       LocalDateTime emailVerifiedAt,
@@ -122,6 +129,7 @@ public class UserModel {
         authProviderId,
         displayName,
         locale,
+        themeMode,
         notificationEnabled,
         profileImageKey,
         null,
@@ -151,6 +159,7 @@ public class UserModel {
         null,
         displayName,
         locale,
+        ThemeMode.SYSTEM,
         true,
         null,
         null,
@@ -181,6 +190,7 @@ public class UserModel {
         googleSub,
         displayName,
         "ja",
+        ThemeMode.SYSTEM,
         true,
         null,
         null,
@@ -222,6 +232,15 @@ public class UserModel {
   public void changeProfile(String displayName, String locale) {
     this.displayName = displayName;
     this.locale = locale;
+  }
+
+  /**
+   * テーマモードを変更する。
+   *
+   * @param themeMode テーマモード
+   */
+  public void changeThemeMode(ThemeMode themeMode) {
+    this.themeMode = themeMode;
   }
 
   /**
