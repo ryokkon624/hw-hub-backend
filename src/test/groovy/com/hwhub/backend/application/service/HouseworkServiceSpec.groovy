@@ -441,15 +441,4 @@ class HouseworkServiceSpec extends Specification {
         result.is(updated)
     }
 
-    // ==================================
-    // deleteHousework
-    // ==================================
-
-    def "deleteHouseworkは指定IDの家事を削除する"() {
-        when:
-        service.deleteHousework(123L)
-
-        then:
-        1 * houseworkRepository.delete(123L)
-    }
 }

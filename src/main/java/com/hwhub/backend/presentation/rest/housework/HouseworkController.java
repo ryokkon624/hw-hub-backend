@@ -72,11 +72,4 @@ public class HouseworkController {
     HouseworkModel updated = houseworkService.updateHousework(houseworkId, model, loginUserId);
     return HouseworkDto.fromModel(updated);
   }
-
-  /** 家事マスタ削除 DELETE /api/houseworks/{id} */
-  @DeleteMapping("/{houseworkId}")
-  @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void deleteHousework(@PathVariable("houseworkId") Long houseworkId) {
-    houseworkService.deleteHousework(houseworkId);
-  }
 }

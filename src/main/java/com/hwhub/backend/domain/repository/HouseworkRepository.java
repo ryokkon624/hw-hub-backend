@@ -21,8 +21,5 @@ public interface HouseworkRepository {
   /** 家事更新 */
   HouseworkModel update(HouseworkModel model, Long userId, String program);
 
-  /** 家事削除（必要なら） */
-  void delete(Long houseworkId);
-
   void clearAssignee(Long householdId, Long userId, Long loginUserId, String program);
 }
