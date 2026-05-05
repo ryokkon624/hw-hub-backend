@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hwhub.backend.infrastructure.mybatis.custom.mapper.AnnouncementCustomMapper">
+
+  <select id="findActiveAt"
+          resultMap="com.hwhub.backend.infrastructure.mybatis.generated.mapper.MAnnouncementMapper.ResultMapWithBLOBs">
+    SELECT
+        announcement_id
+        , title_ja
+        , title_en
+        , title_es
+        , body_ja
+        , body_en
+        , body_es
+        , severity
+        , target_scope
+        , start_at
+        , end_at
+        , create_user_id
+        , create_program
+        , created_at
+        , update_user_id
+        , update_program
+        , updated_at
+    FROM
+        m_announcement
+    WHERE
+        start_at &lt;= #{now}
+        AND end_at &gt; #{now}
+    ORDER BY
+        severity DESC
+        , announcement_id ASC
+    LIMIT 100
+  </select>
+
+</mapper>

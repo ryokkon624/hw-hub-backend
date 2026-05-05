@@ -6,9 +6,10 @@
     <result column="title_ja" jdbcType="VARCHAR" property="titleJa" />
     <result column="title_en" jdbcType="VARCHAR" property="titleEn" />
     <result column="title_es" jdbcType="VARCHAR" property="titleEs" />
-    <result column="status" jdbcType="VARCHAR" property="status" />
-    <result column="publish_start_at" jdbcType="TIMESTAMP" property="publishStartAt" />
-    <result column="publish_end_at" jdbcType="TIMESTAMP" property="publishEndAt" />
+    <result column="severity" jdbcType="VARCHAR" property="severity" />
+    <result column="target_scope" jdbcType="VARCHAR" property="targetScope" />
+    <result column="start_at" jdbcType="TIMESTAMP" property="startAt" />
+    <result column="end_at" jdbcType="TIMESTAMP" property="endAt" />
     <result column="create_user_id" jdbcType="BIGINT" property="createUserId" />
     <result column="create_program" jdbcType="VARCHAR" property="createProgram" />
     <result column="created_at" jdbcType="TIMESTAMP" property="createdAt" />
@@ -51,8 +52,9 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    announcement_id, title_ja, title_en, title_es, `status`, publish_start_at, publish_end_at, 
-    create_user_id, create_program, created_at, update_user_id, update_program, updated_at
+    announcement_id, title_ja, title_en, title_es, severity, target_scope, start_at, 
+    end_at, create_user_id, create_program, created_at, update_user_id, update_program, 
+    updated_at
   </sql>
   <sql id="Blob_Column_List">
     body_ja, body_en, body_es
@@ -103,17 +105,17 @@
   </delete>
   <insert id="insert" keyColumn="announcement_id" keyProperty="announcementId" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.MAnnouncement" useGeneratedKeys="true">
     insert into m_announcement (title_ja, title_en, title_es, 
-      `status`, publish_start_at, publish_end_at, 
-      create_user_id, create_program, created_at, 
-      update_user_id, update_program, updated_at, 
-      body_ja, body_en, body_es
-      )
+      severity, target_scope, start_at, 
+      end_at, create_user_id, create_program, 
+      created_at, update_user_id, update_program, 
+      updated_at, body_ja, body_en, 
+      body_es)
     values (#{titleJa,jdbcType=VARCHAR}, #{titleEn,jdbcType=VARCHAR}, #{titleEs,jdbcType=VARCHAR}, 
-      #{status,jdbcType=VARCHAR}, #{publishStartAt,jdbcType=TIMESTAMP}, #{publishEndAt,jdbcType=TIMESTAMP}, 
-      #{createUserId,jdbcType=BIGINT}, #{createProgram,jdbcType=VARCHAR}, #{createdAt,jdbcType=TIMESTAMP}, 
-      #{updateUserId,jdbcType=BIGINT}, #{updateProgram,jdbcType=VARCHAR}, #{updatedAt,jdbcType=TIMESTAMP}, 
-      #{bodyJa,jdbcType=LONGVARCHAR}, #{bodyEn,jdbcType=LONGVARCHAR}, #{bodyEs,jdbcType=LONGVARCHAR}
-      )
+      #{severity,jdbcType=VARCHAR}, #{targetScope,jdbcType=VARCHAR}, #{startAt,jdbcType=TIMESTAMP}, 
+      #{endAt,jdbcType=TIMESTAMP}, #{createUserId,jdbcType=BIGINT}, #{createProgram,jdbcType=VARCHAR}, 
+      #{createdAt,jdbcType=TIMESTAMP}, #{updateUserId,jdbcType=BIGINT}, #{updateProgram,jdbcType=VARCHAR}, 
+      #{updatedAt,jdbcType=TIMESTAMP}, #{bodyJa,jdbcType=LONGVARCHAR}, #{bodyEn,jdbcType=LONGVARCHAR}, 
+      #{bodyEs,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" keyColumn="announcement_id" keyProperty="announcementId" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.MAnnouncement" useGeneratedKeys="true">
     insert into m_announcement
@@ -127,14 +129,17 @@
       <if test="titleEs != null">
         title_es,
       </if>
-      <if test="status != null">
-        `status`,
+      <if test="severity != null">
+        severity,
       </if>
-      <if test="publishStartAt != null">
-        publish_start_at,
+      <if test="targetScope != null">
+        target_scope,
       </if>
-      <if test="publishEndAt != null">
-        publish_end_at,
+      <if test="startAt != null">
+        start_at,
+      </if>
+      <if test="endAt != null">
+        end_at,
       </if>
       <if test="createUserId != null">
         create_user_id,
@@ -174,14 +179,17 @@
       <if test="titleEs != null">
         #{titleEs,jdbcType=VARCHAR},
       </if>
-      <if test="status != null">
-        #{status,jdbcType=VARCHAR},
+      <if test="severity != null">
+        #{severity,jdbcType=VARCHAR},
       </if>
-      <if test="publishStartAt != null">
-        #{publishStartAt,jdbcType=TIMESTAMP},
+      <if test="targetScope != null">
+        #{targetScope,jdbcType=VARCHAR},
       </if>
-      <if test="publishEndAt != null">
-        #{publishEndAt,jdbcType=TIMESTAMP},
+      <if test="startAt != null">
+        #{startAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endAt != null">
+        #{endAt,jdbcType=TIMESTAMP},
       </if>
       <if test="createUserId != null">
         #{createUserId,jdbcType=BIGINT},
@@ -224,14 +232,17 @@
       <if test="titleEs != null">
         title_es = #{titleEs,jdbcType=VARCHAR},
       </if>
-      <if test="status != null">
-        `status` = #{status,jdbcType=VARCHAR},
+      <if test="severity != null">
+        severity = #{severity,jdbcType=VARCHAR},
       </if>
-      <if test="publishStartAt != null">
-        publish_start_at = #{publishStartAt,jdbcType=TIMESTAMP},
+      <if test="targetScope != null">
+        target_scope = #{targetScope,jdbcType=VARCHAR},
       </if>
-      <if test="publishEndAt != null">
-        publish_end_at = #{publishEndAt,jdbcType=TIMESTAMP},
+      <if test="startAt != null">
+        start_at = #{startAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endAt != null">
+        end_at = #{endAt,jdbcType=TIMESTAMP},
       </if>
       <if test="createUserId != null">
         create_user_id = #{createUserId,jdbcType=BIGINT},
@@ -268,9 +279,10 @@
     set title_ja = #{titleJa,jdbcType=VARCHAR},
       title_en = #{titleEn,jdbcType=VARCHAR},
       title_es = #{titleEs,jdbcType=VARCHAR},
-      `status` = #{status,jdbcType=VARCHAR},
-      publish_start_at = #{publishStartAt,jdbcType=TIMESTAMP},
-      publish_end_at = #{publishEndAt,jdbcType=TIMESTAMP},
+      severity = #{severity,jdbcType=VARCHAR},
+      target_scope = #{targetScope,jdbcType=VARCHAR},
+      start_at = #{startAt,jdbcType=TIMESTAMP},
+      end_at = #{endAt,jdbcType=TIMESTAMP},
       create_user_id = #{createUserId,jdbcType=BIGINT},
       create_program = #{createProgram,jdbcType=VARCHAR},
       created_at = #{createdAt,jdbcType=TIMESTAMP},
@@ -287,9 +299,10 @@
     set title_ja = #{titleJa,jdbcType=VARCHAR},
       title_en = #{titleEn,jdbcType=VARCHAR},
       title_es = #{titleEs,jdbcType=VARCHAR},
-      `status` = #{status,jdbcType=VARCHAR},
-      publish_start_at = #{publishStartAt,jdbcType=TIMESTAMP},
-      publish_end_at = #{publishEndAt,jdbcType=TIMESTAMP},
+      severity = #{severity,jdbcType=VARCHAR},
+      target_scope = #{targetScope,jdbcType=VARCHAR},
+      start_at = #{startAt,jdbcType=TIMESTAMP},
+      end_at = #{endAt,jdbcType=TIMESTAMP},
       create_user_id = #{createUserId,jdbcType=BIGINT},
       create_program = #{createProgram,jdbcType=VARCHAR},
       created_at = #{createdAt,jdbcType=TIMESTAMP},
