@@ -33,6 +33,7 @@
     ORDER BY
         severity DESC
         , announcement_id ASC
+    LIMIT 100
   </select>
 
 </mapper>
