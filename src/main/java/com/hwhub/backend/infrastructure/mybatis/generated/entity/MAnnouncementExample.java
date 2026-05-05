@@ -375,193 +375,263 @@ public class MAnnouncementExample {
       return (Criteria) this;
     }
 
-    public Criteria andStatusIsNull() {
-      addCriterion("`status` is null");
+    public Criteria andSeverityIsNull() {
+      addCriterion("severity is null");
       return (Criteria) this;
     }
 
-    public Criteria andStatusIsNotNull() {
-      addCriterion("`status` is not null");
+    public Criteria andSeverityIsNotNull() {
+      addCriterion("severity is not null");
       return (Criteria) this;
     }
 
-    public Criteria andStatusEqualTo(String value) {
-      addCriterion("`status` =", value, "status");
+    public Criteria andSeverityEqualTo(String value) {
+      addCriterion("severity =", value, "severity");
       return (Criteria) this;
     }
 
-    public Criteria andStatusNotEqualTo(String value) {
-      addCriterion("`status` <>", value, "status");
+    public Criteria andSeverityNotEqualTo(String value) {
+      addCriterion("severity <>", value, "severity");
       return (Criteria) this;
     }
 
-    public Criteria andStatusGreaterThan(String value) {
-      addCriterion("`status` >", value, "status");
+    public Criteria andSeverityGreaterThan(String value) {
+      addCriterion("severity >", value, "severity");
       return (Criteria) this;
     }
 
-    public Criteria andStatusGreaterThanOrEqualTo(String value) {
-      addCriterion("`status` >=", value, "status");
+    public Criteria andSeverityGreaterThanOrEqualTo(String value) {
+      addCriterion("severity >=", value, "severity");
       return (Criteria) this;
     }
 
-    public Criteria andStatusLessThan(String value) {
-      addCriterion("`status` <", value, "status");
+    public Criteria andSeverityLessThan(String value) {
+      addCriterion("severity <", value, "severity");
       return (Criteria) this;
     }
 
-    public Criteria andStatusLessThanOrEqualTo(String value) {
-      addCriterion("`status` <=", value, "status");
+    public Criteria andSeverityLessThanOrEqualTo(String value) {
+      addCriterion("severity <=", value, "severity");
       return (Criteria) this;
     }
 
-    public Criteria andStatusLike(String value) {
-      addCriterion("`status` like", value, "status");
+    public Criteria andSeverityLike(String value) {
+      addCriterion("severity like", value, "severity");
       return (Criteria) this;
     }
 
-    public Criteria andStatusNotLike(String value) {
-      addCriterion("`status` not like", value, "status");
+    public Criteria andSeverityNotLike(String value) {
+      addCriterion("severity not like", value, "severity");
       return (Criteria) this;
     }
 
-    public Criteria andStatusIn(List<String> values) {
-      addCriterion("`status` in", values, "status");
+    public Criteria andSeverityIn(List<String> values) {
+      addCriterion("severity in", values, "severity");
       return (Criteria) this;
     }
 
-    public Criteria andStatusNotIn(List<String> values) {
-      addCriterion("`status` not in", values, "status");
+    public Criteria andSeverityNotIn(List<String> values) {
+      addCriterion("severity not in", values, "severity");
       return (Criteria) this;
     }
 
-    public Criteria andStatusBetween(String value1, String value2) {
-      addCriterion("`status` between", value1, value2, "status");
+    public Criteria andSeverityBetween(String value1, String value2) {
+      addCriterion("severity between", value1, value2, "severity");
       return (Criteria) this;
     }
 
-    public Criteria andStatusNotBetween(String value1, String value2) {
-      addCriterion("`status` not between", value1, value2, "status");
+    public Criteria andSeverityNotBetween(String value1, String value2) {
+      addCriterion("severity not between", value1, value2, "severity");
       return (Criteria) this;
     }
 
-    public Criteria andPublishStartAtIsNull() {
-      addCriterion("publish_start_at is null");
+    public Criteria andTargetScopeIsNull() {
+      addCriterion("target_scope is null");
       return (Criteria) this;
     }
 
-    public Criteria andPublishStartAtIsNotNull() {
-      addCriterion("publish_start_at is not null");
+    public Criteria andTargetScopeIsNotNull() {
+      addCriterion("target_scope is not null");
       return (Criteria) this;
     }
 
-    public Criteria andPublishStartAtEqualTo(Date value) {
-      addCriterion("publish_start_at =", value, "publishStartAt");
+    public Criteria andTargetScopeEqualTo(String value) {
+      addCriterion("target_scope =", value, "targetScope");
       return (Criteria) this;
     }
 
-    public Criteria andPublishStartAtNotEqualTo(Date value) {
-      addCriterion("publish_start_at <>", value, "publishStartAt");
+    public Criteria andTargetScopeNotEqualTo(String value) {
+      addCriterion("target_scope <>", value, "targetScope");
       return (Criteria) this;
     }
 
-    public Criteria andPublishStartAtGreaterThan(Date value) {
-      addCriterion("publish_start_at >", value, "publishStartAt");
+    public Criteria andTargetScopeGreaterThan(String value) {
+      addCriterion("target_scope >", value, "targetScope");
       return (Criteria) this;
     }
 
-    public Criteria andPublishStartAtGreaterThanOrEqualTo(Date value) {
-      addCriterion("publish_start_at >=", value, "publishStartAt");
+    public Criteria andTargetScopeGreaterThanOrEqualTo(String value) {
+      addCriterion("target_scope >=", value, "targetScope");
       return (Criteria) this;
     }
 
-    public Criteria andPublishStartAtLessThan(Date value) {
-      addCriterion("publish_start_at <", value, "publishStartAt");
+    public Criteria andTargetScopeLessThan(String value) {
+      addCriterion("target_scope <", value, "targetScope");
       return (Criteria) this;
     }
 
-    public Criteria andPublishStartAtLessThanOrEqualTo(Date value) {
-      addCriterion("publish_start_at <=", value, "publishStartAt");
+    public Criteria andTargetScopeLessThanOrEqualTo(String value) {
+      addCriterion("target_scope <=", value, "targetScope");
       return (Criteria) this;
     }
 
-    public Criteria andPublishStartAtIn(List<Date> values) {
-      addCriterion("publish_start_at in", values, "publishStartAt");
+    public Criteria andTargetScopeLike(String value) {
+      addCriterion("target_scope like", value, "targetScope");
       return (Criteria) this;
     }
 
-    public Criteria andPublishStartAtNotIn(List<Date> values) {
-      addCriterion("publish_start_at not in", values, "publishStartAt");
+    public Criteria andTargetScopeNotLike(String value) {
+      addCriterion("target_scope not like", value, "targetScope");
       return (Criteria) this;
     }
 
-    public Criteria andPublishStartAtBetween(Date value1, Date value2) {
-      addCriterion("publish_start_at between", value1, value2, "publishStartAt");
+    public Criteria andTargetScopeIn(List<String> values) {
+      addCriterion("target_scope in", values, "targetScope");
       return (Criteria) this;
     }
 
-    public Criteria andPublishStartAtNotBetween(Date value1, Date value2) {
-      addCriterion("publish_start_at not between", value1, value2, "publishStartAt");
+    public Criteria andTargetScopeNotIn(List<String> values) {
+      addCriterion("target_scope not in", values, "targetScope");
       return (Criteria) this;
     }
 
-    public Criteria andPublishEndAtIsNull() {
-      addCriterion("publish_end_at is null");
+    public Criteria andTargetScopeBetween(String value1, String value2) {
+      addCriterion("target_scope between", value1, value2, "targetScope");
       return (Criteria) this;
     }
 
-    public Criteria andPublishEndAtIsNotNull() {
-      addCriterion("publish_end_at is not null");
+    public Criteria andTargetScopeNotBetween(String value1, String value2) {
+      addCriterion("target_scope not between", value1, value2, "targetScope");
       return (Criteria) this;
     }
 
-    public Criteria andPublishEndAtEqualTo(Date value) {
-      addCriterion("publish_end_at =", value, "publishEndAt");
+    public Criteria andStartAtIsNull() {
+      addCriterion("start_at is null");
       return (Criteria) this;
     }
 
-    public Criteria andPublishEndAtNotEqualTo(Date value) {
-      addCriterion("publish_end_at <>", value, "publishEndAt");
+    public Criteria andStartAtIsNotNull() {
+      addCriterion("start_at is not null");
       return (Criteria) this;
     }
 
-    public Criteria andPublishEndAtGreaterThan(Date value) {
-      addCriterion("publish_end_at >", value, "publishEndAt");
+    public Criteria andStartAtEqualTo(Date value) {
+      addCriterion("start_at =", value, "startAt");
       return (Criteria) this;
     }
 
-    public Criteria andPublishEndAtGreaterThanOrEqualTo(Date value) {
-      addCriterion("publish_end_at >=", value, "publishEndAt");
+    public Criteria andStartAtNotEqualTo(Date value) {
+      addCriterion("start_at <>", value, "startAt");
       return (Criteria) this;
     }
 
-    public Criteria andPublishEndAtLessThan(Date value) {
-      addCriterion("publish_end_at <", value, "publishEndAt");
+    public Criteria andStartAtGreaterThan(Date value) {
+      addCriterion("start_at >", value, "startAt");
       return (Criteria) this;
     }
 
-    public Criteria andPublishEndAtLessThanOrEqualTo(Date value) {
-      addCriterion("publish_end_at <=", value, "publishEndAt");
+    public Criteria andStartAtGreaterThanOrEqualTo(Date value) {
+      addCriterion("start_at >=", value, "startAt");
       return (Criteria) this;
     }
 
-    public Criteria andPublishEndAtIn(List<Date> values) {
-      addCriterion("publish_end_at in", values, "publishEndAt");
+    public Criteria andStartAtLessThan(Date value) {
+      addCriterion("start_at <", value, "startAt");
       return (Criteria) this;
     }
 
-    public Criteria andPublishEndAtNotIn(List<Date> values) {
-      addCriterion("publish_end_at not in", values, "publishEndAt");
+    public Criteria andStartAtLessThanOrEqualTo(Date value) {
+      addCriterion("start_at <=", value, "startAt");
       return (Criteria) this;
     }
 
-    public Criteria andPublishEndAtBetween(Date value1, Date value2) {
-      addCriterion("publish_end_at between", value1, value2, "publishEndAt");
+    public Criteria andStartAtIn(List<Date> values) {
+      addCriterion("start_at in", values, "startAt");
       return (Criteria) this;
     }
 
-    public Criteria andPublishEndAtNotBetween(Date value1, Date value2) {
-      addCriterion("publish_end_at not between", value1, value2, "publishEndAt");
+    public Criteria andStartAtNotIn(List<Date> values) {
+      addCriterion("start_at not in", values, "startAt");
+      return (Criteria) this;
+    }
+
+    public Criteria andStartAtBetween(Date value1, Date value2) {
+      addCriterion("start_at between", value1, value2, "startAt");
+      return (Criteria) this;
+    }
+
+    public Criteria andStartAtNotBetween(Date value1, Date value2) {
+      addCriterion("start_at not between", value1, value2, "startAt");
+      return (Criteria) this;
+    }
+
+    public Criteria andEndAtIsNull() {
+      addCriterion("end_at is null");
+      return (Criteria) this;
+    }
+
+    public Criteria andEndAtIsNotNull() {
+      addCriterion("end_at is not null");
+      return (Criteria) this;
+    }
+
+    public Criteria andEndAtEqualTo(Date value) {
+      addCriterion("end_at =", value, "endAt");
+      return (Criteria) this;
+    }
+
+    public Criteria andEndAtNotEqualTo(Date value) {
+      addCriterion("end_at <>", value, "endAt");
+      return (Criteria) this;
+    }
+
+    public Criteria andEndAtGreaterThan(Date value) {
+      addCriterion("end_at >", value, "endAt");
+      return (Criteria) this;
+    }
+
+    public Criteria andEndAtGreaterThanOrEqualTo(Date value) {
+      addCriterion("end_at >=", value, "endAt");
+      return (Criteria) this;
+    }
+
+    public Criteria andEndAtLessThan(Date value) {
+      addCriterion("end_at <", value, "endAt");
+      return (Criteria) this;
+    }
+
+    public Criteria andEndAtLessThanOrEqualTo(Date value) {
+      addCriterion("end_at <=", value, "endAt");
+      return (Criteria) this;
+    }
+
+    public Criteria andEndAtIn(List<Date> values) {
+      addCriterion("end_at in", values, "endAt");
+      return (Criteria) this;
+    }
+
+    public Criteria andEndAtNotIn(List<Date> values) {
+      addCriterion("end_at not in", values, "endAt");
+      return (Criteria) this;
+    }
+
+    public Criteria andEndAtBetween(Date value1, Date value2) {
+      addCriterion("end_at between", value1, value2, "endAt");
+      return (Criteria) this;
+    }
+
+    public Criteria andEndAtNotBetween(Date value1, Date value2) {
+      addCriterion("end_at not between", value1, value2, "endAt");
       return (Criteria) this;
     }
 

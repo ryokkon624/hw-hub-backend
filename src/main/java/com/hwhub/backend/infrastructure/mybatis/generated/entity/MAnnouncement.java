@@ -11,11 +11,13 @@ public class MAnnouncement {
 
   private String titleEs;
 
-  private String status;
+  private String severity;
 
-  private Date publishStartAt;
+  private String targetScope;
 
-  private Date publishEndAt;
+  private Date startAt;
+
+  private Date endAt;
 
   private Long createUserId;
 
@@ -67,28 +69,36 @@ public class MAnnouncement {
     this.titleEs = titleEs == null ? null : titleEs.trim();
   }
 
-  public String getStatus() {
-    return status;
+  public String getSeverity() {
+    return severity;
   }
 
-  public void setStatus(String status) {
-    this.status = status == null ? null : status.trim();
+  public void setSeverity(String severity) {
+    this.severity = severity == null ? null : severity.trim();
   }
 
-  public Date getPublishStartAt() {
-    return publishStartAt;
+  public String getTargetScope() {
+    return targetScope;
   }
 
-  public void setPublishStartAt(Date publishStartAt) {
-    this.publishStartAt = publishStartAt;
+  public void setTargetScope(String targetScope) {
+    this.targetScope = targetScope == null ? null : targetScope.trim();
   }
 
-  public Date getPublishEndAt() {
-    return publishEndAt;
+  public Date getStartAt() {
+    return startAt;
   }
 
-  public void setPublishEndAt(Date publishEndAt) {
-    this.publishEndAt = publishEndAt;
+  public void setStartAt(Date startAt) {
+    this.startAt = startAt;
+  }
+
+  public Date getEndAt() {
+    return endAt;
+  }
+
+  public void setEndAt(Date endAt) {
+    this.endAt = endAt;
   }
 
   public Long getCreateUserId() {
