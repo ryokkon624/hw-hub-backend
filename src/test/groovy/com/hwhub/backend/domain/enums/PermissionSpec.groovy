@@ -11,6 +11,7 @@ class PermissionSpec extends Specification {
         Permission.ROLE_MANAGEMENT.code == "11"
         Permission.INQUIRY_REPLY.code == "20"
         Permission.SYSTEM_TEMPLATE_MANAGEMENT.code == "30"
+        Permission.ANNOUNCEMENT_MANAGEMENT.code == "40"
     }
 
     @Unroll
@@ -24,6 +25,7 @@ class PermissionSpec extends Specification {
         "11" || Permission.ROLE_MANAGEMENT
         "20" || Permission.INQUIRY_REPLY
         "30" || Permission.SYSTEM_TEMPLATE_MANAGEMENT
+        "40" || Permission.ANNOUNCEMENT_MANAGEMENT
     }
 
     def "fromCode は不正なコードの場合 IllegalArgumentException を投げる"() {
@@ -43,12 +45,13 @@ class PermissionSpec extends Specification {
         thrown(IllegalArgumentException)
     }
 
-    def "values は 4 種類のパーミッションを含む"() {
+    def "values は 5 種類のパーミッションを含む"() {
         expect:
-        Permission.values().length == 4
+        Permission.values().length == 5
         Permission.values().contains(Permission.USER_LIST_VIEW)
         Permission.values().contains(Permission.ROLE_MANAGEMENT)
         Permission.values().contains(Permission.INQUIRY_REPLY)
         Permission.values().contains(Permission.SYSTEM_TEMPLATE_MANAGEMENT)
+        Permission.values().contains(Permission.ANNOUNCEMENT_MANAGEMENT)
     }
 }

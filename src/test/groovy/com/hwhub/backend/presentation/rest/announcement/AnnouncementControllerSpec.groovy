@@ -1,6 +1,7 @@
 package com.hwhub.backend.presentation.rest.announcement
 
-import com.hwhub.backend.application.service.AnnouncementService
+import com.hwhub.backend.application.service.announcement.AnnouncementService
+import com.hwhub.backend.application.service.announcement.AnnouncementSummary
 import spock.lang.Specification
 
 import java.time.LocalDateTime
@@ -12,7 +13,7 @@ class AnnouncementControllerSpec extends Specification {
 
     def "getActiveAnnouncements は現在日時でサービスを呼び レスポンスを返す"() {
         given:
-        def summary1 = new AnnouncementService.AnnouncementSummary(
+        def summary1 = new AnnouncementSummary(
                 1L,
                 "タイトル1", "Title1", "Titulo1",
                 "本文1", "Body1", "Cuerpo1",
@@ -20,7 +21,7 @@ class AnnouncementControllerSpec extends Specification {
                 LocalDateTime.now().minusDays(1),
                 LocalDateTime.now().plusDays(1)
         )
-        def summary2 = new AnnouncementService.AnnouncementSummary(
+        def summary2 = new AnnouncementSummary(
                 2L,
                 "タイトル2", "Title2", "Titulo2",
                 "本文2", "Body2", "Cuerpo2",

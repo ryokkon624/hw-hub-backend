@@ -1,7 +1,7 @@
 package com.hwhub.backend.presentation.rest.announcement;
 
-import com.hwhub.backend.application.service.AnnouncementService;
-import com.hwhub.backend.application.service.AnnouncementService.AnnouncementSummary;
+import com.hwhub.backend.application.service.announcement.AnnouncementService;
+import com.hwhub.backend.application.service.announcement.AnnouncementSummary;
 import com.hwhub.backend.presentation.rest.announcement.dto.AnnouncementDto;
 import com.hwhub.backend.presentation.rest.announcement.dto.AnnouncementListResponse;
 import java.time.LocalDateTime;

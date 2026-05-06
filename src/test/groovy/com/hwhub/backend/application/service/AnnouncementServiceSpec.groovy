@@ -1,5 +1,6 @@
 package com.hwhub.backend.application.service
 
+import com.hwhub.backend.application.service.announcement.AnnouncementService
 import com.hwhub.backend.domain.model.AnnouncementModel
 import com.hwhub.backend.domain.repository.AnnouncementRepository
 import spock.lang.Specification

@@ -1,10 +1,10 @@
-package com.hwhub.backend.presentation.rest.announcement.dto;
+package com.hwhub.backend.presentation.rest.admin.announcement.dto;
 
 import com.hwhub.backend.application.service.announcement.AnnouncementSummary;
 import java.time.LocalDateTime;
 
-/** アナウンスバナーのレスポンスDTO。 */
-public record AnnouncementDto(
+/** アナウンスマスタメンテのレスポンスDTO。 */
+public record AdminAnnouncementResponse(
     Long id,
     String titleJa,
     String titleEn,
@@ -17,14 +17,9 @@ public record AnnouncementDto(
     LocalDateTime startAt,
     LocalDateTime endAt) {
 
-  /**
-   * AnnouncementSummary からDTOを生成する。
-   *
-   * @param summary サービス層のサマリーオブジェクト
-   * @return AnnouncementDto
-   */
-  public static AnnouncementDto from(AnnouncementSummary summary) {
-    return new AnnouncementDto(
+  /** AnnouncementSummary からレスポンスDTOを生成する。 */
+  public static AdminAnnouncementResponse from(AnnouncementSummary summary) {
+    return new AdminAnnouncementResponse(
         summary.id(),
         summary.titleJa(),
         summary.titleEn(),

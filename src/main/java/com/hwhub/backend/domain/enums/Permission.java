@@ -4,7 +4,8 @@ public enum Permission implements CodeEnum {
   USER_LIST_VIEW("10"),
   ROLE_MANAGEMENT("11"),
   INQUIRY_REPLY("20"),
-  SYSTEM_TEMPLATE_MANAGEMENT("30");
+  SYSTEM_TEMPLATE_MANAGEMENT("30"),
+  ANNOUNCEMENT_MANAGEMENT("40");
 
   private final String code;
 
