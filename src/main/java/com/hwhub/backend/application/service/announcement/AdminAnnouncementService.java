@@ -1,5 +1,6 @@
 package com.hwhub.backend.application.service.announcement;
 
+import com.hwhub.backend.application.service.announcement.AnnouncementService.AnnouncementSummary;
 import com.hwhub.backend.domain.enums.ProgramType;
 import com.hwhub.backend.domain.model.AnnouncementModel;
 import com.hwhub.backend.domain.repository.AnnouncementRepository;
@@ -37,7 +38,7 @@ public class AdminAnnouncementService {
     AnnouncementModel model =
         announcementRepository
             .findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Announcement not found: " + id));
+            .orElseThrow(() -> new IllegalArgumentException("Announcement not found"));
     return AnnouncementSummary.from(model);
   }
 

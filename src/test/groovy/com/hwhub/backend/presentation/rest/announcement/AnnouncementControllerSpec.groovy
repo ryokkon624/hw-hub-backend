@@ -1,7 +1,7 @@
 package com.hwhub.backend.presentation.rest.announcement
 
 import com.hwhub.backend.application.service.announcement.AnnouncementService
-import com.hwhub.backend.application.service.announcement.AnnouncementSummary
+import com.hwhub.backend.application.service.announcement.AnnouncementService.AnnouncementSummary
 import spock.lang.Specification
 
 import java.time.LocalDateTime

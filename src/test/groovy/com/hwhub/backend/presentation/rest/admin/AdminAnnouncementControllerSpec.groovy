@@ -1,7 +1,7 @@
 package com.hwhub.backend.presentation.rest.admin
 
 import com.hwhub.backend.application.service.announcement.AdminAnnouncementService
-import com.hwhub.backend.application.service.announcement.AnnouncementSummary
+import com.hwhub.backend.application.service.announcement.AnnouncementService.AnnouncementSummary
 import com.hwhub.backend.domain.model.AnnouncementModel
 import com.hwhub.backend.presentation.rest.admin.announcement.AdminAnnouncementController
 import com.hwhub.backend.presentation.rest.admin.announcement.dto.AdminAnnouncementRequest

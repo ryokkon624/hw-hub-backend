@@ -1,6 +1,6 @@
 package com.hwhub.backend.presentation.rest.admin.announcement.dto;
 
-import com.hwhub.backend.application.service.announcement.AnnouncementSummary;
+import com.hwhub.backend.application.service.announcement.AnnouncementService.AnnouncementSummary;
 import java.time.LocalDateTime;
 
 /** アナウンスマスタメンテのレスポンスDTO。 */
