@@ -1,5 +1,7 @@
 package com.hwhub.backend.domain.model;
 
+import com.hwhub.backend.domain.enums.AnnouncementScope;
+import com.hwhub.backend.domain.enums.AnnouncementSeverity;
 import java.time.LocalDateTime;
 import lombok.Getter;
 
@@ -42,6 +44,64 @@ public class AnnouncementModel {
     this.targetScope = targetScope;
     this.startAt = startAt;
     this.endAt = endAt;
+  }
+
+  /**
+   * 新規作成ファクトリメソッド。ドメインバリデーションを行い、id = null のモデルを返す。
+   *
+   * @param titleJa タイトル（日本語）
+   * @param titleEn タイトル（英語）
+   * @param titleEs タイトル（スペイン語）
+   * @param bodyJa 本文（日本語）
+   * @param bodyEn 本文（英語）
+   * @param bodyEs 本文（スペイン語）
+   * @param severity 重要度（m_code 0028 の code_value）
+   * @param targetScope 対象スコープ（m_code 0027 の code_value）
+   * @param startAt 有効開始日時
+   * @param endAt 有効終了日時
+   * @return AnnouncementModel インスタンス
+   * @throws IllegalArgumentException バリデーション違反時
+   */
+  public static AnnouncementModel create(
+      String titleJa,
+      String titleEn,
+      String titleEs,
+      String bodyJa,
+      String bodyEn,
+      String bodyEs,
+      String severity,
+      String targetScope,
+      LocalDateTime startAt,
+      LocalDateTime endAt) {
+    requireNonBlank(titleJa, "titleJa");
+    requireNonBlank(titleEn, "titleEn");
+    requireNonBlank(titleEs, "titleEs");
+    requireNonBlank(bodyJa, "bodyJa");
+    requireNonBlank(bodyEn, "bodyEn");
+    requireNonBlank(bodyEs, "bodyEs");
+    AnnouncementSeverity.fromCode(severity); // 有効値チェック（無効時は IllegalArgumentException）
+    AnnouncementScope.fromCode(targetScope); // 有効値チェック（無効時は IllegalArgumentException）
+    if (!startAt.isBefore(endAt)) {
+      throw new IllegalArgumentException("startAt must be before endAt");
+    }
+    return new AnnouncementModel(
+        null,
+        titleJa,
+        titleEn,
+        titleEs,
+        bodyJa,
+        bodyEn,
+        bodyEs,
+        severity,
+        targetScope,
+        startAt,
+        endAt);
+  }
+
+  private static void requireNonBlank(String value, String fieldName) {
+    if (value == null || value.isBlank()) {
+      throw new IllegalArgumentException(fieldName + " must not be blank");
+    }
   }
 
   /**

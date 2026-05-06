@@ -36,4 +36,51 @@
     LIMIT 100
   </select>
 
+  <select id="findAll"
+          resultMap="com.hwhub.backend.infrastructure.mybatis.generated.mapper.MAnnouncementMapper.ResultMapWithBLOBs">
+    SELECT
+        announcement_id
+        , title_ja
+        , title_en
+        , title_es
+        , body_ja
+        , body_en
+        , body_es
+        , severity
+        , target_scope
+        , start_at
+        , end_at
+        , create_user_id
+        , create_program
+        , created_at
+        , update_user_id
+        , update_program
+        , updated_at
+    FROM
+        m_announcement
+    ORDER BY
+        created_at DESC
+        , announcement_id DESC
+    LIMIT 1000
+  </select>
+
+  <update id="update">
+    UPDATE m_announcement
+    SET
+        title_ja       = #{entity.titleJa}
+        , title_en     = #{entity.titleEn}
+        , title_es     = #{entity.titleEs}
+        , body_ja      = #{entity.bodyJa}
+        , body_en      = #{entity.bodyEn}
+        , body_es      = #{entity.bodyEs}
+        , severity     = #{entity.severity}
+        , target_scope = #{entity.targetScope}
+        , start_at     = #{entity.startAt}
+        , end_at       = #{entity.endAt}
+        , update_user_id = #{operatorUserId}
+        , update_program = #{program}
+    WHERE
+        announcement_id = #{entity.announcementId}
+  </update>
+
 </mapper>

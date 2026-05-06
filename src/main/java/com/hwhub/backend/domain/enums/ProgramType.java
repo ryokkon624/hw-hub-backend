@@ -28,7 +28,8 @@ public enum ProgramType implements CodeEnum {
   BTC_TSK_RECL("BtcTskRecl"),
   BTC_HLD_CLEN("BtcHldClen"),
   BTC_NTF_AGGR("BtcNtfAggr"),
-  BTC_INQ_AI("BtcInqAI");
+  BTC_INQ_AI("BtcInqAI"),
+  ONL_ADM_ANN("OnlAdmAnn");
 
   private final String code;
 

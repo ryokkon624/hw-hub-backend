@@ -1,10 +1,10 @@
-package com.hwhub.backend.presentation.rest.announcement.dto;
+package com.hwhub.backend.presentation.rest.admin.announcement.dto;
 
 import com.hwhub.backend.domain.model.AnnouncementModel;
 import java.time.LocalDateTime;
 
-/** アナウンスバナーのレスポンスDTO。 */
-public record AnnouncementDto(
+/** アナウンスマスタメンテのレスポンスDTO。 */
+public record AdminAnnouncementResponse(
     Long id,
     String titleJa,
     String titleEn,
@@ -17,14 +17,9 @@ public record AnnouncementDto(
     LocalDateTime startAt,
     LocalDateTime endAt) {
 
-  /**
-   * AnnouncementModel からDTOを生成する。
-   *
-   * @param model ドメインモデル
-   * @return AnnouncementDto
-   */
-  public static AnnouncementDto from(AnnouncementModel model) {
-    return new AnnouncementDto(
+  /** AnnouncementModel からレスポンスDTOを生成する。 */
+  public static AdminAnnouncementResponse from(AnnouncementModel model) {
+    return new AdminAnnouncementResponse(
         model.getId(),
         model.getTitleJa(),
         model.getTitleEn(),
