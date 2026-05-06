@@ -1,6 +1,6 @@
 package com.hwhub.backend.presentation.rest.admin.announcement.dto;
 
-import com.hwhub.backend.application.service.announcement.AnnouncementService.AnnouncementSummary;
+import com.hwhub.backend.domain.model.AnnouncementModel;
 import java.time.LocalDateTime;
 
 /** アナウンスマスタメンテのレスポンスDTO。 */
@@ -17,19 +17,19 @@ public record AdminAnnouncementResponse(
     LocalDateTime startAt,
     LocalDateTime endAt) {
 
-  /** AnnouncementSummary からレスポンスDTOを生成する。 */
-  public static AdminAnnouncementResponse from(AnnouncementSummary summary) {
+  /** AnnouncementModel からレスポンスDTOを生成する。 */
+  public static AdminAnnouncementResponse from(AnnouncementModel model) {
     return new AdminAnnouncementResponse(
-        summary.id(),
-        summary.titleJa(),
-        summary.titleEn(),
-        summary.titleEs(),
-        summary.bodyJa(),
-        summary.bodyEn(),
-        summary.bodyEs(),
-        summary.severity(),
-        summary.targetScope(),
-        summary.startAt(),
-        summary.endAt());
+        model.getId(),
+        model.getTitleJa(),
+        model.getTitleEn(),
+        model.getTitleEs(),
+        model.getBodyJa(),
+        model.getBodyEn(),
+        model.getBodyEs(),
+        model.getSeverity(),
+        model.getTargetScope(),
+        model.getStartAt(),
+        model.getEndAt());
   }
 }

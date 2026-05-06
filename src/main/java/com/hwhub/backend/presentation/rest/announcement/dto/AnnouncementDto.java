@@ -1,6 +1,6 @@
 package com.hwhub.backend.presentation.rest.announcement.dto;
 
-import com.hwhub.backend.application.service.announcement.AnnouncementService.AnnouncementSummary;
+import com.hwhub.backend.domain.model.AnnouncementModel;
 import java.time.LocalDateTime;
 
 /** アナウンスバナーのレスポンスDTO。 */
@@ -18,23 +18,23 @@ public record AnnouncementDto(
     LocalDateTime endAt) {
 
   /**
-   * AnnouncementSummary からDTOを生成する。
+   * AnnouncementModel からDTOを生成する。
    *
-   * @param summary サービス層のサマリーオブジェクト
+   * @param model ドメインモデル
    * @return AnnouncementDto
    */
-  public static AnnouncementDto from(AnnouncementSummary summary) {
+  public static AnnouncementDto from(AnnouncementModel model) {
     return new AnnouncementDto(
-        summary.id(),
-        summary.titleJa(),
-        summary.titleEn(),
-        summary.titleEs(),
-        summary.bodyJa(),
-        summary.bodyEn(),
-        summary.bodyEs(),
-        summary.severity(),
-        summary.targetScope(),
-        summary.startAt(),
-        summary.endAt());
+        model.getId(),
+        model.getTitleJa(),
+        model.getTitleEn(),
+        model.getTitleEs(),
+        model.getBodyJa(),
+        model.getBodyEn(),
+        model.getBodyEs(),
+        model.getSeverity(),
+        model.getTargetScope(),
+        model.getStartAt(),
+        model.getEndAt());
   }
 }

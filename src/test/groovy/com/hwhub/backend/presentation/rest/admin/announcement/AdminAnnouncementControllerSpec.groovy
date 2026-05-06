@@ -1,7 +1,6 @@
 package com.hwhub.backend.presentation.rest.admin.announcement
 
 import com.hwhub.backend.application.service.announcement.AdminAnnouncementService
-import com.hwhub.backend.application.service.announcement.AnnouncementService.AnnouncementSummary
 import com.hwhub.backend.domain.model.AnnouncementModel
 import com.hwhub.backend.presentation.rest.admin.announcement.AdminAnnouncementController
 import com.hwhub.backend.presentation.rest.admin.announcement.dto.AdminAnnouncementRequest
@@ -22,8 +21,9 @@ class AdminAnnouncementControllerSpec extends Specification {
         controller = new AdminAnnouncementController(service)
     }
 
-    def buildSummary(Long id) {
-        new AnnouncementSummary(id,
+    def buildModel(Long id) {
+        AnnouncementModel.reconstruct(
+                id,
                 "タイトル", "Title", "Titulo",
                 "本文", "Body", "Cuerpo",
                 "INFO", "ALL",
@@ -32,7 +32,7 @@ class AdminAnnouncementControllerSpec extends Specification {
 
     def "getAll: サービスのgetAllを呼び出しレスポンスリストを返すこと"() {
         given:
-        service.getAll() >> [buildSummary(1L), buildSummary(2L)]
+        service.getAll() >> [buildModel(1L), buildModel(2L)]
 
         when:
         def result = controller.getAll()
@@ -45,7 +45,7 @@ class AdminAnnouncementControllerSpec extends Specification {
 
     def "getById: サービスのgetByIdを呼び出しレスポンスを返すこと"() {
         given:
-        service.getById(10L) >> buildSummary(10L)
+        service.getById(10L) >> buildModel(10L)
 
         when:
         def result = controller.getById(10L)
@@ -64,7 +64,7 @@ class AdminAnnouncementControllerSpec extends Specification {
                 "INFO", "ALL",
                 start, end
         )
-        service.create(_ as AnnouncementModel, operatorUserId) >> buildSummary(1L)
+        service.create(_ as AnnouncementModel, operatorUserId) >> buildModel(1L)
 
         when:
         def result = controller.create(request, operatorUserId)

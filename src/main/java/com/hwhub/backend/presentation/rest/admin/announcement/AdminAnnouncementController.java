@@ -1,7 +1,6 @@
 package com.hwhub.backend.presentation.rest.admin.announcement;
 
 import com.hwhub.backend.application.service.announcement.AdminAnnouncementService;
-import com.hwhub.backend.application.service.announcement.AnnouncementService.AnnouncementSummary;
 import com.hwhub.backend.domain.enums.Permission;
 import com.hwhub.backend.domain.model.AnnouncementModel;
 import com.hwhub.backend.presentation.rest.admin.announcement.dto.AdminAnnouncementRequest;
@@ -41,8 +40,8 @@ public class AdminAnnouncementController {
   @RequiresPermission(Permission.ANNOUNCEMENT_MANAGEMENT)
   @GetMapping("/{id}")
   public AdminAnnouncementResponse getById(@PathVariable("id") Long id) {
-    AnnouncementSummary summary = service.getById(id);
-    return AdminAnnouncementResponse.from(summary);
+    AnnouncementModel model = service.getById(id);
+    return AdminAnnouncementResponse.from(model);
   }
 
   /** 新規登録 */

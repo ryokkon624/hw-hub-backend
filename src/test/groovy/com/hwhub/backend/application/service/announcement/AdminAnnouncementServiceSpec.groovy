@@ -32,7 +32,7 @@ class AdminAnnouncementServiceSpec extends Specification {
         )
     }
 
-    def "getAll: リポジトリのfindAllを呼び出し AnnouncementSummaryのリストを返すこと"() {
+    def "getAll: リポジトリのfindAllを呼び出し AnnouncementModelのリストを返すこと"() {
         given:
         def model1 = buildModel(1L)
         def model2 = buildModel(2L)
@@ -58,7 +58,7 @@ class AdminAnnouncementServiceSpec extends Specification {
         result.isEmpty()
     }
 
-    def "getById: 指定IDのアナウンスをAnnouncementSummaryで返すこと"() {
+    def "getById: 指定IDのアナウンスをAnnouncementModelで返すこと"() {
         given:
         def model = buildModel(10L)
         repository.findById(10L) >> Optional.of(model)
@@ -82,7 +82,7 @@ class AdminAnnouncementServiceSpec extends Specification {
         thrown(IllegalArgumentException)
     }
 
-    def "create: AnnouncementModelをリポジトリに登録しAnnouncementSummaryを返すこと"() {
+    def "create: AnnouncementModelをリポジトリに登録しAnnouncementModelを返すこと"() {
         given:
         Long operatorUserId = 100L
         def model = AnnouncementModel.create(

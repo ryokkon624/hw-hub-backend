@@ -1,7 +1,7 @@
 package com.hwhub.backend.presentation.rest.announcement;
 
 import com.hwhub.backend.application.service.announcement.AnnouncementService;
-import com.hwhub.backend.application.service.announcement.AnnouncementService.AnnouncementSummary;
+import com.hwhub.backend.domain.model.AnnouncementModel;
 import com.hwhub.backend.presentation.rest.announcement.dto.AnnouncementDto;
 import com.hwhub.backend.presentation.rest.announcement.dto.AnnouncementListResponse;
 import java.time.LocalDateTime;
@@ -31,8 +31,8 @@ public class AnnouncementController {
   @GetMapping("/active")
   public AnnouncementListResponse getActiveAnnouncements() {
     LocalDateTime now = LocalDateTime.now();
-    List<AnnouncementSummary> summaries = announcementService.getActiveAnnouncements(now);
-    List<AnnouncementDto> dtos = summaries.stream().map(AnnouncementDto::from).toList();
+    List<AnnouncementModel> models = announcementService.getActiveAnnouncements(now);
+    List<AnnouncementDto> dtos = models.stream().map(AnnouncementDto::from).toList();
     return new AnnouncementListResponse(dtos);
   }
 }
