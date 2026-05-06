@@ -1,4 +1,4 @@
-package com.hwhub.backend.presentation.rest.admin
+package com.hwhub.backend.presentation.rest.admin.announcement
 
 import com.hwhub.backend.application.service.announcement.AdminAnnouncementService
 import com.hwhub.backend.application.service.announcement.AnnouncementService.AnnouncementSummary
