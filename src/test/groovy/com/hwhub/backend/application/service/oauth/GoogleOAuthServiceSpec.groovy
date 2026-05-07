@@ -48,4 +48,17 @@ class GoogleOAuthServiceSpec extends Specification {
         1 * client.fetchUserInfo(accessToken) >> expectedUser
         result == expectedUser
     }
+
+    def "verifyIdTokenはクライアントに委譲する"() {
+        given:
+        String idToken = "id-token-from-flutter"
+        def expectedUser = new GoogleUserInfo(sub: "sub-456", email: "mobile@example.com", emailVerified: true)
+
+        when:
+        def result = service.verifyIdToken(idToken)
+
+        then:
+        1 * client.verifyIdToken(idToken) >> expectedUser
+        result == expectedUser
+    }
 }

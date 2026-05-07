@@ -99,4 +99,15 @@ public interface GoogleOAuthClient {
    * @return Google ユーザー情報
    */
   GoogleUserInfo fetchUserInfo(String accessToken);
+
+  /**
+   * Google ID Token（モバイル用）を tokeninfo エンドポイントで検証し、ユーザー情報を返す。
+   *
+   * <p>Flutter の google_sign_in が取得した idToken を受け取り、 Google のサーバーサイドで署名・有効期限を検証する。
+   *
+   * @param idToken Flutter が取得した Google ID Token
+   * @return 検証済みのユーザー情報
+   * @throws com.hwhub.backend.presentation.rest.common.OAuthIdTokenInvalidException 検証失敗時
+   */
+  GoogleUserInfo verifyIdToken(String idToken);
 }

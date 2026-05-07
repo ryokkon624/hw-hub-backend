@@ -3,6 +3,7 @@ package com.hwhub.backend.infrastructure.oauth.google
 import com.hwhub.backend.config.GoogleOAuthProperties
 import com.hwhub.backend.domain.oauth.google.GoogleTokenResponse
 import com.hwhub.backend.domain.oauth.google.GoogleUserInfo
+import com.hwhub.backend.presentation.rest.common.OAuthIdTokenInvalidException
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.test.util.ReflectionTestUtils
@@ -106,5 +107,49 @@ class RestClientGoogleOAuthClientSpec extends Specification {
         userInfo.email == "test@example.com"
         userInfo.picture == "http://example.com/pic"
         userInfo.emailVerified == true
+    }
+
+    def "verifyIdTokenは正しいリクエストを送信しGoogleUserInfoを返す"() {
+        given:
+        String idToken = "dummy.id.token"
+        String responseJson = """
+            {
+                "sub": "sub-456",
+                "name": "Mobile User",
+                "email": "mobile@example.com",
+                "picture": "http://example.com/pic2",
+                "email_verified": true,
+                "locale": "ja",
+                "given_name": "Mobile",
+                "family_name": "User"
+            }
+        """
+
+        server.expect(MockRestRequestMatchers.requestTo("https://oauth2.googleapis.com/tokeninfo?id_token=dummy.id.token"))
+                .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
+                .andRespond(MockRestResponseCreators.withSuccess(responseJson, MediaType.APPLICATION_JSON))
+
+        when:
+        GoogleUserInfo userInfo = client.verifyIdToken(idToken)
+
+        then:
+        userInfo.sub == "sub-456"
+        userInfo.email == "mobile@example.com"
+        userInfo.emailVerified == true
+    }
+
+    def "verifyIdTokenはTokeninfo APIがエラーを返した場合OAuthIdTokenInvalidExceptionをスローする"() {
+        given:
+        String idToken = "invalid.id.token"
+
+        server.expect(MockRestRequestMatchers.requestTo("https://oauth2.googleapis.com/tokeninfo?id_token=invalid.id.token"))
+                .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
+                .andRespond(MockRestResponseCreators.withBadRequest())
+
+        when:
+        client.verifyIdToken(idToken)
+
+        then:
+        thrown(OAuthIdTokenInvalidException)
     }
 }

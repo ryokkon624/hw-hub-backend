@@ -41,14 +41,19 @@ public class SecurityConfig {
                     // 認証なしで叩けるAPI: swagger, auth, /api/auth/password-reset
                     .requestMatchers(
                         "/api/auth/login",
+                        "/api/auth/refresh",
                         "/api/auth/email-verification/verify",
                         "/api/auth/email-verification/resend",
                         "/api/auth/password-reset/request",
                         "/api/auth/password-reset/confirm",
-                        "/oauth/google/**",
+                        "/oauth/google/start",
+                        "/oauth/google/callback",
+                        "/oauth/google/mobile",
                         "/swagger-ui.html",
                         "/swagger-ui/**",
-                        "/v3/api-docs/**")
+                        "/v3/api-docs/**",
+                        "/.well-known/apple-app-site-association",
+                        "/.well-known/assetlinks.json")
                     .permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/auth/register")
                     .permitAll()

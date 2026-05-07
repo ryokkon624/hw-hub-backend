@@ -440,6 +440,20 @@ class GlobalExceptionHandlerSpec extends Specification {
         response.body.errorCode == "GOOGLE_SUB_ALREADY_USED"
     }
 
+    def "handleInvalidRefreshToken は 401 と INVALID_REFRESH_TOKEN を返す"() {
+        given:
+        def ex = new InvalidRefreshTokenException()
+
+        when:
+        def response = handler.handleInvalidRefreshToken(ex)
+
+        then:
+        response.statusCode == HttpStatus.UNAUTHORIZED
+        response.body != null
+        response.body.errorCode == "INVALID_REFRESH_TOKEN"
+        response.body.message == "Invalid or expired refresh token"
+    }
+
     def "handlePasswordLoginNotAllowed は 400 と PASSWORD_LOGIN_NOT_ALLOWED を返す"() {
         given:
         def ex = new PasswordLoginNotAllowedException()

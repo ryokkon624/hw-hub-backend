@@ -76,5 +76,10 @@ hwhub:
       google-link-success-redirect-path: /settings/account
       # 連携失敗時のリダイレクト先パス
       google-link-failure-redirect-path: /settings/account
+  deep-link:
+    ios-app-id: "TESTTEAM.com.hwhub.app"
+    android-package-name: "com.hwhub.app"
+    android-sha256-cert-fingerprint: "AA:BB:CC:DD:EE:FF"
+
   mail:
     from: no-reply@test.familyapp-hwhub.com

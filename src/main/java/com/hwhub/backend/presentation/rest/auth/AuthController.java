@@ -6,6 +6,8 @@ import com.hwhub.backend.domain.model.UserModel;
 import com.hwhub.backend.presentation.rest.auth.dto.LoginRequest;
 import com.hwhub.backend.presentation.rest.auth.dto.LoginResponse;
 import com.hwhub.backend.presentation.rest.auth.dto.LoginUserDto;
+import com.hwhub.backend.presentation.rest.auth.dto.RefreshRequest;
+import com.hwhub.backend.presentation.rest.auth.dto.RefreshResponse;
 import com.hwhub.backend.presentation.rest.auth.dto.RegisterRequest;
 import com.hwhub.backend.presentation.rest.auth.dto.RegisterResponse;
 import com.hwhub.backend.presentation.rest.auth.dto.ResendVerificationRequest;
@@ -27,7 +29,8 @@ public class AuthController {
   @PostMapping("/login")
   public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
     var info = authService.login(request);
-    LoginResponse response = new LoginResponse(info.token(), LoginUserDto.fromModel(info.user()));
+    LoginResponse response =
+        new LoginResponse(info.token(), info.refreshToken(), LoginUserDto.fromModel(info.user()));
     return ResponseEntity.ok(response);
   }
 
@@ -45,10 +48,18 @@ public class AuthController {
         new RegisterResponse(
             info.emailVerificationRequired(),
             info.token(),
+            info.refreshToken(),
             LoginUserDto.fromModel(info.user()),
             info.verificationExpiresAt() == null ? null : info.verificationExpiresAt().toString());
 
     return ResponseEntity.ok(response);
+  }
+
+  @Operation(security = {})
+  @PostMapping("/refresh")
+  public ResponseEntity<RefreshResponse> refresh(@Valid @RequestBody RefreshRequest request) {
+    var info = authService.refresh(request.refreshToken());
+    return ResponseEntity.ok(new RefreshResponse(info.token(), info.refreshToken()));
   }
 
   @Operation(security = {})

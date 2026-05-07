@@ -15,6 +15,7 @@ import com.hwhub.backend.presentation.rest.common.EmailNotVerifiedException;
 import com.hwhub.backend.presentation.rest.common.EmailVerificationCooldownException;
 import com.hwhub.backend.presentation.rest.common.EmailVerificationTokenInvalidException;
 import com.hwhub.backend.presentation.rest.common.EmailVerificationTooManyRequestsException;
+import com.hwhub.backend.presentation.rest.common.InvalidRefreshTokenException;
 import com.hwhub.backend.presentation.rest.common.PasswordLoginNotAllowedException;
 import com.hwhub.backend.security.JwtProvider;
 import com.hwhub.backend.tool.VerificationTokenGenerator;
@@ -69,7 +70,8 @@ public class AuthService {
     user.setIconUrl(userIconService.getIconUrl(user.getProfileImageKey()));
 
     String token = jwtProvider.generateToken(user.getUserId(), user.getDisplayName());
-    return new LoginInfo(token, user);
+    String refreshToken = jwtProvider.generateRefreshToken(user.getUserId());
+    return new LoginInfo(token, refreshToken, user);
   }
 
   public RegisterInfo register(UserModel model) {
@@ -116,7 +118,8 @@ public class AuthService {
           ProgramType.ONL_AUTH.getCode());
 
       String token = jwtProvider.generateToken(targetUser.getUserId(), targetUser.getDisplayName());
-      return RegisterInfo.loggedIn(token, targetUser);
+      String refreshToken = jwtProvider.generateRefreshToken(targetUser.getUserId());
+      return RegisterInfo.loggedIn(token, refreshToken, targetUser);
     }
 
     // prod: verification 発行
@@ -209,6 +212,19 @@ public class AuthService {
     }
   }
 
+  public LoginInfo refresh(String refreshToken) {
+    if (!jwtProvider.validateRefreshToken(refreshToken)) {
+      throw new InvalidRefreshTokenException();
+    }
+    Long userId = jwtProvider.getUserIdFromToken(refreshToken);
+    UserModel user = userRepository.findById(userId).orElseThrow(InvalidRefreshTokenException::new);
+    user.setIconUrl(userIconService.getIconUrl(user.getProfileImageKey()));
+
+    String newAccessToken = jwtProvider.generateToken(userId, user.getDisplayName());
+    String newRefreshToken = jwtProvider.generateRefreshToken(userId);
+    return new LoginInfo(newAccessToken, newRefreshToken, user);
+  }
+
   private String buildVerifyUrl(String token) {
     return emailVerificationProperties.frontBaseUrl()
         + emailVerificationProperties.verifyPath()
@@ -216,20 +232,21 @@ public class AuthService {
         + token;
   }
 
-  public record LoginInfo(String token, UserModel user) {}
+  public record LoginInfo(String token, String refreshToken, UserModel user) {}
 
   public record RegisterInfo(
       boolean emailVerificationRequired,
       String token,
+      String refreshToken,
       UserModel user,
       LocalDateTime verificationExpiresAt) {
 
-    public static RegisterInfo loggedIn(String token, UserModel user) {
-      return new RegisterInfo(false, token, user, null);
+    public static RegisterInfo loggedIn(String token, String refreshToken, UserModel user) {
+      return new RegisterInfo(false, token, refreshToken, user, null);
     }
 
     public static RegisterInfo verificationRequired(UserModel user, LocalDateTime expiresAt) {
-      return new RegisterInfo(true, null, user, expiresAt);
+      return new RegisterInfo(true, null, null, user, expiresAt);
     }
   }
 }

@@ -6,10 +6,12 @@ import com.hwhub.backend.domain.enums.AuthProvider
 import com.hwhub.backend.presentation.rest.auth.dto.LoginRequest
 import com.hwhub.backend.presentation.rest.auth.dto.LoginResponse
 import com.hwhub.backend.presentation.rest.auth.dto.LoginUserDto
+import com.hwhub.backend.presentation.rest.auth.dto.RefreshRequest
 import com.hwhub.backend.presentation.rest.auth.dto.RegisterRequest
 import com.hwhub.backend.presentation.rest.auth.dto.RegisterResponse
 import com.hwhub.backend.presentation.rest.auth.dto.VerifyEmailRequest
 import com.hwhub.backend.presentation.rest.auth.dto.ResendVerificationRequest
+import com.hwhub.backend.presentation.rest.common.InvalidRefreshTokenException
 import org.springframework.http.HttpStatus
 import spock.lang.Specification
 
@@ -47,7 +49,7 @@ class AuthControllerSpec extends Specification {
         def response = controller.login(request)
 
         then:
-        1 * authService.login(request) >> new AuthService.LoginInfo("jwt-token-123", user)
+        1 * authService.login(request) >> new AuthService.LoginInfo("jwt-token-123", "refresh-token-123", user)
 
         and: "HTTP ステータスは 200"
         response.statusCode == HttpStatus.OK
@@ -55,6 +57,7 @@ class AuthControllerSpec extends Specification {
         and: "ボディの token と user 情報が設定されている"
         LoginResponse body = response.body
         body.accessToken == "jwt-token-123"
+        body.refreshToken == "refresh-token-123"
 
         LoginUserDto dto = body.user
         dto.getUserId() == 1L
@@ -104,7 +107,7 @@ class AuthControllerSpec extends Specification {
             assert arg.displayName == "Hanako"
             assert arg.locale == "ja"
             // 戻り値として RegisterInfo を返す (verificationRequired=false)
-            new AuthService.RegisterInfo(false, "reg-token-456", inserted, null)
+            new AuthService.RegisterInfo(false, "reg-token-456", "reg-refresh-456", inserted, null)
         }
 
         and:
@@ -112,6 +115,7 @@ class AuthControllerSpec extends Specification {
 
         RegisterResponse body = response.body
         body.accessToken == "reg-token-456"
+        body.refreshToken == "reg-refresh-456"
 
         LoginUserDto dto = body.user
         dto.getUserId() == 10L
@@ -129,7 +133,7 @@ class AuthControllerSpec extends Specification {
         def response = controller.register(request)
 
         then:
-        1 * authService.register(_) >> new AuthService.RegisterInfo(true, null, user, java.time.LocalDateTime.now().plusDays(1))
+        1 * authService.register(_) >> new AuthService.RegisterInfo(true, null, null, user, java.time.LocalDateTime.now().plusDays(1))
 
         and:
         response.statusCode == HttpStatus.OK
@@ -160,5 +164,38 @@ class AuthControllerSpec extends Specification {
         then:
         1 * authService.resendVerification("resend@example.com")
         response.statusCode == HttpStatus.NO_CONTENT
+    }
+
+    def "refreshは有効なリフレッシュトークンのとき200と新しいトークンペアを返す"() {
+        given:
+        def user = UserModel.reconstruct(
+                1L, "u@example.com", "hash", null,
+                AuthProvider.LOCAL.code, null, "User", "ja",
+                com.hwhub.backend.domain.enums.ThemeMode.SYSTEM,
+                true, null, null, true, null, null
+        )
+        def req = new RefreshRequest("old-refresh")
+
+        when:
+        def response = controller.refresh(req)
+
+        then:
+        1 * authService.refresh("old-refresh") >>
+                new AuthService.LoginInfo("new-access", "new-refresh", user)
+        response.statusCode == HttpStatus.OK
+        response.body.accessToken == "new-access"
+        response.body.refreshToken == "new-refresh"
+    }
+
+    def "refreshはInvalidRefreshTokenExceptionのとき例外がそのまま伝播する"() {
+        given:
+        def req = new RefreshRequest("bad-token")
+
+        when:
+        controller.refresh(req)
+
+        then:
+        1 * authService.refresh("bad-token") >> { throw new InvalidRefreshTokenException() }
+        thrown(InvalidRefreshTokenException)
     }
 }
