@@ -80,5 +80,12 @@ hwhub:
       google-link-success-redirect-path: /settings/account
       # 連携失敗時のリダイレクト先パス
       google-link-failure-redirect-path: /settings/account
+  deep-link:
+    # iOS: Apple Developer Portal の Team ID + Bundle ID
+    ios-app-id: "TEAMID_PLACEHOLDER.com.hwhub.app"
+    android-package-name: "com.hwhub.app"
+    # Android: keytool -list -v でフィンガープリントを確認
+    android-sha256-cert-fingerprint: "SHA256_PLACEHOLDER"
+
   mail:
     from: no-reply@local.familyapp-hwhub.com

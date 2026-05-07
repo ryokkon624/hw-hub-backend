@@ -10,12 +10,12 @@ import com.hwhub.backend.domain.repository.UserEmailVerificationRepository;
 import com.hwhub.backend.domain.repository.UserRepository;
 import com.hwhub.backend.presentation.rest.auth.dto.LoginRequest;
 import com.hwhub.backend.presentation.rest.common.EmailAlreadyUsedException;
-import com.hwhub.backend.presentation.rest.common.InvalidRefreshTokenException;
 import com.hwhub.backend.presentation.rest.common.EmailAlreadyVerifiedException;
 import com.hwhub.backend.presentation.rest.common.EmailNotVerifiedException;
 import com.hwhub.backend.presentation.rest.common.EmailVerificationCooldownException;
 import com.hwhub.backend.presentation.rest.common.EmailVerificationTokenInvalidException;
 import com.hwhub.backend.presentation.rest.common.EmailVerificationTooManyRequestsException;
+import com.hwhub.backend.presentation.rest.common.InvalidRefreshTokenException;
 import com.hwhub.backend.presentation.rest.common.PasswordLoginNotAllowedException;
 import com.hwhub.backend.security.JwtProvider;
 import com.hwhub.backend.tool.VerificationTokenGenerator;
@@ -217,8 +217,7 @@ public class AuthService {
       throw new InvalidRefreshTokenException();
     }
     Long userId = jwtProvider.getUserIdFromToken(refreshToken);
-    UserModel user =
-        userRepository.findById(userId).orElseThrow(InvalidRefreshTokenException::new);
+    UserModel user = userRepository.findById(userId).orElseThrow(InvalidRefreshTokenException::new);
     user.setIconUrl(userIconService.getIconUrl(user.getProfileImageKey()));
 
     String newAccessToken = jwtProvider.generateToken(userId, user.getDisplayName());

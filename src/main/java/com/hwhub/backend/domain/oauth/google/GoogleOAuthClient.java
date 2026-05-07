@@ -103,8 +103,7 @@ public interface GoogleOAuthClient {
   /**
    * Google ID Token（モバイル用）を tokeninfo エンドポイントで検証し、ユーザー情報を返す。
    *
-   * <p>Flutter の google_sign_in が取得した idToken を受け取り、
-   * Google のサーバーサイドで署名・有効期限を検証する。
+   * <p>Flutter の google_sign_in が取得した idToken を受け取り、 Google のサーバーサイドで署名・有効期限を検証する。
    *
    * @param idToken Flutter が取得した Google ID Token
    * @return 検証済みのユーザー情報

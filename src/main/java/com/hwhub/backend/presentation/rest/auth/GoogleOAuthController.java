@@ -42,8 +42,8 @@ public class GoogleOAuthController {
   /**
    * モバイル用 Google 認証: Flutter が取得した idToken を検証し HwHub JWT を返す。
    *
-   * <p>フロー: Flutter(google_sign_in) → idToken → このエンドポイント →
-   * Google tokeninfo 検証 → loginOrCreate → accessToken + refreshToken
+   * <p>フロー: Flutter(google_sign_in) → idToken → このエンドポイント → Google tokeninfo 検証 → loginOrCreate →
+   * accessToken + refreshToken
    */
   @Operation(security = {})
   @PostMapping("/mobile")

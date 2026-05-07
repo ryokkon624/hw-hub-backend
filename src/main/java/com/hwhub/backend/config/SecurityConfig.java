@@ -51,7 +51,9 @@ public class SecurityConfig {
                         "/oauth/google/mobile",
                         "/swagger-ui.html",
                         "/swagger-ui/**",
-                        "/v3/api-docs/**")
+                        "/v3/api-docs/**",
+                        "/.well-known/apple-app-site-association",
+                        "/.well-known/assetlinks.json")
                     .permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/auth/register")
                     .permitAll()
