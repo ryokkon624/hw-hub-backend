@@ -4,6 +4,7 @@ import com.hwhub.backend.config.GoogleOAuthProperties;
 import com.hwhub.backend.domain.oauth.google.GoogleOAuthClient;
 import com.hwhub.backend.domain.oauth.google.GoogleTokenResponse;
 import com.hwhub.backend.domain.oauth.google.GoogleUserInfo;
+import com.hwhub.backend.presentation.rest.common.OAuthIdTokenInvalidException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -12,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 
 @Component
 @RequiredArgsConstructor
@@ -72,6 +74,19 @@ public class RestClientGoogleOAuthClient implements GoogleOAuthClient {
         .header("Authorization", "Bearer " + accessToken)
         .retrieve()
         .body(GoogleUserInfo.class);
+  }
+
+  @Override
+  public GoogleUserInfo verifyIdToken(String idToken) {
+    try {
+      return restClient
+          .get()
+          .uri("https://oauth2.googleapis.com/tokeninfo?id_token=" + url(idToken))
+          .retrieve()
+          .body(GoogleUserInfo.class);
+    } catch (RestClientException e) {
+      throw new OAuthIdTokenInvalidException();
+    }
   }
 
   private String toFormBody(Map<String, String> form) {

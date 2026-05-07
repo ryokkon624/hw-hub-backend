@@ -6,15 +6,23 @@ import com.hwhub.backend.application.service.oauth.GoogleOAuthUserLoginOrCreateS
 import com.hwhub.backend.domain.enums.OAuthFlow;
 import com.hwhub.backend.domain.model.UserModel;
 import com.hwhub.backend.domain.oauth.google.GoogleUserInfo;
+import com.hwhub.backend.presentation.rest.auth.dto.GoogleMobileLoginRequest;
+import com.hwhub.backend.presentation.rest.auth.dto.LoginResponse;
+import com.hwhub.backend.presentation.rest.auth.dto.LoginUserDto;
 import com.hwhub.backend.presentation.rest.common.EmailAlreadyUsedForLocalAccountException;
+import com.hwhub.backend.presentation.rest.common.OAuthEmailNotVerifiedException;
 import com.hwhub.backend.security.JwtProvider;
 import com.hwhub.backend.security.oauth.OAuthStateSigner;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,6 +38,30 @@ public class GoogleOAuthController {
   private final JwtProvider jwtProvider;
   private final OAuthStateSigner stateSigner;
   private final GoogleOAuthLinkHelper linkHelper;
+
+  /**
+   * モバイル用 Google 認証: Flutter が取得した idToken を検証し HwHub JWT を返す。
+   *
+   * <p>フロー: Flutter(google_sign_in) → idToken → このエンドポイント →
+   * Google tokeninfo 検証 → loginOrCreate → accessToken + refreshToken
+   */
+  @Operation(security = {})
+  @PostMapping("/mobile")
+  public ResponseEntity<LoginResponse> mobileLogin(
+      @Valid @RequestBody GoogleMobileLoginRequest request) {
+
+    GoogleUserInfo info = googleOAuthService.verifyIdToken(request.idToken());
+
+    if (Boolean.FALSE.equals(info.getEmailVerified())) {
+      throw new OAuthEmailNotVerifiedException();
+    }
+
+    UserModel user = loginOrCreateService.loginOrCreate(info);
+    String accessToken = jwtProvider.generateToken(user.getUserId(), user.getDisplayName());
+    String refreshToken = jwtProvider.generateRefreshToken(user.getUserId());
+    return ResponseEntity.ok(
+        new LoginResponse(accessToken, refreshToken, LoginUserDto.fromModel(user)));
+  }
 
   /** OAuth開始：Googleにリダイレクト - state を生成して Cookie に保存 - 302でGoogleへ */
   @GetMapping("/start")

@@ -7,7 +7,11 @@ import com.hwhub.backend.domain.enums.OAuthFlow
 import com.hwhub.backend.domain.model.UserModel
 import com.hwhub.backend.domain.oauth.google.GoogleTokenResponse
 import com.hwhub.backend.domain.oauth.google.GoogleUserInfo
+import com.hwhub.backend.domain.enums.AuthProvider
+import com.hwhub.backend.presentation.rest.auth.dto.GoogleMobileLoginRequest
 import com.hwhub.backend.presentation.rest.common.EmailAlreadyUsedForLocalAccountException
+import com.hwhub.backend.presentation.rest.common.OAuthEmailNotVerifiedException
+import com.hwhub.backend.presentation.rest.common.OAuthIdTokenInvalidException
 import com.hwhub.backend.security.JwtProvider
 import com.hwhub.backend.security.oauth.OAuthStateSigner
 import org.springframework.http.HttpHeaders
@@ -180,5 +184,72 @@ class GoogleOAuthControllerSpec extends Specification {
         1 * linkHelper.redirectToLoginFailure("emailAlreadyUsed") >> failureResponse
 
         result == failureResponse
+    }
+
+    // ── モバイル用エンドポイント ──────────────────────────────────────────
+
+    def "mobileLoginは有効なidTokenのとき200とトークンペアを返す"() {
+        given:
+        def userInfo = new GoogleUserInfo(sub: "sub-mobile", email: "mobile@example.com", emailVerified: true)
+        def user = UserModel.reconstruct(
+                77L, "mobile@example.com", "hash", null,
+                AuthProvider.GOOGLE.code, "sub-mobile",
+                "Mobile User", "ja",
+                com.hwhub.backend.domain.enums.ThemeMode.SYSTEM,
+                true, null, null, true, null, null
+        )
+        def req = new GoogleMobileLoginRequest("valid-id-token")
+
+        when:
+        def result = controller.mobileLogin(req)
+
+        then:
+        1 * googleOAuthService.verifyIdToken("valid-id-token") >> userInfo
+        1 * loginOrCreateService.loginOrCreate(userInfo) >> user
+        1 * jwtProvider.generateToken(77L, "Mobile User") >> "access-token"
+        1 * jwtProvider.generateRefreshToken(77L) >> "refresh-token"
+
+        result.statusCode == HttpStatus.OK
+        result.body.accessToken == "access-token"
+        result.body.refreshToken == "refresh-token"
+    }
+
+    def "mobileLoginはemailVerified=falseのときOAuthEmailNotVerifiedExceptionを投げる"() {
+        given:
+        def userInfo = new GoogleUserInfo(sub: "sub-unverified", email: "unverified@example.com", emailVerified: false)
+        def req = new GoogleMobileLoginRequest("unverified-id-token")
+
+        when:
+        controller.mobileLogin(req)
+
+        then:
+        1 * googleOAuthService.verifyIdToken("unverified-id-token") >> userInfo
+        thrown(OAuthEmailNotVerifiedException)
+    }
+
+    def "mobileLoginは無効なidTokenのときOAuthIdTokenInvalidExceptionが伝播する"() {
+        given:
+        def req = new GoogleMobileLoginRequest("bad-id-token")
+
+        when:
+        controller.mobileLogin(req)
+
+        then:
+        1 * googleOAuthService.verifyIdToken("bad-id-token") >> { throw new OAuthIdTokenInvalidException() }
+        thrown(OAuthIdTokenInvalidException)
+    }
+
+    def "mobileLoginはemailが既にローカルアカウントに使用済みのときEmailAlreadyUsedForLocalAccountExceptionが伝播する"() {
+        given:
+        def userInfo = new GoogleUserInfo(sub: "sub-dup", email: "dup@example.com", emailVerified: true)
+        def req = new GoogleMobileLoginRequest("dup-id-token")
+
+        when:
+        controller.mobileLogin(req)
+
+        then:
+        1 * googleOAuthService.verifyIdToken("dup-id-token") >> userInfo
+        1 * loginOrCreateService.loginOrCreate(userInfo) >> { throw new EmailAlreadyUsedForLocalAccountException("used") }
+        thrown(EmailAlreadyUsedForLocalAccountException)
     }
 }

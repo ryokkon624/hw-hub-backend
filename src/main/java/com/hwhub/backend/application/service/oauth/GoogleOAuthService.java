@@ -34,4 +34,8 @@ public class GoogleOAuthService {
   public GoogleUserInfo fetchUserInfo(String accessToken) {
     return client.fetchUserInfo(accessToken);
   }
+
+  public GoogleUserInfo verifyIdToken(String idToken) {
+    return client.verifyIdToken(idToken);
+  }
 }
