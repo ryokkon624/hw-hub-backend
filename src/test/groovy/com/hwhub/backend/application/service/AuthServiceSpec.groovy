@@ -75,9 +75,11 @@ class AuthServiceSpec extends Specification{
         1 * passwordEncoder.matches("raw-password", "hashed-password") >> true
         1 * userIconService.getIconUrl("icon/key/001") >> "https://cdn/icon.png"
         1 * jwtProvider.generateToken(10L, "テストユーザ") >> "jwt-token"
+        1 * jwtProvider.generateRefreshToken(10L) >> "refresh-token"
 
         and: "結果オブジェクトも検証する"
         result.token() == "jwt-token"
+        result.refreshToken() == "refresh-token"
         result.user().userId == 10L
         result.user().iconUrl == "https://cdn/icon.png"
     }
@@ -252,9 +254,11 @@ class AuthServiceSpec extends Specification{
         1 * userRepository.insert(_, 1L, ProgramType.ONL_AUTH.getCode()) >> inserted
         1 * userIconService.getIconUrl("icon/key/999") >> "https://cdn/new.png"
         1 * jwtProvider.generateToken(99L, "新規ユーザ") >> "new-token"
+        1 * jwtProvider.generateRefreshToken(99L) >> "new-refresh"
 
         and:
         result.token() == "new-token"
+        result.refreshToken() == "new-refresh"
         result.user().userId == 99L
     }
 
@@ -339,15 +343,11 @@ class AuthServiceSpec extends Specification{
         1 * userRepository.updateForReactivation(existingUser, 50L, ProgramType.ONL_AUTH.getCode())
         1 * userIconService.getIconUrl("old/icon") >> "https://cdn/restored.png"
         1 * jwtProvider.generateToken(50L, "復帰ユーザ") >> "restored-token"
+        1 * jwtProvider.generateRefreshToken(50L) >> "restored-refresh"
 
         and:
         result.token() == "restored-token"
-        
-        // This test case assumes enabled=false implicitly
-
-
-        and:
-        result.token() == "restored-token"
+        result.refreshToken() == "restored-refresh"
     }
 
     // --- New Verification Tests ---
@@ -420,7 +420,54 @@ class AuthServiceSpec extends Specification{
         then:
         1 * userRepository.findByEmail(email) >> Optional.of(user)
         1 * userEmailVerificationRepository.findLatestRequestedAt(6L) >> Optional.of(java.time.LocalDateTime.now()) // Just now
-        
+
         thrown(com.hwhub.backend.presentation.rest.common.EmailVerificationCooldownException)
+    }
+
+    // ── refresh ──────────────────────────────────────────────────────────
+
+    def "refreshは有効なリフレッシュトークンのとき新しいアクセストークンとリフレッシュトークンを返す"() {
+        given:
+        def user = UserModel.reconstruct(
+                10L, "u@example.com", "hash", null,
+                AuthProvider.LOCAL.code, null, "User", "ja",
+                com.hwhub.backend.domain.enums.ThemeMode.SYSTEM,
+                true, "icon/key", null, true, null, null
+        )
+
+        when:
+        def result = service.refresh("valid-refresh")
+
+        then:
+        1 * jwtProvider.validateRefreshToken("valid-refresh") >> true
+        1 * jwtProvider.getUserIdFromToken("valid-refresh") >> 10L
+        1 * userRepository.findById(10L) >> Optional.of(user)
+        1 * userIconService.getIconUrl("icon/key") >> "https://cdn/icon.png"
+        1 * jwtProvider.generateToken(10L, "User") >> "new-access"
+        1 * jwtProvider.generateRefreshToken(10L) >> "new-refresh"
+
+        result.token() == "new-access"
+        result.refreshToken() == "new-refresh"
+        result.user().userId == 10L
+    }
+
+    def "refreshはリフレッシュトークンが無効のときInvalidRefreshTokenExceptionを投げる"() {
+        when:
+        service.refresh("bad-token")
+
+        then:
+        1 * jwtProvider.validateRefreshToken("bad-token") >> false
+        thrown(com.hwhub.backend.presentation.rest.common.InvalidRefreshTokenException)
+    }
+
+    def "refreshはユーザが存在しないときInvalidRefreshTokenExceptionを投げる"() {
+        when:
+        service.refresh("orphan-token")
+
+        then:
+        1 * jwtProvider.validateRefreshToken("orphan-token") >> true
+        1 * jwtProvider.getUserIdFromToken("orphan-token") >> 999L
+        1 * userRepository.findById(999L) >> Optional.empty()
+        thrown(com.hwhub.backend.presentation.rest.common.InvalidRefreshTokenException)
     }
 }

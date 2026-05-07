@@ -131,6 +131,13 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
   }
 
+  @ExceptionHandler(InvalidRefreshTokenException.class)
+  public ResponseEntity<ErrorResponse> handleInvalidRefreshToken(
+      InvalidRefreshTokenException ex) {
+    ErrorResponse body = ErrorResponse.of("INVALID_REFRESH_TOKEN", ex.getMessage());
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
+  }
+
   /**
    * メールアドレス重複（EmailAlreadyUsedException）をハンドルします。 既に登録されているメールアドレスで新規登録を試みた場合にスローされます。
    *

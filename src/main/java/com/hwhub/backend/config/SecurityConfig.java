@@ -41,6 +41,7 @@ public class SecurityConfig {
                     // 認証なしで叩けるAPI: swagger, auth, /api/auth/password-reset
                     .requestMatchers(
                         "/api/auth/login",
+                        "/api/auth/refresh",
                         "/api/auth/email-verification/verify",
                         "/api/auth/email-verification/resend",
                         "/api/auth/password-reset/request",

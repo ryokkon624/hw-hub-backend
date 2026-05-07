@@ -13,6 +13,7 @@ mybatis:
 hwhub:
   jwt:
     expiry-millis: 14400000
+    refresh-expiry-millis: 2592000000
 
   object-storage:
     base-path:

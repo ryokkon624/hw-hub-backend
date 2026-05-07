@@ -82,12 +82,39 @@ public class JwtProvider {
     Date expiry = new Date(now.getTime() + jwtProperties.getExpiryMillis());
 
     return Jwts.builder()
-        .setSubject(String.valueOf(userId)) // ← userId を sub に入れる
+        .setSubject(String.valueOf(userId))
         .claim("name", displayName)
         .setIssuedAt(now)
         .setExpiration(expiry)
         .signWith(getSigningKey(), SignatureAlgorithm.HS256)
         .compact();
+  }
+
+  public String generateRefreshToken(Long userId) {
+    Date now = new Date();
+    Date expiry = new Date(now.getTime() + jwtProperties.getRefreshExpiryMillis());
+
+    return Jwts.builder()
+        .setSubject(String.valueOf(userId))
+        .claim("type", "refresh")
+        .setIssuedAt(now)
+        .setExpiration(expiry)
+        .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+        .compact();
+  }
+
+  public boolean validateRefreshToken(String token) {
+    try {
+      Claims claims =
+          Jwts.parserBuilder()
+              .setSigningKey(getSigningKey())
+              .build()
+              .parseClaimsJws(token)
+              .getBody();
+      return "refresh".equals(claims.get("type", String.class));
+    } catch (JwtException | IllegalArgumentException e) {
+      return false;
+    }
   }
 
   /**

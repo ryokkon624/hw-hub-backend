@@ -17,7 +17,8 @@ class JwtProviderSpec extends Specification {
         jwtProperties = new JwtProperties()
         // HS256用の十分な長さのシークレット（32バイト以上）
         jwtProperties.secret = "x".repeat(64)
-        jwtProperties.expiryMillis = 3600000L  // 1時間
+        jwtProperties.expiryMillis = 3600000L          // 1時間
+        jwtProperties.refreshExpiryMillis = 2592000000L // 30日
 
         jwtProvider = new JwtProvider(jwtProperties)
     }
@@ -108,6 +109,75 @@ class JwtProviderSpec extends Specification {
 
         then:
         iat != null
-        iat.before(new Date(System.currentTimeMillis() + 1000)) // within reasonable time
+        iat.before(new Date(System.currentTimeMillis() + 1000))
+    }
+
+    // ── リフレッシュトークン ─────────────────────────────────────────────
+
+    def "generateRefreshToken は type=refresh クレームを持つ有効なJWTを生成する"() {
+        given:
+        Long userId = 42L
+
+        when:
+        String token = jwtProvider.generateRefreshToken(userId)
+
+        then:
+        token != null
+
+        and: "type=refresh クレームが含まれること"
+        def key = Keys.hmacShaKeyFor(jwtProperties.secret.getBytes(StandardCharsets.UTF_8))
+        def claims = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+        claims.getSubject() == userId.toString()
+        claims.get("type") == "refresh"
+        claims.getExpiration().after(new Date())
+    }
+
+    def "validateRefreshToken は正しいリフレッシュトークンなら true を返す"() {
+        given:
+        String token = jwtProvider.generateRefreshToken(1L)
+
+        expect:
+        jwtProvider.validateRefreshToken(token)
+    }
+
+    def "validateRefreshToken はアクセストークン(type無し)を渡すと false を返す"() {
+        given:
+        String accessToken = jwtProvider.generateToken(1L, "User")
+
+        expect:
+        !jwtProvider.validateRefreshToken(accessToken)
+    }
+
+    def "validateRefreshToken はシグネチャ破壊されたトークンなら false を返す"() {
+        given:
+        String token = jwtProvider.generateRefreshToken(1L) + "x"
+
+        expect:
+        !jwtProvider.validateRefreshToken(token)
+    }
+
+    def "validateRefreshToken は期限切れリフレッシュトークンなら false を返す"() {
+        given:
+        def key = Keys.hmacShaKeyFor(jwtProperties.secret.getBytes(StandardCharsets.UTF_8))
+        Date past = new Date(System.currentTimeMillis() - 1000L)
+        String expiredToken = Jwts.builder()
+                .setSubject("1")
+                .claim("type", "refresh")
+                .setIssuedAt(past)
+                .setExpiration(past)
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact()
+
+        expect:
+        !jwtProvider.validateRefreshToken(expiredToken)
+    }
+
+    def "validateRefreshToken は null のとき false を返す"() {
+        expect:
+        !jwtProvider.validateRefreshToken(null)
     }
 }
