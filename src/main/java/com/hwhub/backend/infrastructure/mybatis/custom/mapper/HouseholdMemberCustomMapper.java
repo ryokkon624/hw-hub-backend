@@ -9,10 +9,21 @@ import org.apache.ibatis.annotations.Param;
 public interface HouseholdMemberCustomMapper {
   List<HouseholdMemberModel> findActiveByHouseholdId(Long householdId);
 
+  /**
+   * 複数世帯のアクティブメンバー数を一括取得する。
+   *
+   * @param householdIds 世帯IDのリスト
+   * @return 世帯ID, count のリスト
+   */
+  List<HouseholdActiveMemberCount> countActiveMembersByHouseholdIds(
+      @Param("householdIds") List<Long> householdIds);
+
   int countActiveByHouseholdIdAndUserId(
       @Param("householdId") Long householdId, @Param("userId") Long userId);
 
   void deleteByHouseholdId(@Param("householdId") Long householdId);
 
   void deleteByUserId(@Param("userId") Long userId);
+
+  record HouseholdActiveMemberCount(Long householdId, int memberCount) {}
 }

@@ -12,6 +12,14 @@
       AND notification_group = #{notificationGroupCode}
   </select>
 
+  <select id="selectAllEnabled" resultType="map">
+    SELECT
+      notification_group AS notificationGroup,
+      enabled AS enabled
+    FROM m_user_notification_setting
+    WHERE user_id = #{userId}
+  </select>
+
   <insert id="upsert">
     INSERT INTO m_user_notification_setting (
       user_id,

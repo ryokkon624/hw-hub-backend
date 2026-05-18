@@ -144,25 +144,19 @@ class UserServiceSpec extends Specification {
         def household = Mock(HouseholdModel) {
             getHouseholdId() >> householdId
             isOwner(userId) >> true
-            getName() >> "My Home"
         }
-
-        // メンバーは複数人いる
-        def members = [
-                Mock(com.hwhub.backend.domain.model.HouseholdMemberModel),
-                Mock(com.hwhub.backend.domain.model.HouseholdMemberModel)
-        ]
 
         when:
         service.deleteAccount(userId)
 
         then:
         1 * userRepository.findHouseholdsByUserId(userId) >> [household]
-        1 * householdMemberRepository.findActiveByHouseholdId(householdId) >> members
-        
+        // 一括取得でメンバー数2を返す（N+1解消）
+        1 * householdMemberRepository.countActiveMembersByHouseholdIds([householdId]) >> [(householdId): 2]
+
         0 * userRepository.deactivate(_, _)
         0 * householdMemberRepository.deleteByUserId(_)
-        
+
         thrown(IllegalArgumentException)
     }
 
@@ -177,17 +171,13 @@ class UserServiceSpec extends Specification {
             isOwner(userId) >> true
         }
 
-        // メンバーは自分だけ
-        def members = [
-                Mock(com.hwhub.backend.domain.model.HouseholdMemberModel)
-        ]
-
         when:
         service.deleteAccount(userId)
 
         then:
         1 * userRepository.findHouseholdsByUserId(userId) >> [household]
-        1 * householdMemberRepository.findActiveByHouseholdId(householdId) >> members
+        // 一括取得でメンバー数1を返す（N+1解消）
+        1 * householdMemberRepository.countActiveMembersByHouseholdIds([householdId]) >> [(householdId): 1]
 
         // 退会処理が進む
         1 * userRepository.deactivate(userId, ProgramType.ONL_USR.code)
@@ -210,9 +200,9 @@ class UserServiceSpec extends Specification {
 
         then:
         1 * userRepository.findHouseholdsByUserId(userId) >> [household]
-        
-        // メンバー数チェックはスキップされる
-        0 * householdMemberRepository.findActiveByHouseholdId(_)
+
+        // OWNERでないため一括クエリは呼ばれない
+        0 * householdMemberRepository.countActiveMembersByHouseholdIds(_)
 
         // 退会処理が進む
         1 * userRepository.deactivate(userId, ProgramType.ONL_USR.code)
@@ -523,9 +513,10 @@ class UserServiceSpec extends Specification {
 
         then:
         1 * userRepository.isNotificationEnabled(userId) >> true
-        1 * settingRepository.findEnabled(userId, com.hwhub.backend.domain.enums.NotificationGroup.HOUSEHOLD) >> Optional.empty()
-        1 * settingRepository.findEnabled(userId, com.hwhub.backend.domain.enums.NotificationGroup.TASK_ASSIGNMENT) >> Optional.of(false)
-        1 * settingRepository.findEnabled(userId, com.hwhub.backend.domain.enums.NotificationGroup.INQUIRY) >> Optional.empty()
+        // 一括取得（N+1解消）: TASK_ASSIGNMENTだけがfalse設定されている
+        1 * settingRepository.findAllEnabled(userId) >> [
+            (com.hwhub.backend.domain.enums.NotificationGroup.TASK_ASSIGNMENT): false
+        ]
 
         and:
         result.notificationEnabled() == true
@@ -543,8 +534,8 @@ class UserServiceSpec extends Specification {
 
         then:
         1 * userRepository.isNotificationEnabled(userId) >> false
-        // buildNotificationGroupMapでnotificationEnabled=falseの場合、全グループfalse
-        0 * settingRepository.findEnabled(_, _)
+        // 通知無効の場合、一括クエリは呼ばれない
+        0 * settingRepository.findAllEnabled(_)
 
         and:
         result.notificationEnabled() == false
@@ -563,11 +554,10 @@ class UserServiceSpec extends Specification {
             (com.hwhub.backend.domain.enums.NotificationGroup.HOUSEHOLD): true,
             (com.hwhub.backend.domain.enums.NotificationGroup.TASK_ASSIGNMENT): false
         ]
-        // buildNotificationGroupMap用のスタブ
-        userRepository.isNotificationEnabled(userId) >> true
-        settingRepository.findEnabled(userId, com.hwhub.backend.domain.enums.NotificationGroup.HOUSEHOLD) >> Optional.empty()
-        settingRepository.findEnabled(userId, com.hwhub.backend.domain.enums.NotificationGroup.TASK_ASSIGNMENT) >> Optional.of(false)
-        settingRepository.findEnabled(userId, com.hwhub.backend.domain.enums.NotificationGroup.INQUIRY) >> Optional.empty()
+        // buildNotificationGroupMap用のスタブ（一括取得）
+        settingRepository.findAllEnabled(userId) >> [
+            (com.hwhub.backend.domain.enums.NotificationGroup.TASK_ASSIGNMENT): false
+        ]
 
         when:
         def result = service.updateNotificationEnabled(userId, true, groupSettings)
@@ -603,6 +593,8 @@ class UserServiceSpec extends Specification {
         // 通知無効の場合、グループ設定は変更されない
         0 * settingRepository.delete(_, _)
         0 * settingRepository.upsert(_, _, _, _, _)
+        // 通知無効の場合、一括クエリも呼ばれない
+        0 * settingRepository.findAllEnabled(_)
 
         and:
         result.notificationEnabled() == false
@@ -661,6 +653,8 @@ class UserServiceSpec extends Specification {
         def groupSettings = new LinkedHashMap()
         groupSettings.put(com.hwhub.backend.domain.enums.NotificationGroup.HOUSEHOLD, null)
         groupSettings.put(com.hwhub.backend.domain.enums.NotificationGroup.TASK_ASSIGNMENT, true)
+        // buildNotificationGroupMap用のスタブ（一括取得）
+        settingRepository.findAllEnabled(userId) >> [:]
 
         when:
         def result = service.updateNotificationEnabled(userId, true, groupSettings)
@@ -674,9 +668,5 @@ class UserServiceSpec extends Specification {
 
         // true値のグループは差分削除
         1 * settingRepository.delete(userId, com.hwhub.backend.domain.enums.NotificationGroup.TASK_ASSIGNMENT)
-
-        // buildNotificationGroupMapの呼び出し
-        _ * userRepository.isNotificationEnabled(userId) >> true
-        _ * settingRepository.findEnabled(userId, _) >> Optional.empty()
     }
 }

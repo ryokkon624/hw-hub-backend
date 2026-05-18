@@ -4,9 +4,12 @@ import com.hwhub.backend.domain.model.HouseholdMemberModel;
 import com.hwhub.backend.domain.repository.HouseholdMemberRepository;
 import com.hwhub.backend.infrastructure.mybatis.converter.HouseholdMemberConverter;
 import com.hwhub.backend.infrastructure.mybatis.custom.mapper.HouseholdMemberCustomMapper;
+import com.hwhub.backend.infrastructure.mybatis.custom.mapper.HouseholdMemberCustomMapper.HouseholdActiveMemberCount;
 import com.hwhub.backend.infrastructure.mybatis.generated.entity.MHouseholdMember;
 import com.hwhub.backend.infrastructure.mybatis.generated.mapper.MHouseholdMemberMapper;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -20,6 +23,15 @@ public class MyBatisHouseholdMemberRepository implements HouseholdMemberReposito
   @Override
   public List<HouseholdMemberModel> findActiveByHouseholdId(Long householdId) {
     return customMapper.findActiveByHouseholdId(householdId);
+  }
+
+  @Override
+  public Map<Long, Integer> countActiveMembersByHouseholdIds(List<Long> householdIds) {
+    if (householdIds.isEmpty()) return Map.of();
+    return customMapper.countActiveMembersByHouseholdIds(householdIds).stream()
+        .collect(
+            Collectors.toMap(
+                HouseholdActiveMemberCount::householdId, HouseholdActiveMemberCount::memberCount));
   }
 
   @Override
