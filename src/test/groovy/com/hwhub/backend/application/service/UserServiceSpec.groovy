@@ -392,6 +392,125 @@ class UserServiceSpec extends Specification {
     }
 
     // ==================================
+    // linkGoogleAccountByIdToken
+    // ==================================
+
+    def "linkGoogleAccountByIdTokenは有効なidTokenでGoogleアカウントを連携する"() {
+        given:
+        Long loginUserId = 63L
+        String idToken = "valid-id-token"
+        String sub = "google-sub"
+        String email = "test@gmail.com"
+        String name = "Google Name"
+
+        def userInfo = new GoogleUserInfo(sub: sub, email: email, name: name)
+
+        def user = Mock(UserModel) {
+            getUserId() >> loginUserId
+            getAuthProvider() >> "LOCAL"
+            getAuthProviderId() >> null
+            getDisplayName() >> "Local Name"
+        }
+
+        when:
+        service.linkGoogleAccountByIdToken(loginUserId, idToken)
+
+        then:
+        1 * googleOAuthService.verifyIdToken(idToken) >> userInfo
+
+        1 * userRepository.findById(loginUserId) >> Optional.of(user)
+
+        // 重複チェック
+        1 * userRepository.findByAuthProviderAndAuthProviderId("GOOGLE", sub) >> Optional.empty()
+
+        // リンク処理
+        1 * userRepository.linkGoogleAccount(loginUserId, sub, email, name, ProgramType.ONL_USR.code)
+    }
+
+    def "linkGoogleAccountByIdTokenは既に自身が連携済みの場合GoogleAccountAlreadyLinkedExceptionを投げる"() {
+        given:
+        Long loginUserId = 64L
+        String idToken = "already-linked-id-token"
+
+        def userInfo = new GoogleUserInfo(sub: "sub", email: "email")
+
+        def user = Mock(UserModel) {
+            getAuthProvider() >> "GOOGLE"
+            getAuthProviderId() >> "sub"
+        }
+
+        when:
+        service.linkGoogleAccountByIdToken(loginUserId, idToken)
+
+        then:
+        1 * googleOAuthService.verifyIdToken(idToken) >> userInfo
+        1 * userRepository.findById(loginUserId) >> Optional.of(user)
+
+        thrown(com.hwhub.backend.presentation.rest.common.GoogleAccountAlreadyLinkedException)
+    }
+
+    def "linkGoogleAccountByIdTokenは別のユーザが既にそのGoogleアカウントを使用している場合GoogleSubAlreadyUsedExceptionを投げる"() {
+        given:
+        Long loginUserId = 65L
+        Long otherUserId = 99L
+        String idToken = "sub-used-id-token"
+        String sub = "sub"
+
+        def userInfo = new GoogleUserInfo(sub: sub, email: "email")
+
+        def user = Mock(UserModel) {
+            getUserId() >> loginUserId
+            getAuthProvider() >> "LOCAL"
+        }
+
+        def otherUser = Mock(UserModel) {
+            getUserId() >> otherUserId
+        }
+
+        when:
+        service.linkGoogleAccountByIdToken(loginUserId, idToken)
+
+        then:
+        1 * googleOAuthService.verifyIdToken(idToken) >> userInfo
+        1 * userRepository.findById(loginUserId) >> Optional.of(user)
+
+        // 重複チェックで別ユーザが見つかる
+        1 * userRepository.findByAuthProviderAndAuthProviderId("GOOGLE", sub) >> Optional.of(otherUser)
+
+        thrown(com.hwhub.backend.presentation.rest.common.GoogleSubAlreadyUsedException)
+    }
+
+    def "linkGoogleAccountByIdTokenはnameがnullまたは空の場合、既存displayNameを使う"() {
+        given:
+        Long loginUserId = 66L
+        String idToken = "no-name-id-token"
+        String sub = "google-sub-no-name"
+        String email = "noname@gmail.com"
+        String existingDisplayName = "Existing Name"
+
+        def userInfo = new GoogleUserInfo(sub: sub, email: email, name: googleName)
+
+        def user = Mock(UserModel) {
+            getUserId() >> loginUserId
+            getAuthProvider() >> "LOCAL"
+            getAuthProviderId() >> null
+            getDisplayName() >> existingDisplayName
+        }
+
+        when:
+        service.linkGoogleAccountByIdToken(loginUserId, idToken)
+
+        then:
+        1 * googleOAuthService.verifyIdToken(idToken) >> userInfo
+        1 * userRepository.findById(loginUserId) >> Optional.of(user)
+        1 * userRepository.findByAuthProviderAndAuthProviderId("GOOGLE", sub) >> Optional.empty()
+        1 * userRepository.linkGoogleAccount(loginUserId, sub, email, existingDisplayName, ProgramType.ONL_USR.code)
+
+        where:
+        googleName << [null, "", "  "]
+    }
+
+    // ==================================
     // getSettings
     // ==================================
 

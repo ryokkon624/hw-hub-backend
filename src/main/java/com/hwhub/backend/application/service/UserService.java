@@ -128,6 +128,28 @@ public class UserService {
     var token = googleOAuthService.exchangeCodeForToken(code);
     GoogleUserInfo info = googleOAuthService.fetchUserInfo(token.getAccessToken());
 
+    linkGoogleAccountByInfo(loginUserId, info);
+  }
+
+  /**
+   * モバイル用 Google アカウント連携。Flutter が取得した idToken を検証してリンクする。
+   *
+   * @param loginUserId 連携対象のログイン中ユーザーID
+   * @param idToken Flutter(google_sign_in) が取得した Google ID Token
+   */
+  @Transactional
+  public void linkGoogleAccountByIdToken(Long loginUserId, String idToken) {
+    GoogleUserInfo info = googleOAuthService.verifyIdToken(idToken);
+    linkGoogleAccountByInfo(loginUserId, info);
+  }
+
+  /**
+   * GoogleUserInfo を使って Google アカウントをリンクする共通処理。
+   *
+   * @param loginUserId 連携対象のログイン中ユーザーID
+   * @param info 検証済みの Google ユーザー情報
+   */
+  private void linkGoogleAccountByInfo(Long loginUserId, GoogleUserInfo info) {
     // すでにこのログインユーザーが GOOGLE 連携済みなら弾く
     var user = userRepository.findById(loginUserId).orElseThrow();
     if (AuthProvider.GOOGLE.getCode().equals(user.getAuthProvider())
