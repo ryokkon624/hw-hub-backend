@@ -46,6 +46,23 @@
             hm.created_at;
     </select>
 
+    <select id="countActiveMembersByHouseholdIds"
+        resultType="com.hwhub.backend.infrastructure.mybatis.custom.mapper.HouseholdMemberCustomMapper$HouseholdActiveMemberCount">
+        SELECT
+            household_id AS householdId,
+            count(*) AS memberCount
+        FROM
+            m_household_member
+        WHERE
+            household_id IN
+            <foreach item="id" collection="householdIds" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+          AND status = '1'
+        GROUP BY
+            household_id
+    </select>
+
     <select id="countActiveByHouseholdIdAndUserId" resultType="int">
         SELECT
             count(*)

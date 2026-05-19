@@ -7,6 +7,10 @@ import com.hwhub.backend.domain.enums.ThemeMode
 import com.hwhub.backend.domain.model.HouseholdModel
 import com.hwhub.backend.domain.model.UserModel
 import com.hwhub.backend.domain.enums.AuthProvider
+import com.hwhub.backend.presentation.rest.auth.dto.GoogleMobileLoginRequest
+import com.hwhub.backend.presentation.rest.common.GoogleAccountAlreadyLinkedException
+import com.hwhub.backend.presentation.rest.common.GoogleSubAlreadyUsedException
+import com.hwhub.backend.presentation.rest.common.OAuthIdTokenInvalidException
 import com.hwhub.backend.presentation.rest.user.dto.ChangePasswordRequest
 import com.hwhub.backend.presentation.rest.user.dto.CreateIconUploadUrlRequest
 import com.hwhub.backend.presentation.rest.user.dto.CreateIconUploadUrlResponse
@@ -311,6 +315,68 @@ class UserControllerSpec extends Specification {
         "SYSTEM"  | ThemeMode.SYSTEM
         "LIGHT"   | ThemeMode.LIGHT
         "DARK"    | ThemeMode.DARK
+    }
+
+    // ----------------------------------------------------
+    // linkGoogleAccountByMobile
+    // ----------------------------------------------------
+
+    def "linkGoogleAccountByMobileは有効なidTokenで204 No Contentを返す"() {
+        given:
+        Long userId = 100L
+        def req = new GoogleMobileLoginRequest("valid-id-token")
+
+        when:
+        def result = controller.linkGoogleAccountByMobile(userId, req)
+
+        then:
+        1 * userService.linkGoogleAccountByIdToken(userId, "valid-id-token")
+        result.statusCode == HttpStatus.NO_CONTENT
+    }
+
+    def "linkGoogleAccountByMobileはOAuthIdTokenInvalidExceptionが伝播する"() {
+        given:
+        Long userId = 101L
+        def req = new GoogleMobileLoginRequest("bad-id-token")
+
+        when:
+        controller.linkGoogleAccountByMobile(userId, req)
+
+        then:
+        1 * userService.linkGoogleAccountByIdToken(userId, "bad-id-token") >> {
+            throw new OAuthIdTokenInvalidException()
+        }
+        thrown(OAuthIdTokenInvalidException)
+    }
+
+    def "linkGoogleAccountByMobileはGoogleAccountAlreadyLinkedExceptionが伝播する"() {
+        given:
+        Long userId = 102L
+        def req = new GoogleMobileLoginRequest("already-linked-id-token")
+
+        when:
+        controller.linkGoogleAccountByMobile(userId, req)
+
+        then:
+        1 * userService.linkGoogleAccountByIdToken(userId, "already-linked-id-token") >> {
+            throw new GoogleAccountAlreadyLinkedException()
+        }
+        thrown(GoogleAccountAlreadyLinkedException)
+    }
+
+    def "linkGoogleAccountByMobileはGoogleSubAlreadyUsedExceptionが伝播する"() {
+        given:
+        Long userId = 103L
+        def req = new GoogleMobileLoginRequest("sub-used-id-token")
+
+        when:
+        controller.linkGoogleAccountByMobile(userId, req)
+
+        then:
+        1 * userService.linkGoogleAccountByIdToken(userId, "sub-used-id-token") >> {
+            throw new GoogleSubAlreadyUsedException()
+        }
+        thrown(GoogleSubAlreadyUsedException)
     }
 
     def "updateNotificationSettingsはgroupSettingsがnullの場合も正常に動作する"() {

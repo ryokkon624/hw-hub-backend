@@ -7,6 +7,7 @@ import com.hwhub.backend.domain.enums.NotificationGroup;
 import com.hwhub.backend.domain.enums.ThemeMode;
 import com.hwhub.backend.domain.model.UserModel;
 import com.hwhub.backend.presentation.rest.auth.GoogleOAuthLinkHelper;
+import com.hwhub.backend.presentation.rest.auth.dto.GoogleMobileLoginRequest;
 import com.hwhub.backend.presentation.rest.user.dto.ChangePasswordRequest;
 import com.hwhub.backend.presentation.rest.user.dto.CreateIconUploadUrlRequest;
 import com.hwhub.backend.presentation.rest.user.dto.CreateIconUploadUrlResponse;
@@ -117,6 +118,21 @@ public class UserController {
   public ResponseEntity<Void> changePassword(
       @CurrentUserId Long userId, @Valid @RequestBody ChangePasswordRequest request) {
     userService.changePassword(userId, request.currentPassword(), request.newPassword());
+    return ResponseEntity.noContent().build();
+  }
+
+  /**
+   * モバイル用 Google アカウント連携（ログイン中ユーザーのみ）
+   *
+   * <p>Flutter(google_sign_in) が取得した idToken を受け取り、Google のサーバーで検証後に HwHub ユーザーと連携する。 Web
+   * 版の連携フロー（OAuth Authorization Code）と異なり、モバイルでは idToken を直接受け取る。
+   *
+   * <p>POST /api/users/me/google/link/mobile
+   */
+  @PostMapping("/me/google/link/mobile")
+  public ResponseEntity<Void> linkGoogleAccountByMobile(
+      @CurrentUserId Long userId, @Valid @RequestBody GoogleMobileLoginRequest request) {
+    userService.linkGoogleAccountByIdToken(userId, request.idToken());
     return ResponseEntity.noContent().build();
   }
 

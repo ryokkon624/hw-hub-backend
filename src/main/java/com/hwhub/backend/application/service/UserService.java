@@ -45,7 +45,7 @@ public class UserService {
     UserModel model =
         userRepository
             .findById(userId)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found. userId=" + userId));
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     model.setIconUrl(userIconService.getIconUrl(model.getProfileImageKey()));
     return model;
   }
@@ -55,7 +55,7 @@ public class UserService {
     UserModel user =
         userRepository
             .findById(userId)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found. userId=" + userId));
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
     user.changeProfile(displayName, locale);
     userRepository.updateForEnduser(user, userId, ProgramType.ONL_USR.getCode());
@@ -69,18 +69,25 @@ public class UserService {
   public void deleteAccount(Long userId) {
     // 所属世帯のチェック
     List<HouseholdModel> households = userRepository.findHouseholdsByUserId(userId);
-    for (HouseholdModel h : households) {
-      // 自分がOWNERの場合
-      if (h.isOwner(userId)) {
-        // メンバー数をチェック
-        List<com.hwhub.backend.domain.model.HouseholdMemberModel> members =
-            householdMemberRepository.findActiveByHouseholdId(h.getHouseholdId());
-        if (members.size() > 1) {
+
+    // OWNERの世帯IDを一括抽出
+    List<Long> ownerHouseholdIds =
+        households.stream()
+            .filter(h -> h.isOwner(userId))
+            .map(HouseholdModel::getHouseholdId)
+            .toList();
+
+    if (!ownerHouseholdIds.isEmpty()) {
+      // OWNERの世帯のメンバー数を一括取得（N+1 解消）
+      Map<Long, Integer> memberCountMap =
+          householdMemberRepository.countActiveMembersByHouseholdIds(ownerHouseholdIds);
+
+      for (HouseholdModel h : households) {
+        if (!h.isOwner(userId)) continue;
+        int memberCount = memberCountMap.getOrDefault(h.getHouseholdId(), 0);
+        if (memberCount > 1) {
           // 自分以外にもメンバーがいる場合は退会不可
-          throw new IllegalArgumentException(
-              "Cannot delete account because you are the owner of household '"
-                  + h.getName()
-                  + "' which has other members. Please transfer ownership or remove members first.");
+          throw new IllegalArgumentException("Cannot delete account: household has other members");
         }
         // メンバーが自分のみならOK（この世帯は後日バッチ削除される）
       }
@@ -103,7 +110,7 @@ public class UserService {
     UserModel user =
         userRepository
             .findById(userId)
-            .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
+            .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
     // 現在パスワード一致チェック
     if (!passwordEncoder.matches(currentPassword, user.getPasswordHash())) {
@@ -128,6 +135,28 @@ public class UserService {
     var token = googleOAuthService.exchangeCodeForToken(code);
     GoogleUserInfo info = googleOAuthService.fetchUserInfo(token.getAccessToken());
 
+    linkGoogleAccountByInfo(loginUserId, info);
+  }
+
+  /**
+   * モバイル用 Google アカウント連携。Flutter が取得した idToken を検証してリンクする。
+   *
+   * @param loginUserId 連携対象のログイン中ユーザーID
+   * @param idToken Flutter(google_sign_in) が取得した Google ID Token
+   */
+  @Transactional
+  public void linkGoogleAccountByIdToken(Long loginUserId, String idToken) {
+    GoogleUserInfo info = googleOAuthService.verifyIdToken(idToken);
+    linkGoogleAccountByInfo(loginUserId, info);
+  }
+
+  /**
+   * GoogleUserInfo を使って Google アカウントをリンクする共通処理。
+   *
+   * @param loginUserId 連携対象のログイン中ユーザーID
+   * @param info 検証済みの Google ユーザー情報
+   */
+  private void linkGoogleAccountByInfo(Long loginUserId, GoogleUserInfo info) {
     // すでにこのログインユーザーが GOOGLE 連携済みなら弾く
     var user = userRepository.findById(loginUserId).orElseThrow();
     if (AuthProvider.GOOGLE.getCode().equals(user.getAuthProvider())
@@ -197,16 +226,22 @@ public class UserService {
   /**
    * NotificationGroupを全列挙し、指定されたユーザの設定値を含めて返却する。
    *
+   * <p>ループ内でクエリを発行する N+1 を避けるため、全グループの設定を一括取得してから参照する。
+   *
    * @param userId ユーザID
    * @param notificationEnabled 通知有効フラグ
    * @return NotificationGroupと設定値のマップ
    */
   private Map<NotificationGroup, Boolean> buildNotificationGroupMap(
       Long userId, boolean notificationEnabled) {
+    // 全グループの設定を一括取得（N+1 解消）
+    Map<NotificationGroup, Boolean> enabledSettings =
+        notificationEnabled ? settingRepository.findAllEnabled(userId) : Map.of();
+
     Map<NotificationGroup, Boolean> map = new LinkedHashMap<>();
     for (NotificationGroup g : NotificationGroup.values()) {
-      boolean gEnabled =
-          notificationEnabled && settingRepository.findEnabled(userId, g).orElse(true);
+      // 設定がなければデフォルトで true（差分管理方式）
+      boolean gEnabled = notificationEnabled && enabledSettings.getOrDefault(g, true);
       map.put(g, gEnabled);
     }
     return map;
@@ -223,7 +258,7 @@ public class UserService {
     UserModel user =
         userRepository
             .findById(userId)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found. userId=" + userId));
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
     user.changeThemeMode(themeMode);
     userRepository.updateThemeMode(user, userId, ProgramType.ONL_USR.getCode());

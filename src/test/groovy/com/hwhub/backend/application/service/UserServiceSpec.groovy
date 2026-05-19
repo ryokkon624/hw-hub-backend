@@ -144,25 +144,19 @@ class UserServiceSpec extends Specification {
         def household = Mock(HouseholdModel) {
             getHouseholdId() >> householdId
             isOwner(userId) >> true
-            getName() >> "My Home"
         }
-
-        // メンバーは複数人いる
-        def members = [
-                Mock(com.hwhub.backend.domain.model.HouseholdMemberModel),
-                Mock(com.hwhub.backend.domain.model.HouseholdMemberModel)
-        ]
 
         when:
         service.deleteAccount(userId)
 
         then:
         1 * userRepository.findHouseholdsByUserId(userId) >> [household]
-        1 * householdMemberRepository.findActiveByHouseholdId(householdId) >> members
-        
+        // 一括取得でメンバー数2を返す（N+1解消）
+        1 * householdMemberRepository.countActiveMembersByHouseholdIds([householdId]) >> [(householdId): 2]
+
         0 * userRepository.deactivate(_, _)
         0 * householdMemberRepository.deleteByUserId(_)
-        
+
         thrown(IllegalArgumentException)
     }
 
@@ -177,17 +171,13 @@ class UserServiceSpec extends Specification {
             isOwner(userId) >> true
         }
 
-        // メンバーは自分だけ
-        def members = [
-                Mock(com.hwhub.backend.domain.model.HouseholdMemberModel)
-        ]
-
         when:
         service.deleteAccount(userId)
 
         then:
         1 * userRepository.findHouseholdsByUserId(userId) >> [household]
-        1 * householdMemberRepository.findActiveByHouseholdId(householdId) >> members
+        // 一括取得でメンバー数1を返す（N+1解消）
+        1 * householdMemberRepository.countActiveMembersByHouseholdIds([householdId]) >> [(householdId): 1]
 
         // 退会処理が進む
         1 * userRepository.deactivate(userId, ProgramType.ONL_USR.code)
@@ -210,9 +200,9 @@ class UserServiceSpec extends Specification {
 
         then:
         1 * userRepository.findHouseholdsByUserId(userId) >> [household]
-        
-        // メンバー数チェックはスキップされる
-        0 * householdMemberRepository.findActiveByHouseholdId(_)
+
+        // OWNERでないため一括クエリは呼ばれない
+        0 * householdMemberRepository.countActiveMembersByHouseholdIds(_)
 
         // 退会処理が進む
         1 * userRepository.deactivate(userId, ProgramType.ONL_USR.code)
@@ -392,6 +382,125 @@ class UserServiceSpec extends Specification {
     }
 
     // ==================================
+    // linkGoogleAccountByIdToken
+    // ==================================
+
+    def "linkGoogleAccountByIdTokenは有効なidTokenでGoogleアカウントを連携する"() {
+        given:
+        Long loginUserId = 63L
+        String idToken = "valid-id-token"
+        String sub = "google-sub"
+        String email = "test@gmail.com"
+        String name = "Google Name"
+
+        def userInfo = new GoogleUserInfo(sub: sub, email: email, name: name)
+
+        def user = Mock(UserModel) {
+            getUserId() >> loginUserId
+            getAuthProvider() >> "LOCAL"
+            getAuthProviderId() >> null
+            getDisplayName() >> "Local Name"
+        }
+
+        when:
+        service.linkGoogleAccountByIdToken(loginUserId, idToken)
+
+        then:
+        1 * googleOAuthService.verifyIdToken(idToken) >> userInfo
+
+        1 * userRepository.findById(loginUserId) >> Optional.of(user)
+
+        // 重複チェック
+        1 * userRepository.findByAuthProviderAndAuthProviderId("GOOGLE", sub) >> Optional.empty()
+
+        // リンク処理
+        1 * userRepository.linkGoogleAccount(loginUserId, sub, email, name, ProgramType.ONL_USR.code)
+    }
+
+    def "linkGoogleAccountByIdTokenは既に自身が連携済みの場合GoogleAccountAlreadyLinkedExceptionを投げる"() {
+        given:
+        Long loginUserId = 64L
+        String idToken = "already-linked-id-token"
+
+        def userInfo = new GoogleUserInfo(sub: "sub", email: "email")
+
+        def user = Mock(UserModel) {
+            getAuthProvider() >> "GOOGLE"
+            getAuthProviderId() >> "sub"
+        }
+
+        when:
+        service.linkGoogleAccountByIdToken(loginUserId, idToken)
+
+        then:
+        1 * googleOAuthService.verifyIdToken(idToken) >> userInfo
+        1 * userRepository.findById(loginUserId) >> Optional.of(user)
+
+        thrown(com.hwhub.backend.presentation.rest.common.GoogleAccountAlreadyLinkedException)
+    }
+
+    def "linkGoogleAccountByIdTokenは別のユーザが既にそのGoogleアカウントを使用している場合GoogleSubAlreadyUsedExceptionを投げる"() {
+        given:
+        Long loginUserId = 65L
+        Long otherUserId = 99L
+        String idToken = "sub-used-id-token"
+        String sub = "sub"
+
+        def userInfo = new GoogleUserInfo(sub: sub, email: "email")
+
+        def user = Mock(UserModel) {
+            getUserId() >> loginUserId
+            getAuthProvider() >> "LOCAL"
+        }
+
+        def otherUser = Mock(UserModel) {
+            getUserId() >> otherUserId
+        }
+
+        when:
+        service.linkGoogleAccountByIdToken(loginUserId, idToken)
+
+        then:
+        1 * googleOAuthService.verifyIdToken(idToken) >> userInfo
+        1 * userRepository.findById(loginUserId) >> Optional.of(user)
+
+        // 重複チェックで別ユーザが見つかる
+        1 * userRepository.findByAuthProviderAndAuthProviderId("GOOGLE", sub) >> Optional.of(otherUser)
+
+        thrown(com.hwhub.backend.presentation.rest.common.GoogleSubAlreadyUsedException)
+    }
+
+    def "linkGoogleAccountByIdTokenはnameがnullまたは空の場合、既存displayNameを使う"() {
+        given:
+        Long loginUserId = 66L
+        String idToken = "no-name-id-token"
+        String sub = "google-sub-no-name"
+        String email = "noname@gmail.com"
+        String existingDisplayName = "Existing Name"
+
+        def userInfo = new GoogleUserInfo(sub: sub, email: email, name: googleName)
+
+        def user = Mock(UserModel) {
+            getUserId() >> loginUserId
+            getAuthProvider() >> "LOCAL"
+            getAuthProviderId() >> null
+            getDisplayName() >> existingDisplayName
+        }
+
+        when:
+        service.linkGoogleAccountByIdToken(loginUserId, idToken)
+
+        then:
+        1 * googleOAuthService.verifyIdToken(idToken) >> userInfo
+        1 * userRepository.findById(loginUserId) >> Optional.of(user)
+        1 * userRepository.findByAuthProviderAndAuthProviderId("GOOGLE", sub) >> Optional.empty()
+        1 * userRepository.linkGoogleAccount(loginUserId, sub, email, existingDisplayName, ProgramType.ONL_USR.code)
+
+        where:
+        googleName << [null, "", "  "]
+    }
+
+    // ==================================
     // getSettings
     // ==================================
 
@@ -404,9 +513,10 @@ class UserServiceSpec extends Specification {
 
         then:
         1 * userRepository.isNotificationEnabled(userId) >> true
-        1 * settingRepository.findEnabled(userId, com.hwhub.backend.domain.enums.NotificationGroup.HOUSEHOLD) >> Optional.empty()
-        1 * settingRepository.findEnabled(userId, com.hwhub.backend.domain.enums.NotificationGroup.TASK_ASSIGNMENT) >> Optional.of(false)
-        1 * settingRepository.findEnabled(userId, com.hwhub.backend.domain.enums.NotificationGroup.INQUIRY) >> Optional.empty()
+        // 一括取得（N+1解消）: TASK_ASSIGNMENTだけがfalse設定されている
+        1 * settingRepository.findAllEnabled(userId) >> [
+            (com.hwhub.backend.domain.enums.NotificationGroup.TASK_ASSIGNMENT): false
+        ]
 
         and:
         result.notificationEnabled() == true
@@ -424,8 +534,8 @@ class UserServiceSpec extends Specification {
 
         then:
         1 * userRepository.isNotificationEnabled(userId) >> false
-        // buildNotificationGroupMapでnotificationEnabled=falseの場合、全グループfalse
-        0 * settingRepository.findEnabled(_, _)
+        // 通知無効の場合、一括クエリは呼ばれない
+        0 * settingRepository.findAllEnabled(_)
 
         and:
         result.notificationEnabled() == false
@@ -444,11 +554,10 @@ class UserServiceSpec extends Specification {
             (com.hwhub.backend.domain.enums.NotificationGroup.HOUSEHOLD): true,
             (com.hwhub.backend.domain.enums.NotificationGroup.TASK_ASSIGNMENT): false
         ]
-        // buildNotificationGroupMap用のスタブ
-        userRepository.isNotificationEnabled(userId) >> true
-        settingRepository.findEnabled(userId, com.hwhub.backend.domain.enums.NotificationGroup.HOUSEHOLD) >> Optional.empty()
-        settingRepository.findEnabled(userId, com.hwhub.backend.domain.enums.NotificationGroup.TASK_ASSIGNMENT) >> Optional.of(false)
-        settingRepository.findEnabled(userId, com.hwhub.backend.domain.enums.NotificationGroup.INQUIRY) >> Optional.empty()
+        // buildNotificationGroupMap用のスタブ（一括取得）
+        settingRepository.findAllEnabled(userId) >> [
+            (com.hwhub.backend.domain.enums.NotificationGroup.TASK_ASSIGNMENT): false
+        ]
 
         when:
         def result = service.updateNotificationEnabled(userId, true, groupSettings)
@@ -484,6 +593,8 @@ class UserServiceSpec extends Specification {
         // 通知無効の場合、グループ設定は変更されない
         0 * settingRepository.delete(_, _)
         0 * settingRepository.upsert(_, _, _, _, _)
+        // 通知無効の場合、一括クエリも呼ばれない
+        0 * settingRepository.findAllEnabled(_)
 
         and:
         result.notificationEnabled() == false
@@ -542,6 +653,8 @@ class UserServiceSpec extends Specification {
         def groupSettings = new LinkedHashMap()
         groupSettings.put(com.hwhub.backend.domain.enums.NotificationGroup.HOUSEHOLD, null)
         groupSettings.put(com.hwhub.backend.domain.enums.NotificationGroup.TASK_ASSIGNMENT, true)
+        // buildNotificationGroupMap用のスタブ（一括取得）
+        settingRepository.findAllEnabled(userId) >> [:]
 
         when:
         def result = service.updateNotificationEnabled(userId, true, groupSettings)
@@ -555,9 +668,5 @@ class UserServiceSpec extends Specification {
 
         // true値のグループは差分削除
         1 * settingRepository.delete(userId, com.hwhub.backend.domain.enums.NotificationGroup.TASK_ASSIGNMENT)
-
-        // buildNotificationGroupMapの呼び出し
-        _ * userRepository.isNotificationEnabled(userId) >> true
-        _ * settingRepository.findEnabled(userId, _) >> Optional.empty()
     }
 }
