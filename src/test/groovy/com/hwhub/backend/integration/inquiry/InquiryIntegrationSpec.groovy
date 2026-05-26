@@ -90,7 +90,10 @@ class InquiryIntegrationSpec extends IntegrationTestBase {
         def requestBody = [
                 category   : "10",
                 title      : "テスト件名",
-                body       : "テスト本文"
+                body       : "テスト本文",
+                uiClient   : "web",
+                uiVersion  : "1.0.0",
+                apiVersion : "1.0.0"
         ]
 
         when:
@@ -112,7 +115,10 @@ class InquiryIntegrationSpec extends IntegrationTestBase {
         def requestBody = [
                 category   : "10",
                 title      : "DB確認テスト",
-                body       : "本文内容"
+                body       : "本文内容",
+                uiClient   : "web",
+                uiVersion  : "1.0.0",
+                apiVersion : "1.0.0"
         ]
 
         when:
@@ -215,7 +221,10 @@ class InquiryIntegrationSpec extends IntegrationTestBase {
                         .content(objectMapper.writeValueAsString([
                                 category   : "10",
                                 title      : "一覧テスト",
-                                body       : "本文"
+                                body       : "本文",
+                                uiClient   : "web",
+                                uiVersion  : "1.0.0",
+                                apiVersion : "1.0.0"
                         ]))
         )
 
@@ -269,7 +278,10 @@ class InquiryIntegrationSpec extends IntegrationTestBase {
                         .content(objectMapper.writeValueAsString([
                                 category   : "10",
                                 title      : "詳細テスト件名",
-                                body       : "詳細テスト本文"
+                                body       : "詳細テスト本文",
+                                uiClient   : "web",
+                                uiVersion  : "1.0.0",
+                                apiVersion : "1.0.0"
                         ]))
         ).andReturn()
         def inquiryId = objectMapper.readValue(createResult.response.contentAsString, Map).inquiryId
@@ -329,7 +341,10 @@ class InquiryIntegrationSpec extends IntegrationTestBase {
                         .content(objectMapper.writeValueAsString([
                                 category   : "10",
                                 title      : "他人の問い合わせ",
-                                body       : "他人の本文"
+                                body       : "他人の本文",
+                                uiClient   : "web",
+                                uiVersion  : "1.0.0",
+                                apiVersion : "1.0.0"
                         ]))
         ).andReturn()
         def otherInquiryId = objectMapper.readValue(createResult.response.contentAsString, Map).inquiryId
@@ -360,7 +375,10 @@ class InquiryIntegrationSpec extends IntegrationTestBase {
                         .content(objectMapper.writeValueAsString([
                                 category   : "10",
                                 title      : "メッセージ追加テスト",
-                                body       : "初回メッセージ"
+                                body       : "初回メッセージ",
+                                uiClient   : "web",
+                                uiVersion  : "1.0.0",
+                                apiVersion : "1.0.0"
                         ]))
         ).andReturn()
         def inquiryId = objectMapper.readValue(createResult.response.contentAsString, Map).inquiryId
@@ -387,7 +405,10 @@ class InquiryIntegrationSpec extends IntegrationTestBase {
                         .content(objectMapper.writeValueAsString([
                                 category   : "10",
                                 title      : "メッセージDB確認テスト",
-                                body       : "初回メッセージ"
+                                body       : "初回メッセージ",
+                                uiClient   : "web",
+                                uiVersion  : "1.0.0",
+                                apiVersion : "1.0.0"
                         ]))
         ).andReturn()
         def inquiryId = objectMapper.readValue(createResult.response.contentAsString, Map).inquiryId
@@ -422,7 +443,10 @@ class InquiryIntegrationSpec extends IntegrationTestBase {
                         .content(objectMapper.writeValueAsString([
                                 category   : "10",
                                 title      : "クローズテスト",
-                                body       : "クローズ前メッセージ"
+                                body       : "クローズ前メッセージ",
+                                uiClient   : "web",
+                                uiVersion  : "1.0.0",
+                                apiVersion : "1.0.0"
                         ]))
         ).andReturn()
         def inquiryId = objectMapper.readValue(createResult.response.contentAsString, Map).inquiryId
@@ -458,7 +482,10 @@ class InquiryIntegrationSpec extends IntegrationTestBase {
                         .content(objectMapper.writeValueAsString([
                                 category   : "10",
                                 title      : "エスカレーションテスト",
-                                body       : "エスカレーション前メッセージ"
+                                body       : "エスカレーション前メッセージ",
+                                uiClient   : "web",
+                                uiVersion  : "1.0.0",
+                                apiVersion : "1.0.0"
                         ]))
         ).andReturn()
         def inquiryId = objectMapper.readValue(createResult.response.contentAsString, Map).inquiryId
