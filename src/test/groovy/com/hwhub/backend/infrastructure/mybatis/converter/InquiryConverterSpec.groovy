@@ -3,6 +3,7 @@ package com.hwhub.backend.infrastructure.mybatis.converter
 import com.hwhub.backend.domain.enums.InquiryCategory
 import com.hwhub.backend.domain.enums.InquiryStatus
 import com.hwhub.backend.domain.enums.SenderType
+import com.hwhub.backend.domain.enums.UiClient
 import com.hwhub.backend.domain.model.inquiry.InquiryId
 import com.hwhub.backend.domain.model.inquiry.InquiryMessageModel
 import com.hwhub.backend.domain.model.inquiry.InquiryModel
@@ -54,6 +55,9 @@ class InquiryConverterSpec extends Specification {
         entity.status = "00"
         entity.title = "件名"
         entity.createdAt = new Date()
+        entity.uiClient = "web"
+        entity.uiVersion = "1.0.0"
+        entity.apiVersion = "2.0.0"
         entity.messages = [msgEntity]
 
         when:
@@ -66,6 +70,9 @@ class InquiryConverterSpec extends Specification {
         model.category == InquiryCategory.GENERAL
         model.status == InquiryStatus.OPEN
         model.title == "件名"
+        model.uiClient == UiClient.WEB
+        model.uiVersion == "1.0.0"
+        model.apiVersion == "2.0.0"
         model.messages.size() == 1
         model.messages[0].senderType == SenderType.YOU
         model.messages[0].body == "ユーザーメッセージ"
@@ -80,6 +87,9 @@ class InquiryConverterSpec extends Specification {
         entity.status = "00"
         entity.title = "件名"
         entity.createdAt = null
+        entity.uiClient = "mobile"
+        entity.uiVersion = "1.2.3"
+        entity.apiVersion = "3.0.0"
         entity.messages = null
 
         when:
@@ -89,6 +99,7 @@ class InquiryConverterSpec extends Specification {
         model != null
         model.messages.isEmpty()
         model.createdAt == null
+        model.uiClient == UiClient.MOBILE
     }
 
     // ==================================
@@ -149,7 +160,7 @@ class InquiryConverterSpec extends Specification {
     def "toEntityはInquiryModelをTInquiryに変換する（inquiryIdあり）"() {
         given:
         def model = InquiryModel.reconstruct(
-            5L, 1L, "10", "00", "件名", [], LocalDateTime.now()
+            5L, 1L, "10", "00", "件名", [], LocalDateTime.now(), "web", "1.0.0", "2.0.0"
         )
 
         when:
@@ -162,11 +173,14 @@ class InquiryConverterSpec extends Specification {
         entity.category == "10"
         entity.status == "00"
         entity.title == "件名"
+        entity.uiClient == "web"
+        entity.uiVersion == "1.0.0"
+        entity.apiVersion == "2.0.0"
     }
 
     def "toEntityはinquiryIdがnull（新規）のときinquiryIdをセットしない"() {
         given:
-        def model = InquiryModel.newInquiry(1L, InquiryCategory.GENERAL, "件名", "本文")
+        def model = InquiryModel.newInquiry(1L, InquiryCategory.GENERAL, "件名", "本文", UiClient.MOBILE, "1.2.3", "3.0.0")
 
         when:
         def entity = InquiryConverter.toEntity(model)
@@ -175,6 +189,9 @@ class InquiryConverterSpec extends Specification {
         entity != null
         entity.inquiryId == null
         entity.userId == 1L
+        entity.uiClient == "mobile"
+        entity.uiVersion == "1.2.3"
+        entity.apiVersion == "3.0.0"
     }
 
     // ==================================

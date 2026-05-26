@@ -3,6 +3,7 @@ package com.hwhub.backend.domain.model.inquiry;
 import com.hwhub.backend.domain.enums.InquiryCategory;
 import com.hwhub.backend.domain.enums.InquiryStatus;
 import com.hwhub.backend.domain.enums.SenderType;
+import com.hwhub.backend.domain.enums.UiClient;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +18,9 @@ public class InquiryModel {
   private final String title;
   private final List<InquiryMessageModel> messages;
   private final LocalDateTime createdAt;
+  private final UiClient uiClient;
+  private final String uiVersion;
+  private final String apiVersion;
 
   private InquiryModel(
       InquiryId inquiryId,
@@ -25,7 +29,10 @@ public class InquiryModel {
       InquiryStatus status,
       String title,
       List<InquiryMessageModel> messages,
-      LocalDateTime createdAt) {
+      LocalDateTime createdAt,
+      UiClient uiClient,
+      String uiVersion,
+      String apiVersion) {
     this.inquiryId = inquiryId;
     this.userId = userId;
     this.category = category;
@@ -33,13 +40,32 @@ public class InquiryModel {
     this.title = title;
     this.messages = messages;
     this.createdAt = createdAt;
+    this.uiClient = uiClient;
+    this.uiVersion = uiVersion;
+    this.apiVersion = apiVersion;
   }
 
   public static InquiryModel newInquiry(
-      long userId, InquiryCategory category, String title, String firstMessageBody) {
+      long userId,
+      InquiryCategory category,
+      String title,
+      String firstMessageBody,
+      UiClient uiClient,
+      String uiVersion,
+      String apiVersion) {
     List<InquiryMessageModel> messages = new ArrayList<>();
     messages.add(InquiryMessageModel.newMessage(null, 1, SenderType.YOU, firstMessageBody));
-    return new InquiryModel(null, userId, category, InquiryStatus.OPEN, title, messages, null);
+    return new InquiryModel(
+        null,
+        userId,
+        category,
+        InquiryStatus.OPEN,
+        title,
+        messages,
+        null,
+        uiClient,
+        uiVersion,
+        apiVersion);
   }
 
   public static InquiryModel reconstruct(
@@ -49,7 +75,10 @@ public class InquiryModel {
       String status,
       String title,
       List<InquiryMessageModel> messages,
-      LocalDateTime createdAt) {
+      LocalDateTime createdAt,
+      String uiClient,
+      String uiVersion,
+      String apiVersion) {
     return new InquiryModel(
         new InquiryId(inquiryId),
         userId,
@@ -57,7 +86,10 @@ public class InquiryModel {
         InquiryStatus.fromCode(status),
         title,
         new ArrayList<>(messages),
-        createdAt);
+        createdAt,
+        UiClient.fromCode(uiClient),
+        uiVersion,
+        apiVersion);
   }
 
   public InquiryMessageModel addMessage(String body, SenderType senderType) {

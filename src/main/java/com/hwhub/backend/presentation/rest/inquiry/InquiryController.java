@@ -3,6 +3,7 @@ package com.hwhub.backend.presentation.rest.inquiry;
 import com.hwhub.backend.application.service.inquiry.InquiryService;
 import com.hwhub.backend.domain.enums.InquiryCategory;
 import com.hwhub.backend.domain.enums.SenderType;
+import com.hwhub.backend.domain.enums.UiClient;
 import com.hwhub.backend.domain.model.inquiry.InquiryId;
 import com.hwhub.backend.domain.model.inquiry.InquiryModel;
 import com.hwhub.backend.domain.model.inquiry.InquirySummary;
@@ -33,8 +34,16 @@ public class InquiryController {
   public Map<String, Object> createInquiry(
       @RequestBody @Valid InquiryCreateRequest request, @CurrentUserId Long userId) {
     InquiryCategory category = InquiryCategory.fromCode(request.category());
+    UiClient uiClient = UiClient.fromCode(request.uiClient());
     InquiryId inquiryId =
-        inquiryService.createInquiry(userId, category, request.title(), request.body());
+        inquiryService.createInquiry(
+            userId,
+            category,
+            request.title(),
+            request.body(),
+            uiClient,
+            request.uiVersion(),
+            request.apiVersion());
     return Map.of("inquiryId", inquiryId.value());
   }
 

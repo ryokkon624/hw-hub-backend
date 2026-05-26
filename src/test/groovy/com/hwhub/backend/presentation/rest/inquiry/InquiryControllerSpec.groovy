@@ -4,6 +4,7 @@ import com.hwhub.backend.application.service.inquiry.InquiryService
 import com.hwhub.backend.domain.enums.InquiryCategory
 import com.hwhub.backend.domain.enums.InquiryStatus
 import com.hwhub.backend.domain.enums.SenderType
+import com.hwhub.backend.domain.enums.UiClient
 import com.hwhub.backend.domain.model.inquiry.InquiryId
 import com.hwhub.backend.domain.model.inquiry.InquiryModel
 import com.hwhub.backend.domain.model.inquiry.InquirySummary
@@ -29,26 +30,26 @@ class InquiryControllerSpec extends Specification {
 
     def "createInquiryはサービスを呼び出してinquiryIdを含むMapを返す"() {
         given:
-        def request = new InquiryCreateRequest("10", "件名", "本文")
+        def request = new InquiryCreateRequest("10", "件名", "本文", "web", "1.0.0", "2.0.0")
         def generatedId = new InquiryId(99L)
 
         when:
         def result = controller.createInquiry(request, userId)
 
         then:
-        1 * inquiryService.createInquiry(1L, InquiryCategory.GENERAL, "件名", "本文") >> generatedId
+        1 * inquiryService.createInquiry(1L, InquiryCategory.GENERAL, "件名", "本文", UiClient.WEB, "1.0.0", "2.0.0") >> generatedId
         result["inquiryId"] == 99L
     }
 
     def "createInquiryは各カテゴリコードを正しくInquiryCategoryに変換してサービスに渡す"() {
         given:
-        def request = new InquiryCreateRequest(categoryCode, "件名", "本文")
+        def request = new InquiryCreateRequest(categoryCode, "件名", "本文", "web", "1.0.0", "2.0.0")
 
         when:
         controller.createInquiry(request, userId)
 
         then:
-        1 * inquiryService.createInquiry(1L, expectedCategory, "件名", "本文") >> new InquiryId(1L)
+        1 * inquiryService.createInquiry(1L, expectedCategory, "件名", "本文", UiClient.WEB, "1.0.0", "2.0.0") >> new InquiryId(1L)
 
         where:
         categoryCode | expectedCategory
@@ -98,7 +99,7 @@ class InquiryControllerSpec extends Specification {
 
     def "getInquiryは指定IDの問い合わせ詳細を返す"() {
         given:
-        def model = InquiryModel.reconstruct(5L, 1L, "10", "00", "件名", [], LocalDateTime.now())
+        def model = InquiryModel.reconstruct(5L, 1L, "10", "00", "件名", [], LocalDateTime.now(), "web", "1.0.0", "2.0.0")
 
         when:
         def result = controller.getInquiry(5L, userId)
@@ -110,6 +111,9 @@ class InquiryControllerSpec extends Specification {
         result.status() == "00"
         result.title() == "件名"
         result.messages().isEmpty()
+        result.uiClient() == "web"
+        result.uiVersion() == "1.0.0"
+        result.apiVersion() == "2.0.0"
     }
 
     // ==================================

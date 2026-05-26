@@ -4,6 +4,9 @@
   <resultMap id="BaseResultMap" type="com.hwhub.backend.infrastructure.mybatis.generated.entity.TInquiry">
     <id column="inquiry_id" jdbcType="BIGINT" property="inquiryId" />
     <result column="user_id" jdbcType="BIGINT" property="userId" />
+    <result column="ui_client" jdbcType="VARCHAR" property="uiClient" />
+    <result column="ui_version" jdbcType="VARCHAR" property="uiVersion" />
+    <result column="api_version" jdbcType="VARCHAR" property="apiVersion" />
     <result column="category" jdbcType="VARCHAR" property="category" />
     <result column="status" jdbcType="VARCHAR" property="status" />
     <result column="title" jdbcType="VARCHAR" property="title" />
@@ -44,8 +47,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    inquiry_id, user_id, category, `status`, title, create_user_id, create_program, created_at, 
-    update_user_id, update_program, updated_at
+    inquiry_id, user_id, ui_client, ui_version, api_version, category, `status`, title, 
+    create_user_id, create_program, created_at, update_user_id, update_program, updated_at
   </sql>
   <select id="selectByExample" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.TInquiryExample" resultMap="BaseResultMap">
     select
@@ -73,11 +76,13 @@
     where inquiry_id = #{inquiryId,jdbcType=BIGINT}
   </delete>
   <insert id="insert" keyColumn="inquiry_id" keyProperty="inquiryId" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.TInquiry" useGeneratedKeys="true">
-    insert into t_inquiry (user_id, category, `status`, 
+    insert into t_inquiry (user_id, ui_client, ui_version, 
+      api_version, category, `status`, 
       title, create_user_id, create_program, 
       created_at, update_user_id, update_program, 
       updated_at)
-    values (#{userId,jdbcType=BIGINT}, #{category,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
+    values (#{userId,jdbcType=BIGINT}, #{uiClient,jdbcType=VARCHAR}, #{uiVersion,jdbcType=VARCHAR}, 
+      #{apiVersion,jdbcType=VARCHAR}, #{category,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
       #{title,jdbcType=VARCHAR}, #{createUserId,jdbcType=BIGINT}, #{createProgram,jdbcType=VARCHAR}, 
       #{createdAt,jdbcType=TIMESTAMP}, #{updateUserId,jdbcType=BIGINT}, #{updateProgram,jdbcType=VARCHAR}, 
       #{updatedAt,jdbcType=TIMESTAMP})
@@ -87,6 +92,15 @@
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="userId != null">
         user_id,
+      </if>
+      <if test="uiClient != null">
+        ui_client,
+      </if>
+      <if test="uiVersion != null">
+        ui_version,
+      </if>
+      <if test="apiVersion != null">
+        api_version,
       </if>
       <if test="category != null">
         category,
@@ -119,6 +133,15 @@
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="userId != null">
         #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="uiClient != null">
+        #{uiClient,jdbcType=VARCHAR},
+      </if>
+      <if test="uiVersion != null">
+        #{uiVersion,jdbcType=VARCHAR},
+      </if>
+      <if test="apiVersion != null">
+        #{apiVersion,jdbcType=VARCHAR},
       </if>
       <if test="category != null">
         #{category,jdbcType=VARCHAR},
@@ -155,6 +178,15 @@
       <if test="userId != null">
         user_id = #{userId,jdbcType=BIGINT},
       </if>
+      <if test="uiClient != null">
+        ui_client = #{uiClient,jdbcType=VARCHAR},
+      </if>
+      <if test="uiVersion != null">
+        ui_version = #{uiVersion,jdbcType=VARCHAR},
+      </if>
+      <if test="apiVersion != null">
+        api_version = #{apiVersion,jdbcType=VARCHAR},
+      </if>
       <if test="category != null">
         category = #{category,jdbcType=VARCHAR},
       </if>
@@ -188,6 +220,9 @@
   <update id="updateByPrimaryKey" parameterType="com.hwhub.backend.infrastructure.mybatis.generated.entity.TInquiry">
     update t_inquiry
     set user_id = #{userId,jdbcType=BIGINT},
+      ui_client = #{uiClient,jdbcType=VARCHAR},
+      ui_version = #{uiVersion,jdbcType=VARCHAR},
+      api_version = #{apiVersion,jdbcType=VARCHAR},
       category = #{category,jdbcType=VARCHAR},
       `status` = #{status,jdbcType=VARCHAR},
       title = #{title,jdbcType=VARCHAR},

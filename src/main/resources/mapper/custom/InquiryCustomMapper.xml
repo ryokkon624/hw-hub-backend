@@ -13,6 +13,9 @@
     <result property="status"      column="status"/>
     <result property="title"       column="title"/>
     <result property="createdAt"   column="created_at"/>
+    <result property="uiClient"    column="ui_client"/>
+    <result property="uiVersion"   column="ui_version"/>
+    <result property="apiVersion"  column="api_version"/>
     <collection property="messages"
                 ofType="com.hwhub.backend.infrastructure.mybatis.generated.entity.TInquiryMessage"
                 columnPrefix="msg_">
@@ -33,6 +36,9 @@
         , i.`status`
         , i.title
         , i.created_at
+        , i.ui_client
+        , i.ui_version
+        , i.api_version
         , m.message_id  AS msg_message_id
         , m.inquiry_id  AS msg_inquiry_id
         , m.seq         AS msg_seq
