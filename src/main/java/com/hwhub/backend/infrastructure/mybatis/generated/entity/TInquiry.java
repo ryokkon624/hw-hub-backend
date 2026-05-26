@@ -7,6 +7,12 @@ public class TInquiry {
 
   private Long userId;
 
+  private String uiClient;
+
+  private String uiVersion;
+
+  private String apiVersion;
+
   private String category;
 
   private String status;
@@ -25,12 +31,6 @@ public class TInquiry {
 
   private Date updatedAt;
 
-  private String uiClient;
-
-  private String uiVersion;
-
-  private String apiVersion;
-
   public Long getInquiryId() {
     return inquiryId;
   }
@@ -45,6 +45,30 @@ public class TInquiry {
 
   public void setUserId(Long userId) {
     this.userId = userId;
+  }
+
+  public String getUiClient() {
+    return uiClient;
+  }
+
+  public void setUiClient(String uiClient) {
+    this.uiClient = uiClient == null ? null : uiClient.trim();
+  }
+
+  public String getUiVersion() {
+    return uiVersion;
+  }
+
+  public void setUiVersion(String uiVersion) {
+    this.uiVersion = uiVersion == null ? null : uiVersion.trim();
+  }
+
+  public String getApiVersion() {
+    return apiVersion;
+  }
+
+  public void setApiVersion(String apiVersion) {
+    this.apiVersion = apiVersion == null ? null : apiVersion.trim();
   }
 
   public String getCategory() {
@@ -117,29 +141,5 @@ public class TInquiry {
 
   public void setUpdatedAt(Date updatedAt) {
     this.updatedAt = updatedAt;
-  }
-
-  public String getUiClient() {
-    return uiClient;
-  }
-
-  public void setUiClient(String uiClient) {
-    this.uiClient = uiClient == null ? null : uiClient.trim();
-  }
-
-  public String getUiVersion() {
-    return uiVersion;
-  }
-
-  public void setUiVersion(String uiVersion) {
-    this.uiVersion = uiVersion == null ? null : uiVersion.trim();
-  }
-
-  public String getApiVersion() {
-    return apiVersion;
-  }
-
-  public void setApiVersion(String apiVersion) {
-    this.apiVersion = apiVersion == null ? null : apiVersion.trim();
   }
 }
