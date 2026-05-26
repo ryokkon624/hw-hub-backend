@@ -33,7 +33,10 @@ public final class InquiryConverter {
         entity.getStatus(),
         entity.getTitle(),
         messageModels,
-        DateConverter.toLocalDateTime(entity.getCreatedAt()));
+        DateConverter.toLocalDateTime(entity.getCreatedAt()),
+        entity.getUiClient(),
+        entity.getUiVersion(),
+        entity.getApiVersion());
   }
 
   public static InquirySummary toSummary(TInquiry entity) {
@@ -80,6 +83,9 @@ public final class InquiryConverter {
     entity.setCategory(inquiry.getCategory().getCode());
     entity.setStatus(inquiry.getStatus().getCode());
     entity.setTitle(inquiry.getTitle());
+    entity.setUiClient(inquiry.getUiClient().getCode());
+    entity.setUiVersion(inquiry.getUiVersion());
+    entity.setApiVersion(inquiry.getApiVersion());
     return entity;
   }
 

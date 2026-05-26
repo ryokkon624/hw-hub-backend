@@ -10,7 +10,10 @@ public record InquiryDetailResponse(
     String status,
     String title,
     LocalDateTime createdAt,
-    List<InquiryMessageDto> messages) {
+    List<InquiryMessageDto> messages,
+    String uiClient,
+    String uiVersion,
+    String apiVersion) {
 
   public static InquiryDetailResponse from(InquiryModel inquiry) {
     return new InquiryDetailResponse(
@@ -19,6 +22,9 @@ public record InquiryDetailResponse(
         inquiry.getStatus().getCode(),
         inquiry.getTitle(),
         inquiry.getCreatedAt(),
-        inquiry.getMessages().stream().map(InquiryMessageDto::from).toList());
+        inquiry.getMessages().stream().map(InquiryMessageDto::from).toList(),
+        inquiry.getUiClient().getCode(),
+        inquiry.getUiVersion(),
+        inquiry.getApiVersion());
   }
 }

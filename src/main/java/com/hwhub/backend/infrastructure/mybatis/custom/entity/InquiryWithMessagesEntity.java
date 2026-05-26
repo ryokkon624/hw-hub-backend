@@ -14,5 +14,8 @@ public class InquiryWithMessagesEntity {
   private String status;
   private String title;
   private Date createdAt;
+  private String uiClient;
+  private String uiVersion;
+  private String apiVersion;
   private List<TInquiryMessage> messages;
 }

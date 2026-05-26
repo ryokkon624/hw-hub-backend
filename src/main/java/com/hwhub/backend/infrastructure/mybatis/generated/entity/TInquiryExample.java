@@ -814,6 +814,216 @@ public class TInquiryExample {
       addCriterion("updated_at not between", value1, value2, "updatedAt");
       return (Criteria) this;
     }
+
+    public Criteria andUiClientIsNull() {
+      addCriterion("ui_client is null");
+      return (Criteria) this;
+    }
+
+    public Criteria andUiClientIsNotNull() {
+      addCriterion("ui_client is not null");
+      return (Criteria) this;
+    }
+
+    public Criteria andUiClientEqualTo(String value) {
+      addCriterion("ui_client =", value, "uiClient");
+      return (Criteria) this;
+    }
+
+    public Criteria andUiClientNotEqualTo(String value) {
+      addCriterion("ui_client <>", value, "uiClient");
+      return (Criteria) this;
+    }
+
+    public Criteria andUiClientGreaterThan(String value) {
+      addCriterion("ui_client >", value, "uiClient");
+      return (Criteria) this;
+    }
+
+    public Criteria andUiClientGreaterThanOrEqualTo(String value) {
+      addCriterion("ui_client >=", value, "uiClient");
+      return (Criteria) this;
+    }
+
+    public Criteria andUiClientLessThan(String value) {
+      addCriterion("ui_client <", value, "uiClient");
+      return (Criteria) this;
+    }
+
+    public Criteria andUiClientLessThanOrEqualTo(String value) {
+      addCriterion("ui_client <=", value, "uiClient");
+      return (Criteria) this;
+    }
+
+    public Criteria andUiClientLike(String value) {
+      addCriterion("ui_client like", value, "uiClient");
+      return (Criteria) this;
+    }
+
+    public Criteria andUiClientNotLike(String value) {
+      addCriterion("ui_client not like", value, "uiClient");
+      return (Criteria) this;
+    }
+
+    public Criteria andUiClientIn(List<String> values) {
+      addCriterion("ui_client in", values, "uiClient");
+      return (Criteria) this;
+    }
+
+    public Criteria andUiClientNotIn(List<String> values) {
+      addCriterion("ui_client not in", values, "uiClient");
+      return (Criteria) this;
+    }
+
+    public Criteria andUiClientBetween(String value1, String value2) {
+      addCriterion("ui_client between", value1, value2, "uiClient");
+      return (Criteria) this;
+    }
+
+    public Criteria andUiClientNotBetween(String value1, String value2) {
+      addCriterion("ui_client not between", value1, value2, "uiClient");
+      return (Criteria) this;
+    }
+
+    public Criteria andUiVersionIsNull() {
+      addCriterion("ui_version is null");
+      return (Criteria) this;
+    }
+
+    public Criteria andUiVersionIsNotNull() {
+      addCriterion("ui_version is not null");
+      return (Criteria) this;
+    }
+
+    public Criteria andUiVersionEqualTo(String value) {
+      addCriterion("ui_version =", value, "uiVersion");
+      return (Criteria) this;
+    }
+
+    public Criteria andUiVersionNotEqualTo(String value) {
+      addCriterion("ui_version <>", value, "uiVersion");
+      return (Criteria) this;
+    }
+
+    public Criteria andUiVersionGreaterThan(String value) {
+      addCriterion("ui_version >", value, "uiVersion");
+      return (Criteria) this;
+    }
+
+    public Criteria andUiVersionGreaterThanOrEqualTo(String value) {
+      addCriterion("ui_version >=", value, "uiVersion");
+      return (Criteria) this;
+    }
+
+    public Criteria andUiVersionLessThan(String value) {
+      addCriterion("ui_version <", value, "uiVersion");
+      return (Criteria) this;
+    }
+
+    public Criteria andUiVersionLessThanOrEqualTo(String value) {
+      addCriterion("ui_version <=", value, "uiVersion");
+      return (Criteria) this;
+    }
+
+    public Criteria andUiVersionLike(String value) {
+      addCriterion("ui_version like", value, "uiVersion");
+      return (Criteria) this;
+    }
+
+    public Criteria andUiVersionNotLike(String value) {
+      addCriterion("ui_version not like", value, "uiVersion");
+      return (Criteria) this;
+    }
+
+    public Criteria andUiVersionIn(List<String> values) {
+      addCriterion("ui_version in", values, "uiVersion");
+      return (Criteria) this;
+    }
+
+    public Criteria andUiVersionNotIn(List<String> values) {
+      addCriterion("ui_version not in", values, "uiVersion");
+      return (Criteria) this;
+    }
+
+    public Criteria andUiVersionBetween(String value1, String value2) {
+      addCriterion("ui_version between", value1, value2, "uiVersion");
+      return (Criteria) this;
+    }
+
+    public Criteria andUiVersionNotBetween(String value1, String value2) {
+      addCriterion("ui_version not between", value1, value2, "uiVersion");
+      return (Criteria) this;
+    }
+
+    public Criteria andApiVersionIsNull() {
+      addCriterion("api_version is null");
+      return (Criteria) this;
+    }
+
+    public Criteria andApiVersionIsNotNull() {
+      addCriterion("api_version is not null");
+      return (Criteria) this;
+    }
+
+    public Criteria andApiVersionEqualTo(String value) {
+      addCriterion("api_version =", value, "apiVersion");
+      return (Criteria) this;
+    }
+
+    public Criteria andApiVersionNotEqualTo(String value) {
+      addCriterion("api_version <>", value, "apiVersion");
+      return (Criteria) this;
+    }
+
+    public Criteria andApiVersionGreaterThan(String value) {
+      addCriterion("api_version >", value, "apiVersion");
+      return (Criteria) this;
+    }
+
+    public Criteria andApiVersionGreaterThanOrEqualTo(String value) {
+      addCriterion("api_version >=", value, "apiVersion");
+      return (Criteria) this;
+    }
+
+    public Criteria andApiVersionLessThan(String value) {
+      addCriterion("api_version <", value, "apiVersion");
+      return (Criteria) this;
+    }
+
+    public Criteria andApiVersionLessThanOrEqualTo(String value) {
+      addCriterion("api_version <=", value, "apiVersion");
+      return (Criteria) this;
+    }
+
+    public Criteria andApiVersionLike(String value) {
+      addCriterion("api_version like", value, "apiVersion");
+      return (Criteria) this;
+    }
+
+    public Criteria andApiVersionNotLike(String value) {
+      addCriterion("api_version not like", value, "apiVersion");
+      return (Criteria) this;
+    }
+
+    public Criteria andApiVersionIn(List<String> values) {
+      addCriterion("api_version in", values, "apiVersion");
+      return (Criteria) this;
+    }
+
+    public Criteria andApiVersionNotIn(List<String> values) {
+      addCriterion("api_version not in", values, "apiVersion");
+      return (Criteria) this;
+    }
+
+    public Criteria andApiVersionBetween(String value1, String value2) {
+      addCriterion("api_version between", value1, value2, "apiVersion");
+      return (Criteria) this;
+    }
+
+    public Criteria andApiVersionNotBetween(String value1, String value2) {
+      addCriterion("api_version not between", value1, value2, "apiVersion");
+      return (Criteria) this;
+    }
   }
 
   public static class Criteria extends GeneratedCriteria {

@@ -5,6 +5,7 @@ import com.hwhub.backend.domain.enums.InquiryCategory;
 import com.hwhub.backend.domain.enums.InquiryStatus;
 import com.hwhub.backend.domain.enums.ProgramType;
 import com.hwhub.backend.domain.enums.SenderType;
+import com.hwhub.backend.domain.enums.UiClient;
 import com.hwhub.backend.domain.model.inquiry.InquiryId;
 import com.hwhub.backend.domain.model.inquiry.InquiryMessageModel;
 import com.hwhub.backend.domain.model.inquiry.InquiryModel;
@@ -24,8 +25,16 @@ public class InquiryService {
   private final NotificationPublisher notificationPublisher;
 
   @Transactional
-  public InquiryId createInquiry(Long userId, InquiryCategory category, String title, String body) {
-    InquiryModel inquiry = InquiryModel.newInquiry(userId, category, title, body);
+  public InquiryId createInquiry(
+      Long userId,
+      InquiryCategory category,
+      String title,
+      String body,
+      UiClient uiClient,
+      String uiVersion,
+      String apiVersion) {
+    InquiryModel inquiry =
+        InquiryModel.newInquiry(userId, category, title, body, uiClient, uiVersion, apiVersion);
     return inquiryRepository.insert(inquiry, userId, ProgramType.ONL_INQRY.getCode());
   }
 
