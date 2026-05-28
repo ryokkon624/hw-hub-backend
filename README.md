@@ -3,6 +3,7 @@
 ![Java](https://img.shields.io/badge/Java-21-orange)
 ![SpringBoot](https://img.shields.io/badge/SpringBoot-4.x-brightgreen)
 ![Vue](https://img.shields.io/badge/Vue-3-42b883)
+![Flutter](https://img.shields.io/badge/Flutter-3.x-54C5F8)
 ![Terraform](https://img.shields.io/badge/Terraform-managed-blue)
 ![Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)
 ---
@@ -349,6 +350,8 @@ git clone https://github.com/ryokkon624/hw-hub-frontend.git
 git clone https://github.com/ryokkon624/hw-hub-batch.git
 # AI返信バッチを使う場合
 git clone https://github.com/ryokkon624/hw-hub-knowledge.git
+# iOS / Android モバイルアプリを動かす場合
+git clone https://github.com/ryokkon624/hw-hub-mobile.git
 ```
 
 ---
