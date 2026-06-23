@@ -1,0 +1,74 @@
+name: security-backend
+
+# セキュリティ強化 Phase 1（同期スキャン）: PR ごとに走る軽量ゲート。
+#   1. dependency-review … PR で追加された依存に既知脆弱性が無いか（GitHub Advisory DB）
+#   2. code-security-review … claude-code-security-review による PR 差分の AI レビュー
+#
+# 注: Gradle の依存ロックファイルが無いため、推移的依存を含む全依存ツリーの
+#     深掘りスキャン（OWASP Dependency-Check 等）は Phase 2 で実施する。
+#     Phase 1 は「新たに脆弱な依存を入れない」差分ゲートに絞る。
+
+on:
+  pull_request:
+
+# 既定は最小権限（読み取りのみ）。PR コメントが必要なジョブで個別に昇格する。
+permissions:
+  contents: read
+
+jobs:
+  # --- PR で追加された依存の脆弱性レビュー（GitHub Advisory DB） ----------
+  dependency-review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write # サマリを PR にコメントするため
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Dependency review
+        uses: actions/dependency-review-action@v4
+        with:
+          # critical の脆弱性を持つ依存が新規追加されたら失敗させる床。
+          # 既存の指摘を解消できたら段階的に high へ引き上げる想定。
+          fail-on-severity: critical
+          comment-summary-in-pr: on-failure
+
+  # --- PR 差分の AI セキュリティレビュー ----------------------------------
+  code-security-review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write # 指摘を PR コメントとして残すため
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 2
+
+      # CLAUDE_API_KEY 未設定の間はレビューをスキップ（ジョブを赤にしない）。
+      # シークレットを追加すると次回 PR から自動でレビューが走る。
+      - name: Check CLAUDE_API_KEY secret
+        id: keycheck
+        env:
+          CLAUDE_API_KEY: ${{ secrets.CLAUDE_API_KEY }}
+        run: |
+          if [ -z "$CLAUDE_API_KEY" ]; then
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::CLAUDE_API_KEY secret が未設定のため Claude セキュリティレビューをスキップしました。リポジトリの Settings > Secrets and variables > Actions に追加してください。"
+          else
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Claude Code security review
+        if: steps.keycheck.outputs.present == 'true'
+        # 供給網の堅牢化のため、運用が安定したらコミット SHA でのピン留めを推奨。
+        uses: anthropics/claude-code-security-review@main
+        with:
+          comment-pr: true
+          claude-api-key: ${{ secrets.CLAUDE_API_KEY }}
+          # ビルド成果物はレビュー対象から除外
+          exclude-directories: build,.gradle
+          # 既定モデルで動作する。新しいモデルに固定したい場合は claude-model を指定:
+          # claude-model: claude-opus-4-8
