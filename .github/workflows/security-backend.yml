@@ -1,0 +1,57 @@
+name: security-backend
+
+# セキュリティ強化 Phase 1（同期スキャン）: PR ごとに走る軽量ゲート。
+#   - code-security-review … claude-code-security-review による PR 差分の AI レビュー
+#
+# 依存パッケージの脆弱性スキャン（SCA）について:
+#   バックエンドは Gradle で依存ロックファイルが無く、GitHub の依存グラフも
+#   Gradle を自動解決しないため、依存ツリーの取得には Gradle のビルド/解決が必要。
+#   ビルドを伴うため Phase 1（同期・ビルド不要）には載せず、Phase 2（非同期の
+#   定期フルスキャン: OWASP Dependency-Check / gradle dependency-submission 等）で実施する。
+
+on:
+  pull_request:
+
+# 既定は最小権限（読み取りのみ）。PR コメントが必要なジョブで個別に昇格する。
+permissions:
+  contents: read
+
+jobs:
+  # --- PR 差分の AI セキュリティレビュー ----------------------------------
+  code-security-review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write # 指摘を PR コメントとして残すため
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 2
+
+      # CLAUDE_API_KEY 未設定の間はレビューをスキップ（ジョブを赤にしない）。
+      # シークレットを追加すると次回 PR から自動でレビューが走る。
+      - name: Check CLAUDE_API_KEY secret
+        id: keycheck
+        env:
+          CLAUDE_API_KEY: ${{ secrets.CLAUDE_API_KEY }}
+        run: |
+          if [ -z "$CLAUDE_API_KEY" ]; then
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::CLAUDE_API_KEY secret が未設定のため Claude セキュリティレビューをスキップしました。リポジトリの Settings > Secrets and variables > Actions に追加してください。"
+          else
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Claude Code security review
+        if: steps.keycheck.outputs.present == 'true'
+        # 供給網の堅牢化のため、運用が安定したらコミット SHA でのピン留めを推奨。
+        uses: anthropics/claude-code-security-review@main
+        with:
+          comment-pr: true
+          claude-api-key: ${{ secrets.CLAUDE_API_KEY }}
+          # ビルド成果物はレビュー対象から除外
+          exclude-directories: build,.gradle
+          # 既定モデルで動作する。新しいモデルに固定したい場合は claude-model を指定:
+          # claude-model: claude-opus-4-8
