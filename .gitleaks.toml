@@ -1,0 +1,20 @@
+# gitleaks 設定（security-scheduled-backend.yml の secret-scan が参照）。
+# 既定ルールは維持しつつ、テストコード/テストリソースを allowlist する。
+#
+# 背景: 定期スキャンの gitleaks が src/test 配下のダミー秘密を generic-api-key で
+# 検知して落ちていた（例: application-test.yml の "integration-test-secret-..."、
+# OAuthStateSignerSpec の "test-secret-key-..."）。これらは単体テスト用のダミーで
+# 実秘密ではない（実秘密は Secrets Manager 管理）。テストコードに実秘密は置かない
+# 前提のため、テストディレクトリを除外して誤検知を解消する。
+
+title = "hw-hub-backend gitleaks config"
+
+[extend]
+# gitleaks の既定ルールセットを継承する
+useDefault = true
+
+[allowlist]
+description = "テストコード/テストリソースはダミー秘密を含むため除外（実秘密は Secrets Manager 管理）"
+paths = [
+  '''src/test/.*''',
+]
