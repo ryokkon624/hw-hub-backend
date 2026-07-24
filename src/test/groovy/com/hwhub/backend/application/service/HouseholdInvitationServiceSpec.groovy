@@ -107,15 +107,61 @@ class HouseholdInvitationServiceSpec extends Specification {
         thrown(ResourceNotFoundException)
     }
 
+    def "acceptInvitationは認証ユーザーが被招待者でない場合AccessDeniedExceptionを投げる"() {
+        given:
+        def inv = Mock(HouseholdInvitationModel) {
+            getInvitedEmail() >> "invitee@example.com"
+        }
+        def user = Mock(UserModel) {
+            getEmail() >> "other@example.com"
+        }
+
+        when:
+        service.acceptInvitation("token-forbidden", 10L)
+
+        then:
+        1 * invRepository.selectByToken("token-forbidden") >> inv
+        1 * userRepository.findById(10L) >> Optional.of(user)
+        0 * inv.isTerminal()
+        0 * memberService.createMember(_, _, _, _)
+        0 * invRepository.update(_, _, _)
+
+        thrown(AccessDeniedException)
+    }
+
+    def "acceptInvitationはユーザが存在しない場合ResourceNotFoundException(user.notFound)"() {
+        given:
+        def inv = Mock(HouseholdInvitationModel) {
+            getInvitedEmail() >> "invitee@example.com"
+        }
+
+        when:
+        service.acceptInvitation("token-user-missing", 10L)
+
+        then:
+        1 * invRepository.selectByToken("token-user-missing") >> inv
+        1 * userRepository.findById(10L) >> Optional.empty()
+        thrown(ResourceNotFoundException)
+        0 * inv.isTerminal()
+        0 * memberRepository.findById(_, _)
+        0 * memberService.createMember(_, _, _, _)
+    }
+
     def "acceptInvitationは招待が終端状態の場合ResourceNotFoundException(invitation.alreadyHandled)"() {
         given:
-        def inv = Mock(HouseholdInvitationModel)
+        def inv = Mock(HouseholdInvitationModel) {
+            getInvitedEmail() >> "invitee@example.com"
+        }
+        def user = Mock(UserModel) {
+            getEmail() >> "invitee@example.com"
+        }
 
         when:
         service.acceptInvitation("token-terminal", 10L)
 
         then:
         1 * invRepository.selectByToken("token-terminal") >> inv
+        1 * userRepository.findById(10L) >> Optional.of(user)
         1 * inv.isTerminal() >> true
         0 * inv.isExpired()
         thrown(ResourceNotFoundException)
@@ -123,35 +169,24 @@ class HouseholdInvitationServiceSpec extends Specification {
 
     def "acceptInvitationは招待が期限切れの場合EXPIREDに更新してからResourceNotFoundException(invitation.expired)"() {
         given:
-        def inv = Mock(HouseholdInvitationModel)
+        def inv = Mock(HouseholdInvitationModel) {
+            getInvitedEmail() >> "invitee@example.com"
+        }
+        def user = Mock(UserModel) {
+            getEmail() >> "invitee@example.com"
+        }
 
         when:
         service.acceptInvitation("token-expired", 10L)
 
         then:
         1 * invRepository.selectByToken("token-expired") >> inv
+        1 * userRepository.findById(10L) >> Optional.of(user)
         1 * inv.isTerminal() >> false
         1 * inv.isExpired() >> true
         1 * inv.setStatus(InvitationStatus.EXPIRED.code)
         1 * invRepository.update(inv, 10L, ProgramType.ONL_HLDINVI.code)
         thrown(ResourceNotFoundException)
-    }
-
-    def "acceptInvitationはユーザが存在しない場合ResourceNotFoundException(user.notFound)"() {
-        given:
-        def inv = Mock(HouseholdInvitationModel)
-
-        when:
-        service.acceptInvitation("token-user-missing", 10L)
-
-        then:
-        1 * invRepository.selectByToken("token-user-missing") >> inv
-        1 * inv.isTerminal() >> false
-        1 * inv.isExpired() >> false
-        1 * userRepository.findById(10L) >> Optional.empty()
-        thrown(ResourceNotFoundException)
-        0 * memberRepository.findById(_, _)
-        0 * memberService.createMember(_, _, _, _)
     }
 
     def "acceptInvitationはメンバーが未登録または非ACTIVEのときメンバーを追加し招待をACCEPTEDに更新する"() {
@@ -162,6 +197,7 @@ class HouseholdInvitationServiceSpec extends Specification {
         // 招待
         def inv = Mock(HouseholdInvitationModel) {
             getHouseholdId() >> householdId
+            getInvitedEmail() >> "user@example.com"
         }
 
         // ユーザ
@@ -191,9 +227,9 @@ class HouseholdInvitationServiceSpec extends Specification {
 
         then:
         1 * invRepository.selectByToken("token-ok") >> inv
+        1 * userRepository.findById(userId) >> Optional.of(user)
         1 * inv.isTerminal() >> false
         1 * inv.isExpired() >> false
-        1 * userRepository.findById(userId) >> Optional.of(user)
         1 * memberRepository.findById(householdId, userId) >> null
 
         and: "メンバー追加が呼ばれる"
@@ -212,6 +248,7 @@ class HouseholdInvitationServiceSpec extends Specification {
 
         def inv = Mock(HouseholdInvitationModel) {
             getHouseholdId() >> householdId
+            getInvitedEmail() >> "user2@example.com"
         }
 
         def user = UserModel.reconstruct(
@@ -248,9 +285,9 @@ class HouseholdInvitationServiceSpec extends Specification {
 
         then:
         1 * invRepository.selectByToken("token-dup") >> inv
+        1 * userRepository.findById(userId) >> Optional.of(user)
         1 * inv.isTerminal() >> false
         1 * inv.isExpired() >> false
-        1 * userRepository.findById(userId) >> Optional.of(user)
         1 * memberRepository.findById(householdId, userId) >> member
         thrown(IllegalStateException)
         0 * memberService.createMember(_, _, _, _)
@@ -265,6 +302,7 @@ class HouseholdInvitationServiceSpec extends Specification {
 
         def inv = Mock(HouseholdInvitationModel) {
             getHouseholdId() >> householdId
+            getInvitedEmail() >> "user2@example.com"
         }
 
         def user = UserModel.reconstruct(
@@ -301,9 +339,9 @@ class HouseholdInvitationServiceSpec extends Specification {
 
         then:
         1 * invRepository.selectByToken("token-ok") >> inv
+        1 * userRepository.findById(userId) >> Optional.of(user)
         1 * inv.isTerminal() >> false
         1 * inv.isExpired() >> false
-        1 * userRepository.findById(userId) >> Optional.of(user)
         1 * memberRepository.findById(householdId, userId) >> member
 
         and: "メンバー追加が呼ばれる"
