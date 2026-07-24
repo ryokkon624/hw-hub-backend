@@ -328,28 +328,77 @@ class HouseholdInvitationServiceSpec extends Specification {
         thrown(ResourceNotFoundException)
     }
 
+    def "declineInvitationは認証ユーザーが被招待者でない場合AccessDeniedExceptionを投げる"() {
+        given:
+        def inv = Mock(HouseholdInvitationModel) {
+            getInvitedEmail() >> "invitee@example.com"
+        }
+        def user = Mock(UserModel) {
+            getEmail() >> "other@example.com"
+        }
+
+        when:
+        service.declineInvitation("token-forbidden", 10L)
+
+        then:
+        1 * invRepository.selectByToken("token-forbidden") >> inv
+        1 * userRepository.findById(10L) >> Optional.of(user)
+        0 * inv.isTerminal()
+        0 * invRepository.update(_, _, _)
+
+        thrown(AccessDeniedException)
+    }
+
+    def "declineInvitationは認証ユーザーが存在しない場合ResourceNotFoundException(user.notFound)"() {
+        given:
+        def inv = Mock(HouseholdInvitationModel) {
+            getInvitedEmail() >> "invitee@example.com"
+        }
+
+        when:
+        service.declineInvitation("token-user-missing", 10L)
+
+        then:
+        1 * invRepository.selectByToken("token-user-missing") >> inv
+        1 * userRepository.findById(10L) >> Optional.empty()
+        thrown(ResourceNotFoundException)
+        0 * invRepository.update(_, _, _)
+    }
+
     def "declineInvitationは終端状態の招待の場合何もせず終了する"() {
         given:
-        def inv = Mock(HouseholdInvitationModel)
+        def inv = Mock(HouseholdInvitationModel) {
+            getInvitedEmail() >> "invitee@example.com"
+        }
+        def user = Mock(UserModel) {
+            getEmail() >> "invitee@example.com"
+        }
 
         when:
         service.declineInvitation("token-terminal", 10L)
 
         then:
         1 * invRepository.selectByToken("token-terminal") >> inv
+        1 * userRepository.findById(10L) >> Optional.of(user)
         1 * inv.isTerminal() >> true
         0 * invRepository.update(_, _, _)
     }
 
     def "declineInvitationは期限切れ招待の場合EXPIREDに更新する"() {
         given:
-        def inv = Mock(HouseholdInvitationModel)
+        def inv = Mock(HouseholdInvitationModel) {
+            getInvitedEmail() >> "invitee@example.com"
+        }
+        def user = Mock(UserModel) {
+            getEmail() >> "invitee@example.com"
+        }
 
         when:
         service.declineInvitation("token-expired", 10L)
 
         then:
         1 * invRepository.selectByToken("token-expired") >> inv
+        1 * userRepository.findById(10L) >> Optional.of(user)
         1 * inv.isTerminal() >> false
         1 * inv.isExpired() >> true
         1 * inv.setStatus(InvitationStatus.EXPIRED.code)
@@ -359,13 +408,19 @@ class HouseholdInvitationServiceSpec extends Specification {
 
     def "declineInvitationは未期限切れ招待の場合DECLINEDに更新する"() {
         given:
-        def inv = Mock(HouseholdInvitationModel)
+        def inv = Mock(HouseholdInvitationModel) {
+            getInvitedEmail() >> "invitee@example.com"
+        }
+        def user = Mock(UserModel) {
+            getEmail() >> "invitee@example.com"
+        }
 
         when:
         service.declineInvitation("token-decline", 10L)
 
         then:
         1 * invRepository.selectByToken("token-decline") >> inv
+        1 * userRepository.findById(10L) >> Optional.of(user)
         1 * inv.isTerminal() >> false
         1 * inv.isExpired() >> false
         1 * inv.setStatus(InvitationStatus.DECLINED.code)
@@ -386,28 +441,57 @@ class HouseholdInvitationServiceSpec extends Specification {
         thrown(ResourceNotFoundException)
     }
 
+    def "revokeInvitationは呼び出し元が招待元の世帯に所属しない場合AccessDeniedExceptionを投げる"() {
+        given:
+        Long householdId = 60L
+        def inv = Mock(HouseholdInvitationModel) {
+            getHouseholdId() >> householdId
+        }
+
+        when:
+        service.revokeInvitation("token-forbidden", 10L)
+
+        then:
+        1 * invRepository.selectByToken("token-forbidden") >> inv
+        1 * authorizationService.assertUserBelongsToHousehold(householdId, 10L) >> {
+            throw new AccessDeniedException("User does not belong to household")
+        }
+        0 * inv.isTerminal()
+        0 * invRepository.update(_, _, _)
+
+        thrown(AccessDeniedException)
+    }
+
     def "revokeInvitationは終端状態の招待の場合何もせず終了する"() {
         given:
-        def inv = Mock(HouseholdInvitationModel)
+        Long householdId = 50L
+        def inv = Mock(HouseholdInvitationModel) {
+            getHouseholdId() >> householdId
+        }
 
         when:
         service.revokeInvitation("token-terminal", 10L)
 
         then:
         1 * invRepository.selectByToken("token-terminal") >> inv
+        1 * authorizationService.assertUserBelongsToHousehold(householdId, 10L)
         1 * inv.isTerminal() >> true
         0 * invRepository.update(_, _, _)
     }
 
     def "revokeInvitationは未終端招待の場合REVOKEDに更新する"() {
         given:
-        def inv = Mock(HouseholdInvitationModel)
+        Long householdId = 51L
+        def inv = Mock(HouseholdInvitationModel) {
+            getHouseholdId() >> householdId
+        }
 
         when:
         service.revokeInvitation("token-revoke", 10L)
 
         then:
         1 * invRepository.selectByToken("token-revoke") >> inv
+        1 * authorizationService.assertUserBelongsToHousehold(householdId, 10L)
         1 * inv.isTerminal() >> false
         1 * inv.setStatus(InvitationStatus.REVOKED.code)
         1 * invRepository.update(inv, 10L, ProgramType.ONL_HLDINVI.code)

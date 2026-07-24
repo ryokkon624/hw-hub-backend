@@ -98,6 +98,15 @@ public class HouseholdInvitationService {
       throw new ResourceNotFoundException("invitation.notFound");
     }
 
+    // 被招待者検証：認証ユーザーが招待先メールアドレスの本人であることを確認する
+    UserModel user =
+        userRepository
+            .findById(userId)
+            .orElseThrow(() -> new ResourceNotFoundException("user.notFound"));
+    if (!Objects.equals(user.getEmail(), inv.getInvitedEmail())) {
+      throw new AccessDeniedException("Authenticated user is not the invitee of this invitation");
+    }
+
     if (inv.isTerminal()) {
       // 既に対応済みの場合何もしない
       return;
@@ -122,6 +131,9 @@ public class HouseholdInvitationService {
     if (Objects.isNull(inv)) {
       throw new ResourceNotFoundException("invitation.notFound");
     }
+
+    // 世帯メンバーシップ検証：招待元の世帯に所属していることを確認する
+    authorizationService.assertUserBelongsToHousehold(inv.getHouseholdId(), userId);
 
     if (inv.isTerminal()) {
       // 既に対応済みの場合何もしない
