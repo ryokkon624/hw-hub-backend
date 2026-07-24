@@ -9,6 +9,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -18,6 +19,9 @@ import org.springframework.web.client.RestClientException;
 @Component
 @RequiredArgsConstructor
 public class RestClientGoogleOAuthClient implements GoogleOAuthClient {
+
+  private static final Set<String> ALLOWED_ISSUERS =
+      Set.of("accounts.google.com", "https://accounts.google.com");
 
   private final GoogleOAuthProperties props;
   private final RestClient restClient = RestClient.create();
@@ -78,13 +82,29 @@ public class RestClientGoogleOAuthClient implements GoogleOAuthClient {
 
   @Override
   public GoogleUserInfo verifyIdToken(String idToken) {
+    GoogleUserInfo info;
     try {
-      return restClient
-          .get()
-          .uri("https://oauth2.googleapis.com/tokeninfo?id_token=" + url(idToken))
-          .retrieve()
-          .body(GoogleUserInfo.class);
+      info =
+          restClient
+              .get()
+              .uri("https://oauth2.googleapis.com/tokeninfo?id_token=" + url(idToken))
+              .retrieve()
+              .body(GoogleUserInfo.class);
     } catch (RestClientException e) {
+      throw new OAuthIdTokenInvalidException();
+    }
+    validateAudienceAndIssuer(info);
+    return info;
+  }
+
+  private void validateAudienceAndIssuer(GoogleUserInfo info) {
+    if (info == null) {
+      throw new OAuthIdTokenInvalidException();
+    }
+    if (!props.getClientId().equals(info.getAud())) {
+      throw new OAuthIdTokenInvalidException();
+    }
+    if (!ALLOWED_ISSUERS.contains(info.getIss())) {
       throw new OAuthIdTokenInvalidException();
     }
   }

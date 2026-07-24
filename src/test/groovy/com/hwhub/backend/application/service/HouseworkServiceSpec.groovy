@@ -57,7 +57,7 @@ class HouseworkServiceSpec extends Specification {
     // createHousework
     // ==================================
 
-    def "createHouseworkはdefaultAssigneeUserIdがnullなら認可チェックせずinsertする"() {
+    def "createHouseworkは呼び出し元が世帯に所属していればdefaultAssigneeUserIdがnullのときinsertする"() {
         given:
         Long userId = 99L
         Long householdId = 1L
@@ -97,9 +97,42 @@ class HouseworkServiceSpec extends Specification {
         def result = service.createHousework(input, userId)
 
         then:
+        1 * householdAuthorizationService.assertUserBelongsToHousehold(householdId, userId)
         0 * householdAuthorizationService.canAccessHousehold(_, _)
         1 * houseworkRepository.insert(input, userId, ProgramType.ONL_HWR.code) >> inserted
         result.is(inserted)
+    }
+
+    def "createHouseworkは呼び出し元が世帯に所属していない場合AccessDeniedException（越境作成拒否）"() {
+        given:
+        Long userId = 99L
+        Long householdId = 1L
+
+        def input = HouseworkModel.create(
+                householdId,
+                "家事名",
+                "説明",
+                "CAT",
+                RecurrenceType.WEEKLY.code,
+                21,
+                null,
+                null,
+                null,
+                LocalDate.now(),
+                LocalDate.now().plusDays(7),
+                null // defaultAssigneeUserId
+        )
+
+        when:
+        service.createHousework(input, userId)
+
+        then:
+        1 * householdAuthorizationService.assertUserBelongsToHousehold(householdId, userId) >> {
+            throw new AccessDeniedException("User does not belong to household")
+        }
+        0 * householdAuthorizationService.canAccessHousehold(_, _)
+        0 * houseworkRepository.insert(_, _, _)
+        thrown(AccessDeniedException)
     }
 
     def "createHouseworkはdefaultAssigneeUserIdが世帯メンバーでない場合AccessDeniedException"() {
@@ -127,6 +160,7 @@ class HouseworkServiceSpec extends Specification {
         service.createHousework(model, userId)
 
         then:
+        1 * householdAuthorizationService.assertUserBelongsToHousehold(householdId, userId)
         1 * householdAuthorizationService.canAccessHousehold(householdId, defaultAssignee) >> false
         0 * houseworkRepository.insert(_, _, _)
         thrown(AccessDeniedException)
@@ -173,6 +207,7 @@ class HouseworkServiceSpec extends Specification {
         def result = service.createHousework(input, userId)
 
         then:
+        1 * householdAuthorizationService.assertUserBelongsToHousehold(householdId, userId)
         1 * householdAuthorizationService.canAccessHousehold(householdId, defaultAssignee) >> true
         1 * houseworkRepository.insert(input, userId, ProgramType.ONL_HWR.code) >> inserted
         result.is(inserted)
@@ -182,7 +217,64 @@ class HouseworkServiceSpec extends Specification {
     // updateHousework
     // ==================================
 
-    def "updateHouseworkはdefaultAssigneeUserIdが世帯メンバーでない場合IllegalArgumentException"() {
+    def "updateHouseworkは呼び出し元が解決世帯に所属していない場合AccessDeniedException（越境更新拒否）"() {
+        given:
+        Long houseworkId = 100L
+        Long householdId = 1L
+        Long userId = 99L
+
+        def input = Mock(HouseworkModel) {
+            getHouseholdId() >> householdId
+            getDefaultAssigneeUserId() >> null
+        }
+
+        def existing = Mock(HouseworkModel) {
+            getHouseholdId() >> householdId
+        }
+
+        when:
+        service.updateHousework(houseworkId, input, userId)
+
+        then:
+        1 * houseworkRepository.findByHouseworkId(houseworkId) >> existing
+        1 * householdAuthorizationService.assertUserBelongsToHousehold(householdId, userId) >> {
+            throw new AccessDeniedException("User does not belong to household")
+        }
+        0 * householdAuthorizationService.canAccessHousehold(_, _)
+        0 * houseworkRepository.update(_, _, _)
+        thrown(AccessDeniedException)
+    }
+
+    def "updateHouseworkはbodyのhouseholdIdを無視し解決世帯でassignee検証を行う"() {
+        given: "攻撃者は自世帯(attackerHouseholdId)を body に詰めるが、対象houseworkIdの実世帯はvictimHouseholdId"
+        Long houseworkId = 150L
+        Long attackerHouseholdId = 999L
+        Long victimHouseholdId = 1L
+        Long userId = 99L
+        Long defaultAssignee = 10L
+
+        def input = Mock(HouseworkModel) {
+            getHouseholdId() >> attackerHouseholdId
+            getDefaultAssigneeUserId() >> defaultAssignee
+        }
+
+        def existing = Mock(HouseworkModel) {
+            getHouseholdId() >> victimHouseholdId
+        }
+
+        when:
+        service.updateHousework(houseworkId, input, userId)
+
+        then:
+        1 * houseworkRepository.findByHouseworkId(houseworkId) >> existing
+        1 * householdAuthorizationService.assertUserBelongsToHousehold(victimHouseholdId, userId)
+        1 * householdAuthorizationService.canAccessHousehold(victimHouseholdId, defaultAssignee) >> false
+        0 * householdAuthorizationService.canAccessHousehold(attackerHouseholdId, _)
+        0 * houseworkRepository.update(_, _, _)
+        thrown(IllegalArgumentException)
+    }
+
+    def "updateHouseworkはdefaultAssigneeUserIdが解決世帯のメンバーでない場合IllegalArgumentException"() {
         given:
         Long houseworkId = 100L
         Long householdId = 1L
@@ -194,12 +286,18 @@ class HouseworkServiceSpec extends Specification {
             getDefaultAssigneeUserId() >> defaultAssignee
         }
 
+        def existing = Mock(HouseworkModel) {
+            getHouseholdId() >> householdId
+        }
+
         when:
         service.updateHousework(houseworkId, input, userId)
 
         then:
+        1 * houseworkRepository.findByHouseworkId(houseworkId) >> existing
+        1 * householdAuthorizationService.assertUserBelongsToHousehold(householdId, userId)
         1 * householdAuthorizationService.canAccessHousehold(householdId, defaultAssignee) >> false
-        0 * houseworkRepository.findByHouseworkId(_)
+        0 * houseworkRepository.update(_, _, _)
         thrown(IllegalArgumentException)
     }
 
@@ -242,15 +340,16 @@ class HouseworkServiceSpec extends Specification {
 
         def existing = Mock(HouseworkModel) {
             getHouseworkId() >> houseworkId
+            getHouseholdId() >> householdId
         }
 
         when:
         def result = service.updateHousework(houseworkId, input, userId)
 
         then:
-        0 * householdAuthorizationService.canAccessHousehold(_, _)
-
         1 * houseworkRepository.findByHouseworkId(houseworkId) >> existing
+        1 * householdAuthorizationService.assertUserBelongsToHousehold(householdId, userId)
+        0 * householdAuthorizationService.canAccessHousehold(_, _)
 
         1 * existing.setBasicInfo("家事名", "説明", "CAT")
         1 * existing.setRecurrenceWeekly(weeklyDays)
@@ -306,6 +405,7 @@ class HouseworkServiceSpec extends Specification {
 
         def existing = Mock(HouseworkModel) {
             getHouseworkId() >> houseworkId
+            getHouseholdId() >> householdId
         }
 
         when:
@@ -313,6 +413,7 @@ class HouseworkServiceSpec extends Specification {
 
         then:
         1 * houseworkRepository.findByHouseworkId(houseworkId) >> existing
+        1 * householdAuthorizationService.assertUserBelongsToHousehold(householdId, userId)
         1 * existing.setBasicInfo("月次家事", "説明", "CAT")
         1 * existing.setRecurrenceMonthly(dayOfMonth)
         1 * existing.setEffectivePriod(start, end)
@@ -364,6 +465,7 @@ class HouseworkServiceSpec extends Specification {
 
         def existing = Mock(HouseworkModel) {
             getHouseworkId() >> houseworkId
+            getHouseholdId() >> householdId
         }
 
         when:
@@ -371,6 +473,7 @@ class HouseworkServiceSpec extends Specification {
 
         then:
         1 * houseworkRepository.findByHouseworkId(houseworkId) >> existing
+        1 * householdAuthorizationService.assertUserBelongsToHousehold(householdId, userId)
         1 * existing.setBasicInfo("第n曜家事", "説明", "CAT")
         1 * existing.setRecurrenceNthweekday(nthWeek, weekday)
         1 * existing.setEffectivePriod(start, end)
@@ -421,14 +524,16 @@ class HouseworkServiceSpec extends Specification {
 
         def existing = Mock(HouseworkModel) {
             getHouseworkId() >> houseworkId
+            getHouseholdId() >> householdId
         }
 
         when:
         def result = service.updateHousework(houseworkId, input, userId)
 
         then: "defaultAssigneeUserId != null なので canAccessHousehold が呼ばれ、trueなら続行される"
-        1 * householdAuthorizationService.canAccessHousehold(householdId, defaultAssignee) >> true
         1 * houseworkRepository.findByHouseworkId(houseworkId) >> existing
+        1 * householdAuthorizationService.assertUserBelongsToHousehold(householdId, userId)
+        1 * householdAuthorizationService.canAccessHousehold(householdId, defaultAssignee) >> true
 
         1 * existing.setBasicInfo("家事名", "説明", "CAT")
         1 * existing.setRecurrenceWeekly(weeklyDays)

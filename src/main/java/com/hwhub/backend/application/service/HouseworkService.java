@@ -36,6 +36,9 @@ public class HouseworkService {
     Long householdId = model.getHouseholdId();
     Long defaultAssigneeUserId = model.getDefaultAssigneeUserId();
 
+    // 認可チェック：呼び出し元がリクエストの世帯に所属しているか
+    householdAuthorizationService.assertUserBelongsToHousehold(householdId, userId);
+
     // 認可チェック：デフォルト担当者が世帯メンバーではない場合
     if (defaultAssigneeUserId != null) {
       if (!householdAuthorizationService.canAccessHousehold(householdId, defaultAssigneeUserId)) {
@@ -50,7 +53,13 @@ public class HouseworkService {
   /** 家事マスタ更新 */
   public HouseworkModel updateHousework(Long houseworkId, HouseworkModel input, Long userId) {
 
-    Long householdId = input.getHouseholdId();
+    // 世帯はリクエストbodyではなく対象houseworkIdからサーバー側で解決する
+    HouseworkModel model = houseworkRepository.findByHouseworkId(houseworkId);
+    Long householdId = model.getHouseholdId();
+
+    // 認可チェック：呼び出し元が解決済みの世帯に所属しているか
+    householdAuthorizationService.assertUserBelongsToHousehold(householdId, userId);
+
     Long defaultAssigneeUserId = input.getDefaultAssigneeUserId();
 
     // 認可チェック：デフォルト担当者が世帯メンバーではない場合
@@ -61,7 +70,6 @@ public class HouseworkService {
       }
     }
 
-    HouseworkModel model = houseworkRepository.findByHouseworkId(houseworkId);
     model.setBasicInfo(input.getName(), input.getDescription(), input.getCategory());
     RecurrenceType type = RecurrenceType.fromCode(input.getRecurrenceType());
     switch (type) {

@@ -17,4 +17,8 @@ public class GoogleUserInfo {
 
   @JsonProperty("picture")
   private String picture;
+
+  private String aud;
+  private String azp;
+  private String iss;
 }
