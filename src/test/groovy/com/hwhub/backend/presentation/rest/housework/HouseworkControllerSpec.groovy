@@ -145,15 +145,12 @@ class HouseworkControllerSpec extends Specification {
     // -------------------------------------------------
     // updateHousework
     // -------------------------------------------------
-    def "updateHousework は認可チェック後 HouseworkService.updateHousework を呼び DTO を返す"() {
+    def "updateHousework は認可チェックをせず HouseworkService.updateHousework を呼び DTO を返す（認可はServiceでサーバー解決した世帯に対して行う）"() {
         given:
         Long houseworkId = 300L
         Long loginUserId = 10L
 
         HouseworkSaveRequest request = Mock()
-
-        // householdId は認可チェックで使われる
-        request.getHouseholdId() >> 1L
 
         def inputModel = HouseworkModel.create(
                 1L,
@@ -190,7 +187,7 @@ class HouseworkControllerSpec extends Specification {
         HouseworkDto dto = controller.updateHousework(houseworkId, request, loginUserId)
 
         then:
-        1 * householdAuthorizationService.assertUserBelongsToHousehold(1L, 10L)
+        0 * householdAuthorizationService.assertUserBelongsToHousehold(_, _)
         1 * request.toModelForCreate() >> inputModel
         1 * houseworkService.updateHousework(houseworkId, inputModel, 10L) >> updatedModel
 

@@ -64,10 +64,7 @@ public class HouseworkController {
       @PathVariable("houseworkId") Long houseworkId,
       @Valid @RequestBody HouseworkSaveRequest request,
       @CurrentUserId Long loginUserId) {
-    // 認可チェック
-    householdAuthorizationService.assertUserBelongsToHousehold(
-        request.getHouseholdId(), loginUserId);
-
+    // 認可チェックは Service 側でサーバー解決した世帯に対して行う（body の householdId は信頼しない）
     HouseworkModel model = request.toModelForCreate();
     HouseworkModel updated = houseworkService.updateHousework(houseworkId, model, loginUserId);
     return HouseworkDto.fromModel(updated);

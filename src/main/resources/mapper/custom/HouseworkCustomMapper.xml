@@ -32,6 +32,7 @@
           , update_user_id = #{userId}
           , update_program = #{program}
         WHERE
-            housework_id = #{item.houseworkId};
+            housework_id = #{item.houseworkId}
+          AND household_id = #{item.householdId};
     </update>
 </mapper>
