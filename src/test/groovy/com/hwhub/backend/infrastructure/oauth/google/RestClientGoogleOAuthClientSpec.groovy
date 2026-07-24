@@ -121,7 +121,9 @@ class RestClientGoogleOAuthClientSpec extends Specification {
                 "email_verified": true,
                 "locale": "ja",
                 "given_name": "Mobile",
-                "family_name": "User"
+                "family_name": "User",
+                "aud": "test-client-id",
+                "iss": "https://accounts.google.com"
             }
         """
 
@@ -145,6 +147,77 @@ class RestClientGoogleOAuthClientSpec extends Specification {
         server.expect(MockRestRequestMatchers.requestTo("https://oauth2.googleapis.com/tokeninfo?id_token=invalid.id.token"))
                 .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
                 .andRespond(MockRestResponseCreators.withBadRequest())
+
+        when:
+        client.verifyIdToken(idToken)
+
+        then:
+        thrown(OAuthIdTokenInvalidException)
+    }
+
+    def "verifyIdTokenは別クライアント宛て(aud不一致)のidTokenを拒否する"() {
+        given:
+        String idToken = "attacker.id.token"
+        String responseJson = """
+            {
+                "sub": "sub-789",
+                "email": "victim@example.com",
+                "email_verified": true,
+                "aud": "attacker-client-id",
+                "iss": "https://accounts.google.com"
+            }
+        """
+
+        server.expect(MockRestRequestMatchers.requestTo("https://oauth2.googleapis.com/tokeninfo?id_token=attacker.id.token"))
+                .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
+                .andRespond(MockRestResponseCreators.withSuccess(responseJson, MediaType.APPLICATION_JSON))
+
+        when:
+        client.verifyIdToken(idToken)
+
+        then:
+        thrown(OAuthIdTokenInvalidException)
+    }
+
+    def "verifyIdTokenはissが不正なidTokenを拒否する"() {
+        given:
+        String idToken = "bad-iss.id.token"
+        String responseJson = """
+            {
+                "sub": "sub-789",
+                "email": "victim@example.com",
+                "email_verified": true,
+                "aud": "test-client-id",
+                "iss": "https://evil.example.com"
+            }
+        """
+
+        server.expect(MockRestRequestMatchers.requestTo("https://oauth2.googleapis.com/tokeninfo?id_token=bad-iss.id.token"))
+                .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
+                .andRespond(MockRestResponseCreators.withSuccess(responseJson, MediaType.APPLICATION_JSON))
+
+        when:
+        client.verifyIdToken(idToken)
+
+        then:
+        thrown(OAuthIdTokenInvalidException)
+    }
+
+    def "verifyIdTokenはaudが欠落したidTokenを拒否する"() {
+        given:
+        String idToken = "no-aud.id.token"
+        String responseJson = """
+            {
+                "sub": "sub-789",
+                "email": "victim@example.com",
+                "email_verified": true,
+                "iss": "https://accounts.google.com"
+            }
+        """
+
+        server.expect(MockRestRequestMatchers.requestTo("https://oauth2.googleapis.com/tokeninfo?id_token=no-aud.id.token"))
+                .andExpect(MockRestRequestMatchers.method(HttpMethod.GET))
+                .andRespond(MockRestResponseCreators.withSuccess(responseJson, MediaType.APPLICATION_JSON))
 
         when:
         client.verifyIdToken(idToken)
