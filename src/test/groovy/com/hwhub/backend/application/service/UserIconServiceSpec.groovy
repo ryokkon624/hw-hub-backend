@@ -5,6 +5,7 @@ import com.hwhub.backend.domain.model.UserModel
 import com.hwhub.backend.domain.repository.UserRepository
 import com.hwhub.backend.domain.storage.ObjectStorageClient
 import com.hwhub.backend.infrastructure.s3.ObjectStorageConfig.UserIconStorageSettings
+import org.springframework.security.access.AccessDeniedException
 import spock.lang.Specification
 
 import java.net.URL
@@ -136,6 +137,42 @@ class UserIconServiceSpec extends Specification {
         result.fileKey == "user-icon/${userId}/icon"
     }
 
+    def "createUploadUrlは許可されていないmimeTypeの場合IllegalArgumentExceptionを投げる"() {
+        given:
+        Long userId = 13L
+
+        def user = Mock(UserModel) {
+            getUserId() >> userId
+        }
+
+        when:
+        service.createUploadUrl(userId, "icon.jpg", "text/html")
+
+        then:
+        1 * userRepository.findById(userId) >> Optional.of(user)
+        0 * objectStorageClient.createPresignedPutUrl(_, _, _, _)
+
+        thrown(IllegalArgumentException)
+    }
+
+    def "createUploadUrlは許可されていない拡張子の場合IllegalArgumentExceptionを投げる"() {
+        given:
+        Long userId = 14L
+
+        def user = Mock(UserModel) {
+            getUserId() >> userId
+        }
+
+        when:
+        service.createUploadUrl(userId, "icon.exe", "image/jpeg")
+
+        then:
+        1 * userRepository.findById(userId) >> Optional.of(user)
+        0 * objectStorageClient.createPresignedPutUrl(_, _, _, _)
+
+        thrown(IllegalArgumentException)
+    }
+
     // ==================================
     // updateUserIcon
     // ==================================
@@ -145,7 +182,7 @@ class UserIconServiceSpec extends Specification {
         Long userId = 20L
 
         when:
-        service.updateUserIcon(userId, "new-key")
+        service.updateUserIcon(userId, "user-icon/${userId}/icon.jpg")
 
         then:
         1 * userRepository.findById(userId) >> Optional.empty()
@@ -155,7 +192,7 @@ class UserIconServiceSpec extends Specification {
     def "updateUserIconは旧アイコンキーがnullの場合deleteObjectを呼ばずに更新する"() {
         given:
         Long userId = 21L
-        String newKey = "new-key"
+        String newKey = "user-icon/${userId}/icon.jpg"
 
         def user = Mock(UserModel) {
             getProfileImageKey() >> null
@@ -177,7 +214,7 @@ class UserIconServiceSpec extends Specification {
         given:
         Long userId = 22L
         String oldKey = "old-key"
-        String newKey = "new-key"
+        String newKey = "user-icon/${userId}/icon.jpg"
 
         def user = Mock(UserModel) {
             getProfileImageKey() >> oldKey
@@ -198,7 +235,7 @@ class UserIconServiceSpec extends Specification {
         given:
         Long userId = 23L
         String oldKey = "old-key"
-        String newKey = "new-key"
+        String newKey = "user-icon/${userId}/icon.jpg"
 
         def user = Mock(UserModel) {
             getProfileImageKey() >> oldKey
@@ -215,6 +252,40 @@ class UserIconServiceSpec extends Specification {
         // 例外が握りつぶされ、以降の処理が実行されること
         1 * user.changeProfileImageKey(newKey)
         1 * userRepository.updateProfileImgKey(user, ProgramType.ONL_USRICON.code)
+    }
+
+    def "updateUserIconは他ユーザーのfileKeyの場合AccessDeniedExceptionを投げる"() {
+        given:
+        Long userId = 24L
+
+        def user = Mock(UserModel)
+
+        when:
+        // 別ユーザー(99)のプレフィックスを騙ったfileKey
+        service.updateUserIcon(userId, "user-icon/99/icon.jpg")
+
+        then:
+        1 * userRepository.findById(userId) >> Optional.of(user)
+        0 * objectStorageClient.deleteObject(_, _)
+        0 * userRepository.updateProfileImgKey(_, _)
+
+        thrown(AccessDeniedException)
+    }
+
+    def "updateUserIconはfileKeyのプレフィックス以降に「..」が含まれる場合AccessDeniedExceptionを投げる"() {
+        given:
+        Long userId = 25L
+
+        def user = Mock(UserModel)
+
+        when:
+        service.updateUserIcon(userId, "user-icon/${userId}/../99/icon.jpg")
+
+        then:
+        1 * userRepository.findById(userId) >> Optional.of(user)
+        0 * userRepository.updateProfileImgKey(_, _)
+
+        thrown(AccessDeniedException)
     }
 
     // ==================================
