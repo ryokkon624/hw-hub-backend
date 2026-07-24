@@ -9,6 +9,7 @@ import com.hwhub.backend.domain.repository.ShoppingItemRepository
 import com.hwhub.backend.domain.storage.ObjectStorageClient
 import com.hwhub.backend.infrastructure.s3.ObjectStorageConfig.ShoppingItemStorageSettings
 import com.hwhub.backend.presentation.rest.common.ResourceNotFoundException
+import org.springframework.security.access.AccessDeniedException
 import spock.lang.Specification
 
 import java.net.URL
@@ -193,7 +194,55 @@ class ShoppingItemAttachmentServiceSpec extends Specification {
         !fileKeyNamePart.contains(".")
         result.uploadUrl == "https://example.com/upload-url-nullname"
     }
-    
+
+    def "createUploadUrlは許可されていないmimeTypeの場合IllegalArgumentExceptionを投げる"() {
+        given:
+        Long shoppingItemId = 103L
+        Long userId = 10L
+        Long householdId = 1L
+
+        def item = Mock(ShoppingItemModel) {
+            getHouseholdId() >> householdId
+        }
+        def household = Mock(HouseholdModel) {
+            getHouseholdId() >> householdId
+        }
+
+        when:
+        service.createUploadUrl(shoppingItemId, "photo.jpg", "text/html", userId)
+
+        then:
+        1 * shoppingItemRepository.findById(shoppingItemId) >> Optional.of(item)
+        1 * userService.getHouseholds(userId) >> [household]
+        0 * objectStorageClient.createPresignedPutUrl(_, _, _, _)
+
+        thrown(IllegalArgumentException)
+    }
+
+    def "createUploadUrlは許可されていない拡張子の場合IllegalArgumentExceptionを投げる"() {
+        given:
+        Long shoppingItemId = 104L
+        Long userId = 10L
+        Long householdId = 1L
+
+        def item = Mock(ShoppingItemModel) {
+            getHouseholdId() >> householdId
+        }
+        def household = Mock(HouseholdModel) {
+            getHouseholdId() >> householdId
+        }
+
+        when:
+        service.createUploadUrl(shoppingItemId, "evil.exe", "image/jpeg", userId)
+
+        then:
+        1 * shoppingItemRepository.findById(shoppingItemId) >> Optional.of(item)
+        1 * userService.getHouseholds(userId) >> [household]
+        0 * objectStorageClient.createPresignedPutUrl(_, _, _, _)
+
+        thrown(IllegalArgumentException)
+    }
+
     // ==================================
     // createAttachment
     // ==================================
@@ -227,6 +276,7 @@ class ShoppingItemAttachmentServiceSpec extends Specification {
         Long shoppingItemId = 201L
         Long userId = 10L
         Long householdId = 1L
+        String fileKey = "shopping-item/${householdId}/${shoppingItemId}/new-uuid.png"
 
         def item = Mock(ShoppingItemModel) {
             getHouseholdId() >> householdId
@@ -241,7 +291,7 @@ class ShoppingItemAttachmentServiceSpec extends Specification {
         )
 
         when:
-        def result = service.createAttachment(shoppingItemId, "new-key", "new.png", "image/png", userId)
+        def result = service.createAttachment(shoppingItemId, fileKey, "new.png", "image/png", userId)
 
         then:
         1 * shoppingItemRepository.findById(shoppingItemId) >> Optional.of(item)
@@ -252,7 +302,7 @@ class ShoppingItemAttachmentServiceSpec extends Specification {
         1 * attachmentRepository.save(_, userId, ProgramType.ONL_SHPATCH.code) >> { args ->
             def model = args[0] as ShoppingItemAttachment
             assert model.shoppingItemId == shoppingItemId
-            assert model.fileKey == "new-key"
+            assert model.fileKey == fileKey
             assert model.fileName == "new.png"
             assert model.mimeType == "image/png"
             assert model.sortOrder == 2   // max(1) + 1
@@ -269,6 +319,7 @@ class ShoppingItemAttachmentServiceSpec extends Specification {
         Long shoppingItemId = 202L
         Long userId = 10L
         Long householdId = 1L
+        String fileKey = "shopping-item/${householdId}/${shoppingItemId}/uuid.png"
 
         def item = Mock(ShoppingItemModel) {
             getHouseholdId() >> householdId
@@ -278,7 +329,7 @@ class ShoppingItemAttachmentServiceSpec extends Specification {
         }
 
         when:
-        def result = service.createAttachment(shoppingItemId, "key", "file.png", "image/png", userId)
+        def result = service.createAttachment(shoppingItemId, fileKey, "file.png", "image/png", userId)
 
         then:
         1 * shoppingItemRepository.findById(shoppingItemId) >> Optional.of(item)
@@ -294,6 +345,84 @@ class ShoppingItemAttachmentServiceSpec extends Specification {
 
         and:
         result.sortOrder == 1
+    }
+
+    def "createAttachmentは他世帯/他アイテムプレフィックスのfileKeyの場合AccessDeniedExceptionを投げる"() {
+        given:
+        Long shoppingItemId = 203L
+        Long userId = 10L
+        Long householdId = 1L
+
+        def item = Mock(ShoppingItemModel) {
+            getHouseholdId() >> householdId
+        }
+        def household = Mock(HouseholdModel) {
+            getHouseholdId() >> householdId
+        }
+
+        when:
+        // 別世帯(2)のプレフィックスを騙ったfileKey
+        service.createAttachment(shoppingItemId, "shopping-item/2/${shoppingItemId}/uuid.png", "file.png", "image/png", userId)
+
+        then:
+        1 * shoppingItemRepository.findById(shoppingItemId) >> Optional.of(item)
+        1 * userService.getHouseholds(userId) >> [household]
+        0 * attachmentRepository.findByShoppingItemId(_)
+        0 * attachmentRepository.save(_, _, _)
+
+        thrown(AccessDeniedException)
+    }
+
+    def "createAttachmentはfileKeyのプレフィックス以降に「..」が含まれる場合AccessDeniedExceptionを投げる"() {
+        given:
+        Long shoppingItemId = 204L
+        Long userId = 10L
+        Long householdId = 1L
+
+        def item = Mock(ShoppingItemModel) {
+            getHouseholdId() >> householdId
+        }
+        def household = Mock(HouseholdModel) {
+            getHouseholdId() >> householdId
+        }
+
+        when:
+        service.createAttachment(
+                shoppingItemId,
+                "shopping-item/${householdId}/${shoppingItemId}/../../2/${shoppingItemId}/uuid.png",
+                "file.png", "image/png", userId)
+
+        then:
+        1 * shoppingItemRepository.findById(shoppingItemId) >> Optional.of(item)
+        1 * userService.getHouseholds(userId) >> [household]
+        0 * attachmentRepository.save(_, _, _)
+
+        thrown(AccessDeniedException)
+    }
+
+    def "createAttachmentは許可されていないmimeTypeの場合IllegalArgumentExceptionを投げる"() {
+        given:
+        Long shoppingItemId = 205L
+        Long userId = 10L
+        Long householdId = 1L
+        String fileKey = "shopping-item/${householdId}/${shoppingItemId}/uuid.png"
+
+        def item = Mock(ShoppingItemModel) {
+            getHouseholdId() >> householdId
+        }
+        def household = Mock(HouseholdModel) {
+            getHouseholdId() >> householdId
+        }
+
+        when:
+        service.createAttachment(shoppingItemId, fileKey, "file.png", "text/html", userId)
+
+        then:
+        1 * shoppingItemRepository.findById(shoppingItemId) >> Optional.of(item)
+        1 * userService.getHouseholds(userId) >> [household]
+        0 * attachmentRepository.save(_, _, _)
+
+        thrown(IllegalArgumentException)
     }
 
     // ==================================

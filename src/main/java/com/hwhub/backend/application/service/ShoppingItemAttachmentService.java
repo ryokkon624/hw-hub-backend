@@ -40,7 +40,8 @@ public class ShoppingItemAttachmentService {
       throw new IllegalStateException("household mismatch");
     }
 
-    String ext = extractExtension(fileName);
+    UploadImagePolicy.assertAllowedMimeType(mimeType);
+    String ext = UploadImagePolicy.sanitizeExtension(fileName);
     String key = buildFileKey(item.getHouseholdId(), shoppingItemId, ext);
 
     URL url =
@@ -60,6 +61,13 @@ public class ShoppingItemAttachmentService {
     if (list.stream().noneMatch(e -> e.getHouseholdId().equals(item.getHouseholdId()))) {
       throw new IllegalStateException("household mismatch");
     }
+
+    UploadImagePolicy.assertAllowedMimeType(mimeType);
+    String expectedPrefix =
+        "%s/%d/%d/"
+            .formatted(
+                storageSettings.shoppingItemBasePath(), item.getHouseholdId(), shoppingItemId);
+    UploadImagePolicy.assertKeyWithinPrefix(fileKey, expectedPrefix);
 
     int nextSortOrder =
         attachmentRepository.findByShoppingItemId(shoppingItemId).stream()
@@ -125,12 +133,5 @@ public class ShoppingItemAttachmentService {
     // shopping-item/{householdId}/{shoppingItemId}/{uuid}.ext
     return "%s/%d/%d/%s%s"
         .formatted(storageSettings.shoppingItemBasePath(), householdId, shoppingItemId, uuid, ext);
-  }
-
-  private String extractExtension(String fileName) {
-    if (fileName == null) return "";
-    int dot = fileName.lastIndexOf('.');
-    if (dot == -1) return "";
-    return fileName.substring(dot); // ".jpg" みたいな形
   }
 }

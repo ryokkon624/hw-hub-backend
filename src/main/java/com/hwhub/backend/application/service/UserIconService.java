@@ -40,7 +40,8 @@ public class UserIconService {
             .findById(userId)
             .orElseThrow(() -> new IllegalStateException("user not found"));
 
-    String ext = extractExtension(fileName);
+    UploadImagePolicy.assertAllowedMimeType(mimeType);
+    String ext = UploadImagePolicy.sanitizeExtension(fileName);
     String key = buildFileKey(user.getUserId(), ext);
 
     URL url =
@@ -67,6 +68,9 @@ public class UserIconService {
         userRepository
             .findById(userId)
             .orElseThrow(() -> new IllegalStateException("user not found"));
+
+    String expectedPrefix = "%s/%d/".formatted(storageSettings.userIconBasePath(), userId);
+    UploadImagePolicy.assertKeyWithinPrefix(fileKey, expectedPrefix);
 
     String oldKey = user.getProfileImageKey();
     // 古いアイコンがあれば S3 から削除（失敗しても本処理は続行
@@ -129,18 +133,5 @@ public class UserIconService {
   private String buildFileKey(Long userId, String ext) {
     // user-icon/{userId}/icon.jpg のイメージ
     return "%s/%d/icon%s".formatted(storageSettings.userIconBasePath(), userId, ext);
-  }
-
-  /**
-   * 指定されたファイル名の拡張子を返す。
-   *
-   * @param fileName ファイル名
-   * @return 拡張子。fileNameに拡張子がない場合は空文字を返却する。
-   */
-  private String extractExtension(String fileName) {
-    if (fileName == null) return "";
-    int dot = fileName.lastIndexOf('.');
-    if (dot == -1) return "";
-    return fileName.substring(dot); // ".jpg" など
   }
 }
