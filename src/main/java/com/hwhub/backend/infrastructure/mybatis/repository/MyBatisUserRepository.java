@@ -190,7 +190,7 @@ public class MyBatisUserRepository implements UserRepository {
 
   @Override
   public boolean isNotificationEnabled(Long userId) {
-    return this.findById(userId).map(UserModel::isNotificationEnabled).orElse(false);
+    return this.findById(userId).map(u -> u.isNotificationEnabled()).orElse(false);
   }
 
   @Override

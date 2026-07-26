@@ -72,10 +72,7 @@ public class UserService {
 
     // OWNERの世帯IDを一括抽出
     List<Long> ownerHouseholdIds =
-        households.stream()
-            .filter(h -> h.isOwner(userId))
-            .map(HouseholdModel::getHouseholdId)
-            .toList();
+        households.stream().filter(h -> h.isOwner(userId)).map(h -> h.getHouseholdId()).toList();
 
     if (!ownerHouseholdIds.isEmpty()) {
       // OWNERの世帯のメンバー数を一括取得（N+1 解消）

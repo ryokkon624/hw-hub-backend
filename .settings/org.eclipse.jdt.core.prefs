@@ -1,0 +1,17 @@
+# Null type safety 警告（Eclipse JDT / VS Code Java の null 解析, code: 67109822）を
+# 再現するための設定。ユーザーから提供された正確な設定内容がまだ届いていないため、
+# Spring Boot 4系の JSpecify 採用（@NonNull/@Nullable）を honor する標準的な
+# JDT null 解析設定として妥当な推測で作成した（refactor #205）。
+eclipse.preferences.version=1
+org.eclipse.jdt.core.compiler.annotation.nullanalysis=enabled
+org.eclipse.jdt.core.compiler.annotation.nonnull=org.eclipse.jdt.annotation.NonNull
+org.eclipse.jdt.core.compiler.annotation.nonnullbydefault=org.eclipse.jdt.annotation.NonNullByDefault
+org.eclipse.jdt.core.compiler.annotation.nullable=org.eclipse.jdt.annotation.Nullable
+org.eclipse.jdt.core.compiler.problem.nullAnnotationInferenceConflict=warning
+org.eclipse.jdt.core.compiler.problem.nullReference=warning
+org.eclipse.jdt.core.compiler.problem.nullSpecViolation=warning
+org.eclipse.jdt.core.compiler.problem.nullUncheckedConversion=warning
+org.eclipse.jdt.core.compiler.problem.potentialNullReference=ignore
+org.eclipse.jdt.core.compiler.problem.redundantNullAnnotation=ignore
+org.eclipse.jdt.core.compiler.problem.nonnullParameterAnnotationDropped=warning
+org.eclipse.jdt.core.compiler.problem.nonNullTypeVariableFromLegacyInvocation=warning

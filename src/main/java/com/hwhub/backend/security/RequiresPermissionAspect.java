@@ -37,7 +37,7 @@ public class RequiresPermissionAspect {
       throw new AccessDeniedException("No role assigned");
     }
 
-    List<UserRole> roles = userRoles.stream().map(UserRoleModel::getRole).toList();
+    List<UserRole> roles = userRoles.stream().map(m -> m.getRole()).toList();
     List<String> permissions = rolePermissionRepository.findPermissionsByRoles(roles);
 
     boolean hasPermission =
