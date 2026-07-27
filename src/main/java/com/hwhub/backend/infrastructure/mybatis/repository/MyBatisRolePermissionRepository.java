@@ -21,7 +21,7 @@ public class MyBatisRolePermissionRepository implements RolePermissionRepository
   @Override
   public List<String> findPermissionsByRoles(List<UserRole> roles) {
     if (roles.isEmpty()) return List.of();
-    List<String> codes = roles.stream().map(UserRole::getCode).toList();
+    List<String> codes = roles.stream().map(r -> r.getCode()).toList();
     return customMapper.findPermissionsByRoles(codes);
   }
 }

@@ -71,8 +71,8 @@ public class ShoppingItemAttachmentService {
 
     int nextSortOrder =
         attachmentRepository.findByShoppingItemId(shoppingItemId).stream()
-                .map(ShoppingItemAttachment::getSortOrder)
-                .max(Integer::compareTo)
+                .map(a -> a.getSortOrder())
+                .max((a, b) -> a.compareTo(b))
                 .orElse(0)
             + 1;
 

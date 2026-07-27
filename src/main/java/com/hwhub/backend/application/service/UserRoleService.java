@@ -31,11 +31,11 @@ public class UserRoleService {
   @Transactional(readOnly = true)
   public UserRoleResult getMyRolesAndPermissions(Long userId) {
     List<UserRoleModel> userRoles = userRoleRepository.findByUserId(userId);
-    List<UserRole> roles = userRoles.stream().map(UserRoleModel::getRole).toList();
+    List<UserRole> roles = userRoles.stream().map(m -> m.getRole()).toList();
     List<String> permissions =
         roles.isEmpty() ? List.of() : rolePermissionRepository.findPermissionsByRoles(roles);
 
-    return new UserRoleResult(roles.stream().map(UserRole::getCode).toList(), permissions);
+    return new UserRoleResult(roles.stream().map(r -> r.getCode()).toList(), permissions);
   }
 
   /**
